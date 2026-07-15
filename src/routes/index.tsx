@@ -1154,26 +1154,27 @@ function ThreadsIcon({ className }: { className?: string }) {
 
 function SocialLinks() {
   const links = [
-    { name: "LinkedIn", href: "#", Icon: Linkedin },
-    { name: "WhatsApp", href: "#", Icon: WhatsAppIcon },
-    { name: "Instagram", href: "#", Icon: Instagram },
-    { name: "TikTok", href: "#", Icon: TikTokIcon },
-    { name: "YouTube", href: "#", Icon: Youtube },
-    { name: "Threads", href: "#", Icon: ThreadsIcon },
+    { name: "LinkedIn", href: "#", Icon: Linkedin, hoverBg: "hover:bg-[#0A66C2]" },
+    { name: "WhatsApp", href: "#", Icon: WhatsAppIcon, hoverBg: "hover:bg-[#25D366]" },
+    { name: "Instagram", href: "#", Icon: Instagram, hoverBg: "hover:bg-gradient-to-tr hover:from-[#F58529] hover:via-[#DD2A7B] hover:to-[#8134AF]" },
+    { name: "TikTok", href: "#", Icon: TikTokIcon, hoverBg: "hover:bg-[#000000]" },
+    { name: "YouTube", href: "#", Icon: Youtube, hoverBg: "hover:bg-[#FF0000]" },
+    { name: "Threads", href: "#", Icon: ThreadsIcon, hoverBg: "hover:bg-[#000000]" },
   ];
 
   return (
     <div className="flex flex-col gap-3">
       <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Follow us</span>
-      <div className="flex flex-wrap items-center gap-3">
-        {links.map(({ name, href, Icon }) => (
+      <div className="flex flex-wrap items-center gap-2.5">
+        {links.map(({ name, href, Icon, hoverBg }) => (
           <a
             key={name}
             href={href}
             aria-label={name}
-            className="grid h-10 w-10 place-items-center rounded-full bg-slate-100 text-slate-600 transition-all hover:scale-110 hover:bg-slate-200 hover:text-[#4285F4]"
+            title={name}
+            className={`group grid h-10 w-10 place-items-center rounded-xl bg-white border border-slate-200 text-slate-600 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:text-white hover:border-transparent hover:shadow-md ${hoverBg}`}
           >
-            <Icon className="h-5 w-5" />
+            <Icon className="h-[18px] w-[18px] transition-transform group-hover:scale-110" />
           </a>
         ))}
       </div>
