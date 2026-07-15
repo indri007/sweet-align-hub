@@ -297,23 +297,24 @@ function Hero() {
                   className="w-full h-auto object-cover"
                   loading="eager"
                 />
-              </div>
-
-              {/* Floating live badge + Google Sign In */}
-              <div className="absolute top-3 right-3 sm:top-6 sm:right-6 flex flex-col items-end gap-2 sm:gap-3">
-                <div className="flex items-center gap-2 rounded-full bg-white/95 backdrop-blur px-3 py-1.5 sm:px-4 sm:py-2 shadow-lg border border-white/50">
+                {/* Floating live badge — kept small so it doesn't obscure the photo */}
+                <div className="absolute top-3 left-3 sm:top-4 sm:left-4 flex items-center gap-2 rounded-full bg-white/95 backdrop-blur px-3 py-1.5 shadow-lg border border-white/60">
                   <span className="flex h-2.5 w-2.5 rounded-full bg-[#34A853] animate-pulse" />
                   <span className="text-[11px] sm:text-xs font-bold text-slate-800 tracking-wide uppercase">
                     ATS Scan Live
                   </span>
                 </div>
+              </div>
+
+              {/* Google Sign In sits below the photo, aligned with the panel */}
+              <div className="relative mt-5 sm:mt-6">
                 <button
                   type="button"
                   onClick={() => {
                     const el = document.getElementById("generate");
                     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
                   }}
-                  className="group inline-flex items-center gap-2.5 sm:gap-3 rounded-xl bg-white px-4 py-2.5 sm:px-5 sm:py-3.5 text-sm sm:text-base font-bold text-slate-800 shadow-xl border border-slate-200 hover:-translate-y-0.5 hover:shadow-2xl transition-all"
+                  className="group inline-flex w-full items-center justify-center gap-3 rounded-xl bg-white px-5 py-3.5 text-sm sm:text-base font-bold text-slate-800 shadow-xl border border-slate-200 hover:-translate-y-0.5 hover:shadow-2xl transition-all"
                   aria-label="Sign in with Google"
                 >
                   <svg className="h-5 w-5 sm:h-6 sm:w-6" viewBox="0 0 48 48" aria-hidden="true">
