@@ -1127,22 +1127,79 @@ function FinalCTA() {
   );
 }
 
+/* ---------- Social icons ---------- */
+function WhatsAppIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.751.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.134 1.588 5.945L0 24l6.335-1.652c1.746.953 3.71 1.457 5.711 1.458h.004c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z" />
+    </svg>
+  );
+}
+
+function TikTokIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.57-1.48-3.85-4.13-3.65-6.89.15-2.05 1.21-3.96 2.84-5.21 1.41-1.08 3.17-1.58 4.91-1.54.02 1.54-.03 3.09-.02 4.63-.04.22-.13.44-.3.6-.47.45-1.25.52-1.82.24-.56-.27-.94-.83-1.02-1.44-.16-1.08.55-2.15 1.56-2.5 1.05-.36 2.27.09 2.86 1.03.31.52.41 1.14.41 1.75 0 1.99-.01 3.98.01 5.97.02 1.22-.39 2.45-1.23 3.34-.85.9-2.05 1.39-3.27 1.39-1.88 0-3.6-1.05-4.5-2.72-1.03-1.93-.88-4.32.39-6.1 1.1-1.53 2.99-2.49 4.95-2.54z" />
+    </svg>
+  );
+}
+
+function ThreadsIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M12.186 24h-.007c-3.581-.024-6.182-2.574-6.182-6.279 0-3.42 2.51-5.735 5.995-5.743 2.51-.005 4.603 1.016 5.565 2.79.533 1.031.696 2.23.696 3.57 0 .305-.011.61-.011.915v.052c-.02 2.577-1.678 4.59-4.348 5.35-.6.174-1.22.267-1.85.346zm.007-10.5c-2.552.006-4.116 1.624-4.116 4.221 0 2.548 1.55 4.279 4.04 4.279 1.963 0 3.39-1.146 3.82-3.01.12-.526.18-1.08.18-1.64 0-.37-.02-.74-.06-1.1-.32-2.93-2.43-4.73-4.86-4.74zM24 12.5c0-1.15-.09-2.27-.27-3.36-.5-3.16-2.07-5.2-4.53-5.96-.63-.19-1.29-.29-1.97-.32-.1 0-.2-.01-.3-.01h-.11c-.66 0-1.32.06-1.96.19-2.5.55-4.22 2.43-4.86 5.35-.14.64-.2 1.31-.2 2.01 0 .35.01.7.04 1.05.19 2.45 1.47 4.45 3.44 5.39.63.3 1.31.49 2.03.56.31.03.62.05.94.05.35 0 .7-.02 1.04-.07 2.64-.39 4.64-2.36 5.21-5.13.12-.57.19-1.16.19-1.76h.04zm-2.5 0c0 .38-.03.76-.1 1.13-.39 2.2-1.79 3.76-3.7 4.04-.25.04-.5.06-.76.06-.23 0-.46-.01-.68-.04-.52-.06-1.01-.2-1.46-.42-1.38-.65-2.24-2.02-2.37-3.69-.03-.36-.04-.72-.04-1.08 0-.55.05-1.08.16-1.59.44-2.07 1.88-3.46 3.84-3.72.24-.03.49-.05.74-.05.22 0 .44.01.65.04.55.07 1.07.23 1.55.49 1.33.72 2.09 2.06 2.09 3.68v.23z" />
+    </svg>
+  );
+}
+
+function SocialLinks() {
+  const links = [
+    { name: "LinkedIn", href: "#", Icon: Linkedin },
+    { name: "WhatsApp", href: "#", Icon: WhatsAppIcon },
+    { name: "Instagram", href: "#", Icon: Instagram },
+    { name: "TikTok", href: "#", Icon: TikTokIcon },
+    { name: "YouTube", href: "#", Icon: Youtube },
+    { name: "Threads", href: "#", Icon: ThreadsIcon },
+  ];
+
+  return (
+    <div className="flex flex-col gap-3">
+      <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Follow us</span>
+      <div className="flex flex-wrap items-center gap-3">
+        {links.map(({ name, href, Icon }) => (
+          <a
+            key={name}
+            href={href}
+            aria-label={name}
+            className="grid h-10 w-10 place-items-center rounded-full bg-slate-100 text-slate-600 transition-all hover:scale-110 hover:bg-slate-200 hover:text-[#4285F4]"
+          >
+            <Icon className="h-5 w-5" />
+          </a>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /* ---------- Footer ---------- */
 function Footer() {
   return (
     <footer className="py-14 border-t border-slate-100 bg-white">
       <div className="mx-auto max-w-7xl px-5 lg:px-6">
-        <div className="flex flex-col gap-8 md:flex-row md:items-center md:justify-between">
-          <div className="max-w-md">
+        <div className="flex flex-col gap-10 md:flex-row md:items-start md:justify-between">
+          <div className="max-w-sm">
             <Logo />
             <p className="mt-4 text-sm leading-relaxed text-slate-500">
               JobMatch AI — Built for Indonesian job seekers yang capek CV-nya di-ghost sama sistem.
             </p>
           </div>
-          <div className="flex flex-wrap gap-x-8 gap-y-3 text-sm font-medium text-slate-600">
-            <a href="#" className="hover:text-[#4285F4] transition-colors">Privacy Policy</a>
-            <a href="#" className="hover:text-[#4285F4] transition-colors">Terms</a>
-            <a href="#" className="hover:text-[#4285F4] transition-colors">Contact</a>
+          <div className="flex flex-col gap-8 sm:flex-row sm:gap-16">
+            <div className="flex flex-wrap gap-x-8 gap-y-3 text-sm font-medium text-slate-600 sm:flex-col sm:gap-3">
+              <a href="#" className="hover:text-[#4285F4] transition-colors">Privacy Policy</a>
+              <a href="#" className="hover:text-[#4285F4] transition-colors">Terms</a>
+              <a href="#" className="hover:text-[#4285F4] transition-colors">Contact</a>
+            </div>
+            <SocialLinks />
           </div>
         </div>
         <div className="mt-10 border-t border-slate-100 pt-6 text-xs text-slate-400">
