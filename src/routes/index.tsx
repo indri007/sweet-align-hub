@@ -30,6 +30,9 @@ import {
   Target,
   XCircle,
   Percent,
+  Linkedin,
+  Instagram,
+  Youtube,
 } from "lucide-react";
 
 export const Route = createFileRoute("/")({
