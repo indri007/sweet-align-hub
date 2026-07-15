@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { sendMatchEmail } from "@/lib/send-match-email.functions";
 import { downloadMatchPdf } from "@/lib/match-pdf";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import heroPhoto from "@/assets/hero-jobmatch.jpeg.asset.json";
+import heroPhoto from "@/assets/hero-jobmatch.png.asset.json";
 
 import {
   FileText,
