@@ -89,7 +89,7 @@ def require_google_login():
         st.divider()
 
         # ─── Hero Section ───
-        _hero1, _hero2 = st.columns([1.15, 0.85], gap="large")
+        _hero1, _hero2 = st.columns([1.1, 0.9], gap="large")
         with _hero1:
             st.markdown(
                 """
@@ -98,22 +98,34 @@ def require_google_login():
                         <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#4285F4;animation:pulse 2s infinite;"></span>
                         <span style="font-size:0.72rem;font-weight:700;color:#1557b0;text-transform:uppercase;letter-spacing:0.06em;">AI-Powered · Made in Indonesia 🇮🇩</span>
                     </div>
-                    <h1 style="font-size:2.8rem;line-height:1.08;font-weight:800;color:#0f172a;margin:0 0 20px 0;letter-spacing:-0.03em;">
-                        CV Kamu Ditolak Robot<br>Sebelum Dibaca <span style="color:#4285F4;">HRD.</span>
+                    <h1 style="font-size:3.2rem;line-height:1.1;font-weight:800;color:#0f172a;margin:0 0 20px 0;letter-spacing:-0.03em;">
+                        Your CV Ditolak Robot Sebelum Sampai ke <span style="color:#4285F4;">HRD.</span>
                     </h1>
-                    <p style="font-size:1.05rem;line-height:1.65;color:#64748b;margin:0 0 28px 0;max-width:480px;">
-                        JobMatch AI scan CV kamu persis seperti sistem ATS perusahaan — instant scoring, actionable insights, plus AI mock interview. Coba gratis sekarang.
+                    <p style="font-size:1.1rem;line-height:1.65;color:#475569;margin:0 0 28px 0;max-width:520px;">
+                        JobMatch AI scan CV kamu persis kayak sistem ATS yang dipakai perusahaan — instant scoring, actionable insights, plus AI mock interview. Try it, gratis.
                     </p>
-                    <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:8px;">
-                        <span style="display:inline-flex;align-items:center;gap:6px;border-radius:8px;background:rgba(52,168,83,0.08);border:1px solid rgba(52,168,83,0.15);padding:7px 12px;font-size:0.82rem;font-weight:700;color:#1b5e32;">✓ Gratis, tanpa kartu kredit</span>
-                        <span style="display:inline-flex;align-items:center;gap:6px;border-radius:8px;background:rgba(52,168,83,0.08);border:1px solid rgba(52,168,83,0.15);padding:7px 12px;font-size:0.82rem;font-weight:700;color:#1b5e32;">✓ Hasil dalam 2 menit</span>
-                    </div>
                 </div>
                 """,
                 unsafe_allow_html=True,
             )
-            if st.button("🚀  Cek Skor ATS CV Saya", type="primary", key="hero_cta_btn"):
-                st.login("google")
+            # Render buttons side-by-side using columns
+            _btn_col1, _btn_col2 = st.columns([1, 1.2])
+            with _btn_col1:
+                if st.button("Get My CV Score  →", type="primary", use_container_width=True, key="hero_cta_btn"):
+                    st.login("google")
+            with _btn_col2:
+                if st.button("Sign in with Google", type="secondary", use_container_width=True, key="hero_google_btn", icon=":material/login:"):
+                    st.login("google")
+
+            st.markdown(
+                """
+                <div style="display:flex;flex-wrap:wrap;gap:20px;margin-top:24px;font-family:'Inter',sans-serif;">
+                    <span style="display:inline-flex;align-items:center;gap:6px;font-size:0.88rem;font-weight:600;color:#1b5e32;">✓ No credit card</span>
+                    <span style="display:inline-flex;align-items:center;gap:6px;font-size:0.88rem;font-weight:600;color:#1b5e32;">✓ Results in 2 minutes</span>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
 
         with _hero2:
             st.markdown(
@@ -127,7 +139,7 @@ def require_google_login():
                                     <div style="width:10px;height:10px;border-radius:50%;background:#FBBC05;"></div>
                                     <div style="width:10px;height:10px;border-radius:50%;background:#34A853;"></div>
                                 </div>
-                                <span style="font-size:0.72rem;color:#94a3b8;font-weight:500;">jobmatch.ai/ats-report</span>
+                                <span style="font-size:0.72rem;color:#94a3b8;font-weight:500;">jobmatch.ai/dashboard</span>
                             </div>
                             <div style="padding:22px;">
                                 <div style="font-size:0.68rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">ATS SCORE</div>
@@ -153,13 +165,12 @@ def require_google_login():
                                 </div>
                             </div>
                         </div>
-                        <div style="margin-top:16px;">
+                    </div>
+                </div>
                 """,
                 unsafe_allow_html=True,
             )
-            if st.button("Masuk dengan Google", type="secondary", use_container_width=True, key="hero_google_btn", icon=":material/login:"):
-                st.login("google")
-            st.markdown("</div></div></div>", unsafe_allow_html=True)
+
 
         # ─── Problem Statement ───
         st.markdown(
