@@ -183,14 +183,14 @@ def _inject_floating_css(is_open: bool = False, img_b64: str = ""):
     avatar_css = ""
     if not is_open and img_b64:
         avatar_css = f"""
-        .cs-toggle-marker + div button {{
+        div[data-testid="stVerticalBlock"]:has(div.cs-toggle-marker):not(:has(div[data-testid="stVerticalBlock"]:has(div.cs-toggle-marker))) button {{
             background-image: url('data:image/png;base64,{img_b64}') !important;
             background-size: cover !important;
             background-position: center !important;
             border: 2px solid #ffffff !important;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
         }}
-        .cs-toggle-marker + div button span[data-testid="stIconMaterial"] {{
+        div[data-testid="stVerticalBlock"]:has(div.cs-toggle-marker):not(:has(div[data-testid="stVerticalBlock"]:has(div.cs-toggle-marker))) button span[data-testid="stIconMaterial"] {{
             display: none !important;
         }}
         """
@@ -222,20 +222,22 @@ def _inject_floating_css(is_open: bool = False, img_b64: str = ""):
             width: auto !important;
         }}
 
-        .cs-toggle-marker + div button {{
+        div[data-testid="stVerticalBlock"]:has(div.cs-toggle-marker):not(:has(div[data-testid="stVerticalBlock"]:has(div.cs-toggle-marker))) button {
             border-radius: 50% !important;
-            width: 56px;
-            height: 56px;
+            width: 56px !important;
+            height: 56px !important;
             font-size: 22px;
             box-shadow: 0 4px 14px rgba(0,0,0,0.25);
             display: flex;
             align-items: center;
             justify-content: center;
-        }}
+            padding: 0 !important;
+            overflow: hidden !important;
+        }
 
-        .cs-toggle-marker + div button span[data-testid="stIconMaterial"] {{
+        div[data-testid="stVerticalBlock"]:has(div.cs-toggle-marker):not(:has(div[data-testid="stVerticalBlock"]:has(div.cs-toggle-marker))) button span[data-testid="stIconMaterial"] {
             font-size: 26px !important;
-        }}
+        }
 
         .cs-header {{
             font-weight: 600;
