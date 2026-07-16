@@ -13,35 +13,53 @@ import config
 from llm_client import chat_completion
 
 
-REVIEW_PROMPT = """Kamu adalah CV Review Expert dengan pengalaman 10+ tahun di bidang HR dan recruitment. 
-Tugasmu adalah menganalisis CV user dan memberikan feedback komprehensif.
+REVIEW_PROMPT = """You are a professional ATS (Applicant Tracking System) consultant with over 40 years of experience in recruitment and HR tech. Your task is to analyze the following CV and provide an objective assessment of its ATS-compatibility, based on these criteria:
 
-Berikan output dalam format berikut (gunakan heading yang sama persis):
+1. FORMAT & STRUCTURE (weight 25%)
+   - Does it use a single-column layout (not multi-column)?
+   - Is it free of text boxes, complex tables, or graphic elements that disrupt parsing?
+   - Do section headings use standard terminology (Work Experience, Education, Skills)?
+   - Is the font machine-readable (Arial, Calibri, Helvetica, Georgia)?
+
+2. KEYWORDS & RELEVANCE (weight 30%)
+   - Does the CV contain keywords relevant to the target position?
+   - Are technical terms/skills written using industry-standard terminology (not uncommon abbreviations)?
+
+3. QUANTIFIED RESULTS (weight 20%)
+   - Is work experience accompanied by measurable metrics (percentages, figures, counts)?
+   - Does it use active verbs (led, developed, increased) rather than passive voice?
+
+4. COMPLETENESS & CONSISTENCY (weight 15%)
+   - Is date formatting consistent throughout the document?
+   - Is contact information (email, phone, city, LinkedIn) complete and easy to locate?
+
+5. PROFESSIONAL VISUAL IMPRESSION (weight 10%)
+   - Are there visual elements (horizontal divider lines, spacing) that make the CV easy for human eyes to scan, without compromising ATS parsing?
+
+OUTPUT INSTRUCTIONS — provide results EXACTLY in this format (use these exact headings):
 
 ## 📊 ATS Score: [score]/100
 
-## ✅ Kelebihan CV
-- [point 1]
-- [point 2]
-...
+## 📋 Skor Per Kategori
+- Format & Struktur: [x]/25
+- Kata Kunci & Relevansi: [x]/30
+- Kuantifikasi Hasil: [x]/20
+- Kelengkapan & Konsistensi: [x]/15
+- Kesan Profesional Visual: [x]/10
 
-## ⚠️ Area yang Perlu Diperbaiki
-- [point 1]
-- [point 2]
-...
+## ✅ Kekuatan Utama (3-5 poin)
+- [specific finding, NOT generic praise]
 
-## 💡 Saran Perbaikan
-- [saran spesifik 1]
-- [saran spesifik 2]
-...
+## ⚠️ Area yang Perlu Diperbaiki (3-5 poin)
+- [concrete and actionable suggestion, NOT vague advice]
 
 ## 🔑 Keywords yang Terdeteksi
-[list keywords/skills yang ditemukan di CV]
+[list detected keywords/skills found in the CV]
 
-## 📝 Ringkasan Profil
-[ringkasan singkat profil kandidat berdasarkan CV]
+## 📝 Ringkasan Kesiapan ATS
+[One paragraph maximum 3 sentences summarizing how ready this CV is to pass ATS filters. No generic praise.]
 
-Jawab dalam Bahasa Indonesia. Berikan feedback yang spesifik dan actionable."""
+Respond in Bahasa Indonesia. Focus on SPECIFIC, actionable findings only."""
 
 
 ATS_CV_PROMPT = """Kamu adalah CV Writer Expert. Berdasarkan CV asli user berikut, buat versi CV yang ATS-friendly.
