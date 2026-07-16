@@ -291,11 +291,35 @@ def render_cs_chatbot():
     if st.session_state.cs_open:
         with st.container():
             st.markdown('<div class="cs-widget-marker"></div>', unsafe_allow_html=True)
-            st.markdown(
-                '<div class="cs-header">💬 Customer Service — JobMatch AI</div>',
-                unsafe_allow_html=True,
-            )
-            st.caption("Tanya seputar CV Review, Job Recommendations, atau fitur lainnya.")
+            import base64
+            from pathlib import Path
+            img_path = Path(__file__).parent / "assets" / "cs_agent.png"
+            img_b64 = ""
+            if img_path.exists():
+                with open(img_path, "rb") as f:
+                    img_b64 = base64.b64encode(f.read()).decode()
+            
+            if img_b64:
+                header_html = f"""
+                <div class="cs-header" style="display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #f1f5f9;">
+                    <div style="position:relative;flex-shrink:0;">
+                        <img src="data:image/png;base64,{{img_b64}}" style="width:50px;height:50px;border-radius:50%;object-fit:cover;border:2px solid #e2e8f0;box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="position:absolute;bottom:2px;right:0;width:12px;height:12px;background:#10b981;border:2px solid #ffffff;border-radius:50%;"></div>
+                    </div>
+                    <div>
+                        <div style="font-weight:700;color:#0f172a;font-size:1.05rem;line-height:1.2;">Nadia — CS Support</div>
+                        <div style="font-size:0.75rem;color:#10b981;font-weight:600;display:flex;align-items:center;gap:4px;">
+                            <span>●</span> Online sekarang
+                        </div>
+                    </div>
+                </div>
+                """
+                st.markdown(header_html, unsafe_allow_html=True)
+            else:
+                st.markdown(
+                    '<div class="cs-header">💬 Customer Service — JobMatch AI</div>',
+                    unsafe_allow_html=True,
+                )
 
             with st.container(height=280):
                 for msg in st.session_state.cs_messages:
