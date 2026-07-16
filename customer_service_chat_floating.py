@@ -167,7 +167,7 @@ AI berperan sebagai HR, tanya 5-7 pertanyaan (campuran behavioral, technical, si
 """
 
 
-def _inject_floating_css(is_open: bool = False):
+def _inject_floating_css(is_open: bool = False, img_b64: str = ""):
     shift_css = ""
     if is_open:
         shift_css = """
@@ -178,6 +178,21 @@ def _inject_floating_css(is_open: bool = False):
                 transition: margin-right 0.3s ease, max-width 0.3s ease;
             }
         }
+        """
+
+    avatar_css = ""
+    if not is_open and img_b64:
+        avatar_css = f"""
+        .cs-toggle-marker + div button {{
+            background-image: url('data:image/png;base64,{img_b64}') !important;
+            background-size: cover !important;
+            background-position: center !important;
+            border: 2px solid #ffffff !important;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
+        }}
+        .cs-toggle-marker + div button span[data-testid="stIconMaterial"] {{
+            display: none !important;
+        }}
         """
 
     st.markdown(
@@ -228,6 +243,7 @@ def _inject_floating_css(is_open: bool = False):
             margin-bottom: 6px;
         }}
         {shift_css}
+        {avatar_css}
         </style>
         """,
         unsafe_allow_html=True,
@@ -276,7 +292,15 @@ def render_cs_chatbot():
     if "cs_messages" not in st.session_state:
         st.session_state.cs_messages = []
 
-    _inject_floating_css(st.session_state.cs_open)
+    import base64
+    from pathlib import Path
+    img_path = Path(__file__).parent / "assets" / "cs_agent.png"
+    img_b64 = ""
+    if img_path.exists():
+        with open(img_path, "rb") as f:
+            img_b64 = base64.b64encode(f.read()).decode()
+
+    _inject_floating_css(st.session_state.cs_open, img_b64)
 
     with st.container():
         st.markdown('<div class="cs-toggle-marker"></div>', unsafe_allow_html=True)
@@ -291,13 +315,6 @@ def render_cs_chatbot():
     if st.session_state.cs_open:
         with st.container():
             st.markdown('<div class="cs-widget-marker"></div>', unsafe_allow_html=True)
-            import base64
-            from pathlib import Path
-            img_path = Path(__file__).parent / "assets" / "cs_agent.png"
-            img_b64 = ""
-            if img_path.exists():
-                with open(img_path, "rb") as f:
-                    img_b64 = base64.b64encode(f.read()).decode()
             
             if img_b64:
                 header_html = f"""
