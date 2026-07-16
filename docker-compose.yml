@@ -1,0 +1,16 @@
+services:
+  app:
+    build: .
+    container_name: jobmatch-ai
+    ports:
+      - "8501:8501"
+    env_file:
+      - .env
+    volumes:
+      # Persist local SQLite DB + ChromaDB across container restarts.
+      # Not needed if you're using Aiven MySQL + Qdrant Cloud (VECTOR_STORE=qdrant),
+      # but harmless to keep mounted either way.
+      - ./data:/app/data
+      # Aiven MySQL SSL certificate (only needed if DATABASE_URL uses Aiven).
+      - ./ca.pem:/app/ca.pem:ro
+    restart: unless-stopped

@@ -1,0 +1,96 @@
+{
+  "name": "2 - CV Reviewer",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cv-review",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": false
+        }
+      },
+      "id": "webhook-cv-review",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 300],
+      "webhookId": "cv-review"
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Kamu adalah CV Review Expert dengan pengalaman 10+ tahun di bidang HR dan recruitment. \nTugasmu adalah menganalisis CV user dan memberikan feedback komprehensif.\n\nBerikan output dalam format berikut (gunakan heading yang sama persis):\n\n## 📊 ATS Score: [score]/100\n\n## ✅ Kelebihan CV\n- [point 1]\n- [point 2]\n...\n\n## ⚠️ Area yang Perlu Diperbaiki\n- [point 1]\n- [point 2]\n...\n\n## 💡 Saran Perbaikan\n- [saran spesifik 1]\n- [saran spesifik 2]\n...\n\n## 🔑 Keywords yang Terdeteksi\n[list keywords/skills yang ditemukan di CV]\n\n## 📝 Ringkasan Profil\n[ringkasan singkat profil kandidat berdasarkan CV]\n\nJawab dalam Bahasa Indonesia. Berikan feedback yang spesifik dan actionable."
+            },
+            {
+              "role": "user",
+              "content": "=Berikut adalah CV yang perlu di-review:\n\n{{ $json.body.cv_text }}"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.5,
+          "maxTokens": 2500
+        }
+      },
+      "id": "openai-cv-review",
+      "name": "OpenAI Chat",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [500, 300],
+      "credentials": {
+        "openAiApi": {
+          "id": "OPENAI_CREDENTIAL_ID",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"output\": $json.message.content } }}"
+      },
+      "id": "respond-cv-review",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [750, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "OpenAI Chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    {
+      "name": "JobMatch AI"
+    }
+  ]
+}
