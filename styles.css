@@ -638,10 +638,10 @@ header {
 }
 
 .jm-feature-desc {
-    font-size: 0.9rem;
-    color: #64748b;
+    font-size: 0.95rem;
+    color: #475569;
     margin: 0 !important;
-    line-height: 1.5;
+    line-height: 1.6;
 }
 
 .jm-photo-card {
