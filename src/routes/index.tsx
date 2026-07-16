@@ -321,12 +321,8 @@ export function Hero() {
 
               {/* Google Sign In sits below the photo, aligned with the panel */}
               <div className="relative mt-5 sm:mt-6">
-                <button
-                  type="button"
-                  onClick={() => {
-                    const el = document.getElementById("generate");
-                    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-                  }}
+                <Link
+                  to="/generate"
                   className="group inline-flex w-full items-center justify-center gap-3 rounded-xl bg-white px-5 py-3.5 text-sm sm:text-base font-bold text-slate-800 shadow-xl border border-slate-200 hover:-translate-y-0.5 hover:shadow-2xl transition-all"
                   aria-label="Sign in with Google"
                 >
@@ -337,7 +333,7 @@ export function Hero() {
                     <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
                   </svg>
                   <span>Sign in with Google</span>
-                </button>
+                </Link>
               </div>
             </div>
 
