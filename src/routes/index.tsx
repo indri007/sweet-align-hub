@@ -1117,10 +1117,13 @@ export function FinalCTA() {
         </Reveal>
         <Reveal delay={140}>
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 relative">
-            <button className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#4285F4] px-8 py-4 text-base font-bold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:shadow-xl">
+            <Link
+              to="/generate"
+              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#4285F4] px-8 py-4 text-base font-bold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:shadow-xl"
+            >
               Start Free Now
               <ArrowRight className="h-5 w-5" />
-            </button>
+            </Link>
           </div>
         </Reveal>
         <Reveal delay={200}>
