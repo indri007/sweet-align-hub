@@ -70,12 +70,12 @@ def render_step_a():
                         st.session_state.cv_bytes = file_bytes
 
                         record_event("cv_upload_success")
-                        logger.info("CV processed", extra={"filename": uploaded_file.name})
+                        logger.info("CV processed", extra={"uploaded_filename": uploaded_file.name})
                         st.success("✅ CV berhasil di-upload dan dibaca!")
 
                     except Exception as e:
                         record_event("cv_upload_failure", reason=type(e).__name__)
-                        logger.error("CV processing failed", extra={"error": str(e), "filename": uploaded_file.name})
+                        logger.error("CV processing failed", extra={"error": str(e), "uploaded_filename": uploaded_file.name})
                         sentry_sdk.capture_exception(e)
                         st.error(f"❌ Gagal membaca CV: {str(e)}")
 
