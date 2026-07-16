@@ -52,20 +52,27 @@ def require_google_login():
         )
         st.stop()
 
-    if not st.user.is_logged_in:
-        # Hide sidebar on landing page
+        # Load styles.css on the landing page as well
+        styles_content = ""
+        from pathlib import Path
+        css_path = Path(__file__).parent / "styles.css"
+        if css_path.exists():
+            styles_content = css_path.read_text(encoding="utf-8")
+
         st.markdown(
-            """
+            f"""
             <style>
-            [data-testid="stSidebar"] { display: none !important; }
-            #MainMenu { visibility: hidden; }
-            footer { visibility: hidden; }
-            header { visibility: hidden; }
-            .stApp { background: #ffffff !important; }
+            [data-testid="stSidebar"] {{ display: none !important; }}
+            #MainMenu {{ visibility: hidden; }}
+            footer {{ visibility: hidden; }}
+            header {{ visibility: hidden; }}
+            .stApp {{ background: #ffffff !important; }}
+            {styles_content}
             </style>
             """,
             unsafe_allow_html=True,
         )
+
 
         # ─── Top Navigation Bar ───
         _nav1, _nav2 = st.columns([5, 1])
