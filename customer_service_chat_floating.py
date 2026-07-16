@@ -167,35 +167,47 @@ AI berperan sebagai HR, tanya 5-7 pertanyaan (campuran behavioral, technical, si
 """
 
 
-def _inject_floating_css():
-    st.markdown(
+def _inject_floating_css(is_open: bool = False):
+    shift_css = ""
+    if is_open:
+        shift_css = """
+        @media (min-width: 1024px) {
+            div[data-testid="stAppViewBlockContainer"] {
+                margin-right: 360px !important;
+                max-width: calc(100% - 360px) !important;
+                transition: margin-right 0.3s ease, max-width 0.3s ease;
+            }
+        }
         """
+
+    st.markdown(
+        f"""
         <style>
         div[data-testid="stVerticalBlock"]:has(div.cs-widget-marker),
-        div[data-testid="stVerticalBlockBorderWrapper"]:has(div.cs-widget-marker) {
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(div.cs-widget-marker) {{
             position: fixed !important;
-            bottom: 90px;
+            bottom: 85px;
             right: 20px;
-            width: 340px;
-            max-height: 480px;
+            width: 320px;
+            max-height: 420px;
             z-index: 9999;
             background: #ffffff;
             border-radius: 16px;
             box-shadow: 0 8px 30px rgba(0,0,0,0.18);
             padding: 14px 14px 8px 14px;
             overflow-y: auto;
-        }
+        }}
 
         div[data-testid="stVerticalBlock"]:has(div.cs-toggle-marker),
-        div[data-testid="stVerticalBlockBorderWrapper"]:has(div.cs-toggle-marker) {
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(div.cs-toggle-marker) {{
             position: fixed !important;
             bottom: 20px;
             right: 20px;
             z-index: 9998;
             width: auto !important;
-        }
+        }}
 
-        .cs-toggle-marker + div button {
+        .cs-toggle-marker + div button {{
             border-radius: 50% !important;
             width: 56px;
             height: 56px;
@@ -204,17 +216,18 @@ def _inject_floating_css():
             display: flex;
             align-items: center;
             justify-content: center;
-        }
+        }}
 
-        .cs-toggle-marker + div button span[data-testid="stIconMaterial"] {
+        .cs-toggle-marker + div button span[data-testid="stIconMaterial"] {{
             font-size: 26px !important;
-        }
+        }}
 
-        .cs-header {
+        .cs-header {{
             font-weight: 600;
             font-size: 15px;
             margin-bottom: 6px;
-        }
+        }}
+        {shift_css}
         </style>
         """,
         unsafe_allow_html=True,
@@ -258,12 +271,12 @@ def _ask_cs_bot(chat_history: list, user_message: str) -> str:
 
 
 def render_cs_chatbot():
-    _inject_floating_css()
-
     if "cs_open" not in st.session_state:
         st.session_state.cs_open = False
     if "cs_messages" not in st.session_state:
         st.session_state.cs_messages = []
+
+    _inject_floating_css(st.session_state.cs_open)
 
     with st.container():
         st.markdown('<div class="cs-toggle-marker"></div>', unsafe_allow_html=True)

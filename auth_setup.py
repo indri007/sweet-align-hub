@@ -32,9 +32,11 @@ def _inject_auth_secrets():
         "auth": {
             "redirect_uri": redirect_uri,
             "cookie_secret": cookie_secret,
-            "client_id": client_id,
-            "client_secret": client_secret,
-            "server_metadata_url": _GOOGLE_METADATA_URL,
+            "google": {
+                "client_id": client_id,
+                "client_secret": client_secret,
+                "server_metadata_url": _GOOGLE_METADATA_URL,
+            }
         }
     }
     return True, []
@@ -51,114 +53,293 @@ def require_google_login():
         st.stop()
 
     if not st.user.is_logged_in:
-        st.markdown('<style>section.stMain, div.stApp { }</style><div class="jm-hide-sidebar"></div>', unsafe_allow_html=True)
+        # Hide sidebar on landing page
         st.markdown(
             """
             <style>
             [data-testid="stSidebar"] { display: none !important; }
+            #MainMenu { visibility: hidden; }
+            footer { visibility: hidden; }
+            header { visibility: hidden; }
+            .stApp { background: #ffffff !important; }
             </style>
             """,
             unsafe_allow_html=True,
         )
-        with st.container():
-            st.markdown('<div class="jm-login-btn-marker"></div>', unsafe_allow_html=True)
-            st.markdown('<div class="jm-top-login-bar"></div>', unsafe_allow_html=True)
-            _c1, _c2 = st.columns([3, 1])
-            with _c2:
-                if st.button("Masuk dengan Google", use_container_width=True, type="primary", icon=":material/login:"):
-                    st.login()
 
-        st.markdown(
-            """
-            <div class="jm-landing">
-                <div class="jm-landing-grid">
-                    <div>
-                        <div class="jm-landing-brand">
-                            <div class="jm-landing-brand-icon">💼</div>
-                            <span class="jm-landing-brand-text">JobMatch AI</span>
-                        </div>
-                        <h1>Lowongan impianmu,<br>tinggal selangkah<br>dari CV-mu.</h1>
-                        <p class="jm-landing-sub">
-                            Upload CV kamu dan biarkan AI membantu mencari lowongan
-                            yang cocok, meninjau CV, dan berlatih interview -
-                            semua dalam satu aplikasi.
-                        </p>
-                        <div class="jm-landing-stats">
-                            <div>
-                                <p class="jm-landing-stat-num">500+</p>
-                                <p class="jm-landing-stat-label">Lowongan kerja Indonesia</p>
-                            </div>
-                            <div>
-                                <p class="jm-landing-stat-num">5</p>
-                                <p class="jm-landing-stat-label">Fitur berbasis AI</p>
-                            </div>
-                        </div>
-                        <div class="jm-photo-card">
-                            <img src="data:image/jpeg;base64,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" alt="Tim support JobMatch AI" />
-                        </div>
+        # ─── Top Navigation Bar ───
+        _nav1, _nav2 = st.columns([5, 1])
+        with _nav1:
+            st.markdown(
+                """
+                <div style="display:flex;align-items:center;gap:10px;padding:12px 0 8px 0;font-family:'Inter',sans-serif;">
+                    <div style="display:grid;height:36px;width:36px;place-items:center;border-radius:10px;background:#4285F4;box-shadow:0 2px 8px rgba(66,133,244,0.3);">
+                        <span style="color:white;font-size:1.1rem;font-weight:900;">⚡</span>
                     </div>
-                    <div class="jm-landing-features">
-                        <p class="jm-landing-right-title">Dapat kerja dengan AI dan data lowongan asli.</p>
-                        <div class="jm-feature-card">
-                            <div class="jm-feature-icon">📄</div>
-                            <div>
-                                <p class="jm-feature-title">Review CV & Skor ATS</p>
-                                <p class="jm-feature-desc">Feedback langsung, generate & download CV ATS-friendly dalam Bahasa Indonesia atau Inggris, menyesuaikan bahasa CV asli kamu.</p>
-                            </div>
-                        </div>
-                        <div class="jm-feature-card">
-                            <div class="jm-feature-icon">🎯</div>
-                            <div>
-                                <p class="jm-feature-title">Rekomendasi Lowongan</p>
-                                <p class="jm-feature-desc">Pencocokan semantik dari ratusan lowongan kerja Indonesia.</p>
-                            </div>
-                        </div>
-                        <div class="jm-feature-card">
-                            <div class="jm-feature-icon">🎤</div>
-                            <div>
-                                <p class="jm-feature-title">Mock Interview AI</p>
-                                <p class="jm-feature-desc">Simulasi wawancara kerja, mode text maupun voice.</p>
-                            </div>
-                        </div>
+                    <span style="font-size:1.25rem;font-weight:800;color:#0f172a;letter-spacing:-0.02em;">JobMatch<span style="color:#4285F4;">AI</span></span>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+        with _nav2:
+            st.write("")
+            if st.button("Masuk Google", type="primary", use_container_width=True, key="nav_login_btn"):
+                st.login("google")
+
+        st.divider()
+
+        # ─── Hero Section ───
+        _hero1, _hero2 = st.columns([1.15, 0.85], gap="large")
+        with _hero1:
+            st.markdown(
+                """
+                <div style="padding:20px 0 32px 0;font-family:'Inter',sans-serif;">
+                    <div style="display:inline-flex;align-items:center;gap:8px;border-radius:100px;background:rgba(66,133,244,0.08);border:1px solid rgba(66,133,244,0.15);padding:7px 16px;margin-bottom:22px;">
+                        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#4285F4;animation:pulse 2s infinite;"></span>
+                        <span style="font-size:0.72rem;font-weight:700;color:#1557b0;text-transform:uppercase;letter-spacing:0.06em;">AI-Powered · Made in Indonesia 🇮🇩</span>
+                    </div>
+                    <h1 style="font-size:2.8rem;line-height:1.08;font-weight:800;color:#0f172a;margin:0 0 20px 0;letter-spacing:-0.03em;">
+                        CV Kamu Ditolak Robot<br>Sebelum Dibaca <span style="color:#4285F4;">HRD.</span>
+                    </h1>
+                    <p style="font-size:1.05rem;line-height:1.65;color:#64748b;margin:0 0 28px 0;max-width:480px;">
+                        JobMatch AI scan CV kamu persis seperti sistem ATS perusahaan — instant scoring, actionable insights, plus AI mock interview. Coba gratis sekarang.
+                    </p>
+                    <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:8px;">
+                        <span style="display:inline-flex;align-items:center;gap:6px;border-radius:8px;background:rgba(52,168,83,0.08);border:1px solid rgba(52,168,83,0.15);padding:7px 12px;font-size:0.82rem;font-weight:700;color:#1b5e32;">✓ Gratis, tanpa kartu kredit</span>
+                        <span style="display:inline-flex;align-items:center;gap:6px;border-radius:8px;background:rgba(52,168,83,0.08);border:1px solid rgba(52,168,83,0.15);padding:7px 12px;font-size:0.82rem;font-weight:700;color:#1b5e32;">✓ Hasil dalam 2 menit</span>
                     </div>
                 </div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+                """,
+                unsafe_allow_html=True,
+            )
+            if st.button("🚀  Cek Skor ATS CV Saya", type="primary", key="hero_cta_btn"):
+                st.login("google")
+
+        with _hero2:
+            st.markdown(
+                """
+                <div style="padding:20px 0 0 0;font-family:'Inter',sans-serif;">
+                    <div style="background:linear-gradient(135deg,#1a73e8,#4285F4 50%,#1557b0);border-radius:28px;padding:20px;box-shadow:0 20px 50px rgba(66,133,244,0.2);">
+                        <div style="background:white;border-radius:18px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.05);">
+                            <div style="background:#f8fafc;padding:14px 18px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;">
+                                <div style="display:flex;gap:6px;">
+                                    <div style="width:10px;height:10px;border-radius:50%;background:#EA4335;"></div>
+                                    <div style="width:10px;height:10px;border-radius:50%;background:#FBBC05;"></div>
+                                    <div style="width:10px;height:10px;border-radius:50%;background:#34A853;"></div>
+                                </div>
+                                <span style="font-size:0.72rem;color:#94a3b8;font-weight:500;">jobmatch.ai/ats-report</span>
+                            </div>
+                            <div style="padding:22px;">
+                                <div style="font-size:0.68rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">ATS SCORE</div>
+                                <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:12px;">
+                                    <span style="font-size:3rem;font-weight:800;color:#0f172a;line-height:1;">87</span>
+                                    <span style="font-size:1rem;color:#94a3b8;">/100</span>
+                                </div>
+                                <div style="height:8px;width:100%;background:#f1f5f9;border-radius:100px;overflow:hidden;margin-bottom:16px;">
+                                    <div style="height:100%;width:87%;background:#4285F4;border-radius:100px;"></div>
+                                </div>
+                                <div style="font-size:0.85rem;font-weight:600;color:#0f172a;margin-bottom:16px;">
+                                    <span style="color:#34A853;">✓</span> CV Optimized — Product Manager Role
+                                </div>
+                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;">
+                                    <div style="background:#f8fafc;border-radius:10px;padding:10px;">
+                                        <div style="font-size:0.68rem;font-weight:700;color:#64748b;margin-bottom:4px;">Keywords</div>
+                                        <div style="font-size:0.9rem;font-weight:800;color:#34A853;">92%</div>
+                                    </div>
+                                    <div style="background:#f8fafc;border-radius:10px;padding:10px;">
+                                        <div style="font-size:0.68rem;font-weight:700;color:#64748b;margin-bottom:4px;">Experience</div>
+                                        <div style="font-size:0.9rem;font-weight:800;color:#FBBC05;">78%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="margin-top:16px;">
+                """,
+                unsafe_allow_html=True,
+            )
+            if st.button("Masuk dengan Google", type="secondary", use_container_width=True, key="hero_google_btn", icon=":material/login:"):
+                st.login("google")
+            st.markdown("</div></div></div>", unsafe_allow_html=True)
+
+        # ─── Problem Statement ───
         st.markdown(
             """
-            <div class="jm-landing-trust">
-                <p class="jm-landing-trust-text">
-                    Dibangun khusus untuk pencari kerja Indonesia - didukung Gemini AI
-                    dan database lowongan kerja nyata, bukan data simulasi.
+            <div style="background:#f8fafc;border-top:1px solid #f1f5f9;border-bottom:1px solid #f1f5f9;padding:60px 20px;margin-top:60px;text-align:center;font-family:'Inter',sans-serif;">
+                <span style="display:inline-block;border-radius:100px;background:rgba(234,67,53,0.08);padding:6px 16px;font-size:0.72rem;font-weight:700;color:#EA4335;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:16px;">Real Talk</span>
+                <h2 style="font-size:2.2rem;font-weight:800;color:#0f172a;margin:0 0 18px 0;">75% CV Tidak Pernah Dibaca Manusia</h2>
+                <p style="font-size:1.05rem;color:#64748b;max-width:760px;margin:0 auto;line-height:1.65;">
+                    Mayoritas perusahaan menggunakan Applicant Tracking System (ATS) untuk menyaring CV secara otomatis sebelum HRD melihatnya. Format salah, keyword hilang, atau struktur berantakan bisa bikin CV kamu <strong style="color:#EA4335;">auto-rejected</strong> — padahal kualifikasinya cocok.
                 </p>
             </div>
             """,
             unsafe_allow_html=True,
         )
+
+        # ─── Features ───
+        st.markdown(
+            """
+            <div style="max-width:1100px;margin:80px auto;padding:0 20px;font-family:'Inter',sans-serif;">
+                <div style="text-align:center;margin-bottom:50px;">
+                    <h2 style="font-size:2.2rem;font-weight:800;color:#0f172a;margin:0 0 10px 0;">Semua yang Kamu Butuhkan untuk <span style="color:#4285F4;">Lolos Interview</span></h2>
+                    <p style="color:#64748b;font-size:1rem;margin:0;">4 fitur AI terpadu, dirancang khusus untuk pasar kerja Indonesia.</p>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;">
+                    <div class="jm-feature-card">
+                        <div class="jm-feature-icon" style="background:rgba(66,133,244,0.08);border-radius:14px;width:52px;height:52px;display:grid;place-items:center;font-size:1.5rem;flex-shrink:0;">📄</div>
+                        <div>
+                            <p class="jm-feature-title">ATS Score Check</p>
+                            <p class="jm-feature-desc">Upload CV, dapatkan skor kompatibilitas instan dengan breakdown lengkap dan rekomendasi perbaikan spesifik.</p>
+                        </div>
+                    </div>
+                    <div class="jm-feature-card">
+                        <div class="jm-feature-icon" style="background:rgba(251,188,5,0.08);border-radius:14px;width:52px;height:52px;display:grid;place-items:center;font-size:1.5rem;flex-shrink:0;">✨</div>
+                        <div>
+                            <p class="jm-feature-title">Smart CV Builder</p>
+                            <p class="jm-feature-desc">Scan CV lama kamu — dari foto atau PDF — lalu AI rapikan otomatis jadi format ATS-friendly dalam Bahasa ID/EN.</p>
+                        </div>
+                    </div>
+                    <div class="jm-feature-card">
+                        <div class="jm-feature-icon" style="background:rgba(52,168,83,0.08);border-radius:14px;width:52px;height:52px;display:grid;place-items:center;font-size:1.5rem;flex-shrink:0;">🎤</div>
+                        <div>
+                            <p class="jm-feature-title">AI Mock Interview</p>
+                            <p class="jm-feature-desc">Latihan real-time dengan AI interviewer — dapat feedback soal tone, delivery, dan konten jawaban kamu.</p>
+                        </div>
+                    </div>
+                    <div class="jm-feature-card">
+                        <div class="jm-feature-icon" style="background:rgba(234,67,53,0.08);border-radius:14px;width:52px;height:52px;display:grid;place-items:center;font-size:1.5rem;flex-shrink:0;">📈</div>
+                        <div>
+                            <p class="jm-feature-title">Skill Gap Analysis</p>
+                            <p class="jm-feature-desc">Tahu persis skill apa yang kurang untuk role incaran, lengkap dengan roadmap belajar yang actionable.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        # ─── How It Works ───
+        st.markdown(
+            """
+            <div style="background:#f8fafc;border-top:1px solid #f1f5f9;border-bottom:1px solid #f1f5f9;padding:80px 20px;font-family:'Inter',sans-serif;">
+                <div style="max-width:1100px;margin:0 auto;">
+                    <div style="text-align:center;margin-bottom:50px;">
+                        <span style="display:inline-block;border-radius:100px;background:rgba(52,168,83,0.08);padding:6px 16px;font-size:0.72rem;font-weight:700;color:#34A853;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:14px;">How It Works</span>
+                        <h2 style="font-size:2.2rem;font-weight:800;color:#0f172a;margin:0;">3 Langkah, <span style="color:#4285F4;">Tanpa Ribet</span></h2>
+                    </div>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;text-align:center;">
+                        <div style="padding:28px;background:white;border-radius:20px;border:1px solid #e2e8f0;box-shadow:0 4px 15px rgba(0,0,0,0.02);">
+                            <div style="width:56px;height:56px;background:rgba(66,133,244,0.08);border-radius:16px;display:grid;place-items:center;margin:0 auto 18px auto;font-size:1.4rem;position:relative;">📤<span style="position:absolute;-top:8px;-right:8px;width:22px;height:22px;background:white;border-radius:50%;display:grid;place-items:center;font-size:0.7rem;font-weight:800;color:#4285F4;box-shadow:0 2px 6px rgba(0,0,0,0.1);">1</span></div>
+                            <h3 style="font-size:1.15rem;font-weight:700;color:#0f172a;margin:0 0 10px 0;">Upload CV Kamu</h3>
+                            <p style="color:#64748b;font-size:0.88rem;margin:0;line-height:1.55;">PDF atau foto — semua format bisa kami proses otomatis.</p>
+                        </div>
+                        <div style="padding:28px;background:white;border-radius:20px;border:1px solid #e2e8f0;box-shadow:0 4px 15px rgba(0,0,0,0.02);">
+                            <div style="width:56px;height:56px;background:rgba(52,168,83,0.08);border-radius:16px;display:grid;place-items:center;margin:0 auto 18px auto;font-size:1.4rem;position:relative;">📊<span style="position:absolute;-top:8px;-right:8px;width:22px;height:22px;background:white;border-radius:50%;display:grid;place-items:center;font-size:0.7rem;font-weight:800;color:#34A853;box-shadow:0 2px 6px rgba(0,0,0,0.1);">2</span></div>
+                            <h3 style="font-size:1.15rem;font-weight:700;color:#0f172a;margin:0 0 10px 0;">Cek Skor ATS</h3>
+                            <p style="color:#64748b;font-size:0.88rem;margin:0;line-height:1.55;">Analisis mendalam plus rekomendasi perbaikan yang actionable dan spesifik.</p>
+                        </div>
+                        <div style="padding:28px;background:white;border-radius:20px;border:1px solid #e2e8f0;box-shadow:0 4px 15px rgba(0,0,0,0.02);">
+                            <div style="width:56px;height:56px;background:rgba(234,67,53,0.08);border-radius:16px;display:grid;place-items:center;margin:0 auto 18px auto;font-size:1.4rem;position:relative;">🎤<span style="position:absolute;-top:8px;-right:8px;width:22px;height:22px;background:white;border-radius:50%;display:grid;place-items:center;font-size:0.7rem;font-weight:800;color:#EA4335;box-shadow:0 2px 6px rgba(0,0,0,0.1);">3</span></div>
+                            <h3 style="font-size:1.15rem;font-weight:700;color:#0f172a;margin:0 0 10px 0;">Latihan Interview</h3>
+                            <p style="color:#64748b;font-size:0.88rem;margin:0;line-height:1.55;">Sampai kamu beneran interview-ready dan percaya diri menghadapi rekruter.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        # ─── Stats ───
         st.markdown(
             """
             <div class="jm-landing-stripe">
                 <div class="jm-landing-stripe-stat">
+                    <div class="jm-landing-stripe-num">10,000+</div>
+                    <div class="jm-landing-stripe-label">CV Dianalisis</div>
+                </div>
+                <div class="jm-landing-stripe-stat">
+                    <div class="jm-landing-stripe-num">85%</div>
+                    <div class="jm-landing-stripe-label">Peningkatan Pass Rate</div>
+                </div>
+                <div class="jm-landing-stripe-stat">
                     <div class="jm-landing-stripe-num">500+</div>
-                    <div class="jm-landing-stripe-label">Lowongan kerja aktif</div>
-                </div>
-                <div class="jm-landing-stripe-stat">
-                    <div class="jm-landing-stripe-num">5</div>
-                    <div class="jm-landing-stripe-label">Fitur berbasis AI dalam 1 aplikasi</div>
-                </div>
-                <div class="jm-landing-stripe-stat">
-                    <div class="jm-landing-stripe-num">100%</div>
-                    <div class="jm-landing-stripe-label">Login aman Google OAuth</div>
+                    <div class="jm-landing-stripe-label">Lowongan Kerja Aktif</div>
                 </div>
             </div>
-            <div class="jm-landing-footer">
+            """,
+            unsafe_allow_html=True,
+        )
+
+        # ─── Testimonials ───
+        st.markdown(
+            """
+            <div style="max-width:1100px;margin:80px auto;padding:0 20px;font-family:'Inter',sans-serif;">
+                <div style="text-align:center;margin-bottom:50px;">
+                    <span style="display:inline-block;border-radius:100px;background:rgba(251,188,5,0.1);padding:6px 16px;font-size:0.72rem;font-weight:700;color:#b58600;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:14px;">Loved by Job Seekers</span>
+                    <h2 style="font-size:2.2rem;font-weight:800;color:#0f172a;margin:0;">Kisah Nyata, <span style="color:#4285F4;">Offer Nyata</span></h2>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;">
+                    <div class="jm-feature-card" style="flex-direction:column;align-items:flex-start;">
+                        <div style="display:flex;gap:4px;margin-bottom:14px;">⭐⭐⭐⭐⭐</div>
+                        <p style="color:#475569;font-size:0.92rem;font-style:italic;line-height:1.65;margin:0 0 20px 0 !important;">"CV gue di-ghost 20+ perusahaan. Setelah pakai JobMatch AI, ATS score naik dari 42 ke 89. Minggu depannya langsung 3 interview call!"</p>
+                        <div style="display:flex;align-items:center;gap:12px;margin-top:auto;border-top:1px solid #f1f5f9;padding-top:16px;width:100%;">
+                            <div style="width:42px;height:42px;border-radius:50%;background:#4285F4;color:white;display:grid;place-items:center;font-weight:700;font-size:0.85rem;">RP</div>
+                            <div><div style="font-size:0.88rem;font-weight:700;color:#0f172a;">Rania Putri</div><div style="font-size:0.75rem;color:#64748b;">Fresh Graduate · UI Designer</div></div>
+                        </div>
+                    </div>
+                    <div class="jm-feature-card" style="flex-direction:column;align-items:flex-start;">
+                        <div style="display:flex;gap:4px;margin-bottom:14px;">⭐⭐⭐⭐⭐</div>
+                        <p style="color:#475569;font-size:0.92rem;font-style:italic;line-height:1.65;margin:0 0 20px 0 !important;">"Mock interview-nya seriously game-changer. Feedback-nya detail sampai ke intonasi. Confidence naik banget pas interview beneran."</p>
+                        <div style="display:flex;align-items:center;gap:12px;margin-top:auto;border-top:1px solid #f1f5f9;padding-top:16px;width:100%;">
+                            <div style="width:42px;height:42px;border-radius:50%;background:#34A853;color:white;display:grid;place-items:center;font-weight:700;font-size:0.85rem;">MS</div>
+                            <div><div style="font-size:0.88rem;font-weight:700;color:#0f172a;">Michael Santoso</div><div style="font-size:0.75rem;color:#64748b;">Product Manager</div></div>
+                        </div>
+                    </div>
+                    <div class="jm-feature-card" style="flex-direction:column;align-items:flex-start;">
+                        <div style="display:flex;gap:4px;margin-bottom:14px;">⭐⭐⭐⭐⭐</div>
+                        <p style="color:#475569;font-size:0.92rem;font-style:italic;line-height:1.65;margin:0 0 20px 0 !important;">"Skill gap analysis-nya spot on. Tau exactly course apa yang harus gue ambil buat switch career ke data role."</p>
+                        <div style="display:flex;align-items:center;gap:12px;margin-top:auto;border-top:1px solid #f1f5f9;padding-top:16px;width:100%;">
+                            <div style="width:42px;height:42px;border-radius:50%;background:#EA4335;color:white;display:grid;place-items:center;font-weight:700;font-size:0.85rem;">DA</div>
+                            <div><div style="font-size:0.88rem;font-weight:700;color:#0f172a;">Dinda Ayu</div><div style="font-size:0.75rem;color:#64748b;">Data Analyst · Ex-Big 4</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        # ─── Final CTA ───
+        st.markdown(
+            """
+            <div style="max-width:960px;margin:0 auto 80px auto;padding:0 20px;font-family:'Inter',sans-serif;">
+                <div style="background:#0f172a;border-radius:32px;padding:60px 40px;text-align:center;position:relative;overflow:hidden;">
+                    <div style="position:absolute;top:0;right:0;width:250px;height:250px;background:#4285F4;opacity:0.12;border-radius:50%;filter:blur(80px);"></div>
+                    <div style="position:absolute;bottom:0;left:0;width:250px;height:250px;background:#34A853;opacity:0.12;border-radius:50%;filter:blur:80px);"></div>
+                    <h2 style="font-size:2.2rem;font-weight:800;color:white;margin:0 0 14px 0;position:relative;">Berhenti Tebak-tebak Kenapa CV-mu Ditolak</h2>
+                    <p style="color:#94a3b8;font-size:1.05rem;max-width:560px;margin:0 auto 32px auto;line-height:1.65;position:relative;">Ribuan job seekers udah pakai JobMatch AI buat melewati screening pertama.</p>
+                    <p style="color:#64748b;font-size:0.82rem;margin-top:16px;position:relative;">Mulai gratis · Tanpa kartu kredit</p>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+        _cta1, _cta2, _cta3 = st.columns([1, 1.2, 1])
+        with _cta2:
+            if st.button("🚀  Mulai Gratis Sekarang", type="primary", use_container_width=True, key="final_cta_btn"):
+                st.login("google")
+
+        # ─── Footer ───
+        st.markdown(
+            """
+            <div class="jm-landing-footer" style="margin-top:40px;">
+                <span>© 2026 JobMatch AI</span>
                 <span>Tentang Kami</span>
                 <span>Fitur</span>
                 <span>Cara Kerja</span>
-                <span>Bantuan</span>
                 <span>Kebijakan Privasi</span>
+                <span>Hubungi Kami</span>
             </div>
             """,
             unsafe_allow_html=True,

@@ -91,3 +91,22 @@ def is_llm_configured() -> bool:
 def ensure_data_dir():
     """Create data directory if it doesn't exist."""
     DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def get_gemini_client():
+    """Returns a Google Gemini API client instance."""
+    from google import genai
+    return genai.Client(api_key=GEMINI_API_KEY)
+
+
+def get_qdrant_client():
+    """Returns a Qdrant client instance."""
+    from qdrant_client import QdrantClient
+    return QdrantClient(url=QDRANT_URL, api_key=QDRANT_API_KEY)
+
+
+def get_db_engine():
+    """Returns the SQLAlchemy engine for the database."""
+    from database import DatabaseManager
+    return DatabaseManager().engine
+

@@ -495,3 +495,253 @@ header {
     animation: pulse 1s infinite;
     background: var(--accent-rose);
 }
+
+/* ── Redesigned Premium Landing Page ─────────────────────── */
+.jm-landing {
+    background: #ffffff;
+    color: #1e293b;
+    padding: 60px 20px;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    line-height: 1.6;
+    overflow-x: hidden;
+    position: relative;
+}
+
+/* Hide streamlit headers/footers on landing page */
+.jm-hide-sidebar + div {
+    display: none !important;
+}
+
+.jm-landing h1, .jm-landing h2, .jm-landing h3, .jm-landing h4 {
+    color: #0f172a !important;
+    font-family: 'Inter', sans-serif !important;
+    font-weight: 800 !important;
+}
+
+.jm-landing-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 40px;
+    align-items: center;
+}
+
+@media (min-width: 992px) {
+    .jm-landing-grid {
+        grid-template-columns: 1.2fr 1fr;
+        gap: 80px;
+    }
+}
+
+.jm-landing-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 24px;
+}
+
+.jm-landing-brand-icon {
+    font-size: 1.8rem;
+}
+
+.jm-landing-brand-text {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+.jm-landing-brand-text span {
+    color: #4285F4;
+}
+
+.jm-landing h1 {
+    font-size: 2.5rem;
+    line-height: 1.15;
+    margin-bottom: 20px;
+    letter-spacing: -0.03em;
+}
+
+@media (min-width: 768px) {
+    .jm-landing h1 {
+        font-size: 3.5rem;
+    }
+}
+
+.jm-landing-sub {
+    font-size: 1.1rem;
+    color: #64748b;
+    margin-bottom: 32px;
+    max-width: 520px;
+}
+
+.jm-landing-stats {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+.jm-landing-stat-num {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #4285F4;
+    margin-bottom: 2px !important;
+    line-height: 1;
+}
+
+.jm-landing-stat-label {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin-top: 0 !important;
+}
+
+.jm-landing-features {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.jm-landing-right-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 10px;
+}
+
+.jm-feature-card {
+    display: flex;
+    gap: 16px;
+    padding: 24px;
+    background: #ffffff;
+    border: 1px solid #f1f5f9;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+    transition: all 0.3s ease;
+}
+
+.jm-feature-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+    border-color: #e2e8f0;
+}
+
+.jm-feature-icon {
+    font-size: 1.8rem;
+    flex-shrink: 0;
+}
+
+.jm-feature-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 4px !important;
+}
+
+.jm-feature-desc {
+    font-size: 0.9rem;
+    color: #64748b;
+    margin: 0 !important;
+    line-height: 1.5;
+}
+
+.jm-photo-card {
+    position: relative;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+}
+
+.jm-photo-card img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Redesigned sections below hero */
+.jm-landing-trust {
+    background: #f8fafc;
+    border-top: 1px solid #f1f5f9;
+    border-bottom: 1px solid #f1f5f9;
+    padding: 40px 20px;
+    text-align: center;
+    margin-top: 60px;
+}
+
+.jm-landing-trust-text {
+    font-size: 1.1rem;
+    color: #475569;
+    max-width: 800px;
+    margin: 0 auto;
+    font-weight: 500;
+}
+
+.jm-landing-stripe {
+    max-width: 1200px;
+    margin: 60px auto;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 30px;
+    text-align: center;
+}
+
+@media (min-width: 768px) {
+    .jm-landing-stripe {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.jm-landing-stripe-stat {
+    padding: 24px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+}
+
+.jm-landing-stripe-num {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 6px;
+}
+
+.jm-landing-stripe-stat:nth-child(1) .jm-landing-stripe-num { color: #4285F4; }
+.jm-landing-stripe-stat:nth-child(2) .jm-landing-stripe-num { color: #34A853; }
+.jm-landing-stripe-stat:nth-child(3) .jm-landing-stripe-num { color: #EA4335; }
+
+.jm-landing-stripe-label {
+    font-size: 0.9rem;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.jm-landing-footer {
+    border-top: 1px solid #f1f5f9;
+    padding: 40px 20px;
+    text-align: center;
+    background: #ffffff;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 24px;
+}
+
+.jm-landing-footer span {
+    font-size: 0.9rem;
+    color: #94a3b8;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.jm-landing-footer span:hover {
+    color: #4285F4;
+}
+
+/* Login button placement style */
+.jm-top-login-bar {
+    max-width: 1200px;
+    margin: 0 auto 30px auto;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #f1f5f9;
+}

@@ -24,23 +24,23 @@ sentry_sdk.init(
 )
 
 from logger import get_logger
-from health_server import start_health_server
+import health_check
 
 logger = get_logger(__name__)
 
-# Streamlit re-run script tiap interaksi user — pakai session_state biar
-# health server cuma start sekali per container, bukan tiap rerun
-if "health_server_started" not in st.session_state:
-    start_health_server(port=8081)
-    st.session_state["health_server_started"] = True
-    logger.info("App startup complete")
 
+@st.cache_data(ttl=60)
+def get_system_health():
+    """Runs all deep health checks and caches the result for 60 seconds."""
+    return health_check.run_all_checks()
+
+
+import config
 import auth_setup
 auth_setup.require_google_login()
 auth_setup.show_user_badge_and_logout(location="sidebar")
 from pathlib import Path
 
-import config
 from customer_service_chat_floating import render_cs_chatbot
 from database import DatabaseManager
 from vector_store import VectorStoreManager
@@ -70,7 +70,7 @@ if not st.user.is_logged_in:
     st.title("🎯 JobMatch AI")
     st.write("Silakan login dengan akun Google untuk melanjutkan.")
     if st.button("Login dengan Google"):
-        st.login()
+        st.login("google")
     st.stop()
 
 st.sidebar.write(f"👋 Halo, {st.user.name}")
@@ -155,22 +155,54 @@ with st.sidebar:
         unsafe_allow_html=True,
     )
 
-    # API Status
+    # API & Database System Status
     st.markdown("---")
-    if config.is_gemini_configured():
-        st.success("✅ Gemini AI Connected", icon="🔑")
-    else:
-        st.warning("⚠️ Gemini API key belum diatur", icon="🔑")
-        st.caption("Tambahkan di file `.env`")
+    st.markdown("#### 📊 System Status")
+
+    try:
+        health_results = get_system_health()
+        checks = health_results.get("checks", {})
+
+        # Gemini API Status
+        gemini_status = checks.get("gemini", {}).get("status", "unreachable")
+        gemini_latency = checks.get("gemini", {}).get("latency_ms", 0)
+        if gemini_status == "ok":
+            st.success(f"Gemini API: OK ({gemini_latency}ms)", icon="🔑")
+        else:
+            st.error("Gemini API: Error", icon="🔑")
+
+        # Qdrant Database Status
+        qdrant_status = checks.get("qdrant", {}).get("status", "unreachable")
+        qdrant_latency = checks.get("qdrant", {}).get("latency_ms", 0)
+        if qdrant_status == "ok":
+            st.success(f"Qdrant DB: OK ({qdrant_latency}ms)", icon="🎯")
+        else:
+            st.error("Qdrant DB: Error", icon="🎯")
+
+        # Aiven MySQL Database Status
+        db_status = checks.get("database", {}).get("status", "unreachable")
+        db_latency = checks.get("database", {}).get("latency_ms", 0)
+        if db_status == "ok":
+            st.success(f"MySQL DB: OK ({db_latency}ms)", icon="💾")
+        else:
+            st.error("MySQL DB: Error", icon="💾")
+    except Exception as e:
+        st.error(f"Failed to check health: {str(e)}")
 
     # N8N Status
     if config.USE_N8N:
         if config.is_n8n_configured():
-            st.success("✅ N8N Connected", icon="🔗")
+            st.success("N8N: Active", icon="🔗")
         else:
-            st.warning("⚠️ N8N URL belum diatur", icon="🔗")
+            st.warning("N8N: Not Configured", icon="🔗")
     else:
-        st.info("💻 Mode: Local (tanpa N8N)", icon="🏠")
+        st.info("Mode: Local (No N8N)", icon="🏠")
+
+    # Refresh button
+    if st.button("🔄 Refresh Status", use_container_width=True):
+        st.cache_data.clear()
+        st.rerun()
+
 
 # ─── Step Dispatch ─────────────────────────────────────────
 if st.session_state.current_step == 0:
