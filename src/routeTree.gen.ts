@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as MatchRouteImport } from './routes/match'
 import { Route as GenerateRouteImport } from './routes/generate'
 import { Route as FeaturesRouteImport } from './routes/features'
 import { Route as IndexRouteImport } from './routes/index'
@@ -17,6 +18,11 @@ import { Route as IndexRouteImport } from './routes/index'
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MatchRoute = MatchRouteImport.update({
+  id: '/match',
+  path: '/match',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GenerateRoute = GenerateRouteImport.update({
@@ -39,12 +45,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/features': typeof FeaturesRoute
   '/generate': typeof GenerateRoute
+  '/match': typeof MatchRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/features': typeof FeaturesRoute
   '/generate': typeof GenerateRoute
+  '/match': typeof MatchRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
 }
 export interface FileRoutesById {
@@ -52,20 +60,22 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/features': typeof FeaturesRoute
   '/generate': typeof GenerateRoute
+  '/match': typeof MatchRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/features' | '/generate' | '/sitemap.xml'
+  fullPaths: '/' | '/features' | '/generate' | '/match' | '/sitemap.xml'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/features' | '/generate' | '/sitemap.xml'
-  id: '__root__' | '/' | '/features' | '/generate' | '/sitemap.xml'
+  to: '/' | '/features' | '/generate' | '/match' | '/sitemap.xml'
+  id: '__root__' | '/' | '/features' | '/generate' | '/match' | '/sitemap.xml'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   FeaturesRoute: typeof FeaturesRoute
   GenerateRoute: typeof GenerateRoute
+  MatchRoute: typeof MatchRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
 }
 
@@ -76,6 +86,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/match': {
+      id: '/match'
+      path: '/match'
+      fullPath: '/match'
+      preLoaderRoute: typeof MatchRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/generate': {
@@ -106,6 +123,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   FeaturesRoute: FeaturesRoute,
   GenerateRoute: GenerateRoute,
+  MatchRoute: MatchRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
 }
 export const routeTree = rootRouteImport
