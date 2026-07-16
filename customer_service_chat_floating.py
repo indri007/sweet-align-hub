@@ -303,7 +303,7 @@ def render_cs_chatbot():
                 header_html = f"""
                 <div class="cs-header" style="display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #f1f5f9;">
                     <div style="position:relative;flex-shrink:0;">
-                        <img src="data:image/png;base64,{{img_b64}}" style="width:50px;height:50px;border-radius:50%;object-fit:cover;border:2px solid #e2e8f0;box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+                        <img src="data:image/png;base64,{img_b64}" style="width:50px;height:50px;border-radius:50%;object-fit:cover;border:2px solid #e2e8f0;box-shadow:0 2px 8px rgba(0,0,0,0.05);">
                         <div style="position:absolute;bottom:2px;right:0;width:12px;height:12px;background:#10b981;border:2px solid #ffffff;border-radius:50%;"></div>
                     </div>
                     <div>
