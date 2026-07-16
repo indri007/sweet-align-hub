@@ -73,9 +73,9 @@ function Reveal({ children, delay = 0 }: { children: ReactNode; delay?: number }
 }
 
 /* ---------- Logo ---------- */
-function Logo({ dark = false }: { dark?: boolean }) {
+export function Logo({ dark = false }: { dark?: boolean }) {
   return (
-    <a href="#top" className="flex items-center gap-2.5">
+    <Link to="/" className="flex items-center gap-2.5">
       <div className="grid h-9 w-9 place-items-center rounded-xl bg-[#4285F4] shadow-sm">
         <Zap className="h-5 w-5 text-white" strokeWidth={2.5} />
       </div>
@@ -86,30 +86,37 @@ function Logo({ dark = false }: { dark?: boolean }) {
       >
         JobMatch<span className="text-[#4285F4]">AI</span>
       </span>
-    </a>
+    </Link>
   );
 }
 
 /* ---------- Navbar ---------- */
-function Navbar() {
+export function Navbar() {
   const [open, setOpen] = useState(false);
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
   const links = [
-    { href: "#features", label: "Features" },
-    { href: "#how", label: "How it works" },
-    { href: "#generate", label: "Generate CV" },
-    { href: "#match", label: "Match Job" },
-    { href: "#testimonials", label: "Testimonials" },
-  ];
+    { to: "/", label: "Home" },
+    { to: "/features", label: "Features" },
+    { to: "/generate", label: "Generate CV" },
+    { to: "/match", label: "Match Job" },
+  ] as const;
   return (
     <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-100">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 lg:px-6">
         <Logo />
         <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
-          {links.map((l) => (
-            <a key={l.href} href={l.href} className="hover:text-[#4285F4] transition-colors">
-              {l.label}
-            </a>
-          ))}
+          {links.map((l) => {
+            const active = pathname === l.to;
+            return (
+              <Link
+                key={l.to}
+                to={l.to}
+                className={`transition-colors ${active ? "text-[#4285F4]" : "hover:text-[#4285F4]"}`}
+              >
+                {l.label}
+              </Link>
+            );
+          })}
         </nav>
         <button
           className="md:hidden rounded-lg p-2 text-slate-800"
@@ -122,14 +129,14 @@ function Navbar() {
       {open && (
         <div className="md:hidden border-t border-gray-100 bg-white px-5 py-4 space-y-3">
           {links.map((l) => (
-            <a
-              key={l.href}
-              href={l.href}
+            <Link
+              key={l.to}
+              to={l.to}
               onClick={() => setOpen(false)}
               className="block text-sm font-medium text-slate-700"
             >
               {l.label}
-            </a>
+            </Link>
           ))}
         </div>
       )}
