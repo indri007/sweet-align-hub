@@ -222,7 +222,7 @@ def _inject_floating_css(is_open: bool = False, img_b64: str = ""):
             width: auto !important;
         }}
 
-        div[data-testid="stVerticalBlock"]:has(div.cs-toggle-marker):not(:has(div[data-testid="stVerticalBlock"]:has(div.cs-toggle-marker))) button {
+        div[data-testid="stVerticalBlock"]:has(div.cs-toggle-marker):not(:has(div[data-testid="stVerticalBlock"]:has(div.cs-toggle-marker))) button {{
             border-radius: 50% !important;
             width: 56px !important;
             height: 56px !important;
@@ -233,11 +233,11 @@ def _inject_floating_css(is_open: bool = False, img_b64: str = ""):
             justify-content: center;
             padding: 0 !important;
             overflow: hidden !important;
-        }
+        }}
 
-        div[data-testid="stVerticalBlock"]:has(div.cs-toggle-marker):not(:has(div[data-testid="stVerticalBlock"]:has(div.cs-toggle-marker))) button span[data-testid="stIconMaterial"] {
+        div[data-testid="stVerticalBlock"]:has(div.cs-toggle-marker):not(:has(div[data-testid="stVerticalBlock"]:has(div.cs-toggle-marker))) button span[data-testid="stIconMaterial"] {{
             font-size: 26px !important;
-        }
+        }}
 
         .cs-header {{
             font-weight: 600;
