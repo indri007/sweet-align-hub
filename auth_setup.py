@@ -324,22 +324,33 @@ def require_google_login():
         # ─── Final CTA ───
         st.markdown(
             """
-            <div style="max-width:960px;margin:0 auto 80px auto;padding:0 20px;font-family:'Inter',sans-serif;">
+            <div style="max-width:960px;margin:40px auto 30px auto;padding:0 20px;font-family:'Inter',sans-serif;">
                 <div style="background:#0f172a;border-radius:32px;padding:60px 40px;text-align:center;position:relative;overflow:hidden;">
                     <div style="position:absolute;top:0;right:0;width:250px;height:250px;background:#4285F4;opacity:0.12;border-radius:50%;filter:blur(80px);"></div>
-                    <div style="position:absolute;bottom:0;left:0;width:250px;height:250px;background:#34A853;opacity:0.12;border-radius:50%;filter:blur:80px);"></div>
-                    <h2 style="font-size:2.2rem;font-weight:800;color:white;margin:0 0 14px 0;position:relative;">Berhenti Tebak-tebak Kenapa CV-mu Ditolak</h2>
-                    <p style="color:#94a3b8;font-size:1.05rem;max-width:560px;margin:0 auto 32px auto;line-height:1.65;position:relative;">Ribuan job seekers udah pakai JobMatch AI buat melewati screening pertama.</p>
-                    <p style="color:#64748b;font-size:0.82rem;margin-top:16px;position:relative;">Mulai gratis · Tanpa kartu kredit</p>
+                    <div style="position:absolute;bottom:0;left:0;width:250px;height:250px;background:#34A853;opacity:0.12;border-radius:50%;filter:blur(80px);"></div>
+                    <h2 style="font-size:2.4rem;font-weight:800;color:white;margin:0 0 14px 0;position:relative;letter-spacing:-0.02em;">Stop Guessing Why Your CV Gets Rejected</h2>
+                    <p style="color:#94a3b8;font-size:1.1rem;max-width:560px;margin:0 auto 20px auto;line-height:1.65;position:relative;">Ribuan job seekers udah pakai JobMatch AI buat pass first screening.</p>
                 </div>
             </div>
             """,
             unsafe_allow_html=True,
         )
-        _cta1, _cta2, _cta3 = st.columns([1, 1.2, 1])
-        with _cta2:
-            if st.button("🚀  Mulai Gratis Sekarang", type="primary", use_container_width=True, key="final_cta_btn"):
+        _cta1, _cta_b1, _cta_b2, _cta3 = st.columns([0.8, 1.2, 1.3, 0.8])
+        with _cta_b1:
+            if st.button("Start Free Now  →", type="primary", use_container_width=True, key="final_cta_btn"):
                 st.login("google")
+        with _cta_b2:
+            if st.button("Sign in with Google", type="secondary", use_container_width=True, key="final_google_btn", icon=":material/login:"):
+                st.login("google")
+
+        st.markdown(
+            """
+            <div style="text-align:center;margin-top:16px;margin-bottom:40px;font-family:'Inter',sans-serif;color:#64748b;font-size:0.88rem;">
+                Start for free · No credit card required
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
         # ─── Footer ───
         st.markdown(
