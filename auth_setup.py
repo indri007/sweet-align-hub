@@ -202,33 +202,33 @@ def require_google_login():
                     <h2 style="font-size:2.2rem;font-weight:800;color:#0f172a;margin:0 0 10px 0;">Semua yang Kamu Butuhkan untuk <span style="color:#4285F4;">Lolos Interview</span></h2>
                     <p style="color:#64748b;font-size:1rem;margin:0;">4 fitur AI terpadu, dirancang khusus untuk pasar kerja Indonesia.</p>
                 </div>
-                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;">
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px;">
                     <div class="jm-feature-card">
-                        <div class="jm-feature-icon" style="background:rgba(66,133,244,0.08);border-radius:14px;width:52px;height:52px;display:grid;place-items:center;font-size:1.5rem;flex-shrink:0;">📄</div>
-                        <div>
+                        <div class="jm-feature-icon" style="background:rgba(66,133,244,0.08);">📄</div>
+                        <div style="width:100%;">
                             <p class="jm-feature-title">ATS Score Check</p>
-                            <p class="jm-feature-desc">Upload CV, dapatkan skor kompatibilitas instan dengan breakdown lengkap dan rekomendasi perbaikan spesifik.</p>
+                            <p class="jm-feature-desc">Upload CV, get instant compatibility score lengkap dengan breakdown dan rekomendasi improvement.</p>
                         </div>
                     </div>
                     <div class="jm-feature-card">
-                        <div class="jm-feature-icon" style="background:rgba(251,188,5,0.08);border-radius:14px;width:52px;height:52px;display:grid;place-items:center;font-size:1.5rem;flex-shrink:0;">✨</div>
-                        <div>
+                        <div class="jm-feature-icon" style="background:rgba(251,188,5,0.08);">✨</div>
+                        <div style="width:100%;">
                             <p class="jm-feature-title">Smart CV Builder</p>
-                            <p class="jm-feature-desc">Scan CV lama kamu — dari foto atau PDF — lalu AI rapikan otomatis jadi format ATS-friendly dalam Bahasa ID/EN.</p>
+                            <p class="jm-feature-desc">Scan CV lama kamu (even dari foto atau PDF berantakan) — auto-rapikan jadi format yang ATS-friendly.</p>
                         </div>
                     </div>
                     <div class="jm-feature-card">
-                        <div class="jm-feature-icon" style="background:rgba(52,168,83,0.08);border-radius:14px;width:52px;height:52px;display:grid;place-items:center;font-size:1.5rem;flex-shrink:0;">🎤</div>
-                        <div>
+                        <div class="jm-feature-icon" style="background:rgba(52,168,83,0.08);">💬</div>
+                        <div style="width:100%;">
                             <p class="jm-feature-title">AI Mock Interview</p>
-                            <p class="jm-feature-desc">Latihan real-time dengan AI interviewer — dapat feedback soal tone, delivery, dan konten jawaban kamu.</p>
+                            <p class="jm-feature-desc">Practice real-time sama AI interviewer — dapet feedback on tone, delivery, sampai konten jawaban kamu.</p>
                         </div>
                     </div>
                     <div class="jm-feature-card">
-                        <div class="jm-feature-icon" style="background:rgba(234,67,53,0.08);border-radius:14px;width:52px;height:52px;display:grid;place-items:center;font-size:1.5rem;flex-shrink:0;">📈</div>
-                        <div>
+                        <div class="jm-feature-icon" style="background:rgba(234,67,53,0.08);">📈</div>
+                        <div style="width:100%;">
                             <p class="jm-feature-title">Skill Gap Analysis</p>
-                            <p class="jm-feature-desc">Tahu persis skill apa yang kurang untuk role incaran, lengkap dengan roadmap belajar yang actionable.</p>
+                            <p class="jm-feature-desc">Tau exactly skill apa yang kurang buat role incaran, plus roadmap buat level up.</p>
                         </div>
                     </div>
                 </div>

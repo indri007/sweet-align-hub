@@ -610,36 +610,45 @@ header {
 
 .jm-feature-card {
     display: flex;
+    flex-direction: column;
+    align-items: flex-start;
     gap: 16px;
-    padding: 24px;
+    padding: 32px 28px;
     background: #ffffff;
-    border: 1px solid #f1f5f9;
-    border-radius: 16px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-    transition: all 0.3s ease;
+    border: 1px solid #e2e8f0;
+    border-radius: 24px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02), 0 2px 4px -1px rgba(0,0,0,0.02);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
 }
 
 .jm-feature-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.06);
-    border-color: #e2e8f0;
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.08), 0 10px 10px -5px rgba(0,0,0,0.04);
+    border-color: #cbd5e1;
 }
 
 .jm-feature-icon {
-    font-size: 1.8rem;
+    font-size: 1.5rem;
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
 }
 
 .jm-feature-title {
-    font-size: 1.25rem;
+    font-size: 1.3rem;
     font-weight: 800;
     color: #0f172a;
-    margin-bottom: 6px !important;
+    margin-bottom: 8px !important;
 }
 
 .jm-feature-desc {
     font-size: 0.95rem;
-    color: #334155;
+    color: #475569;
     margin: 0 !important;
     line-height: 1.6;
 }
