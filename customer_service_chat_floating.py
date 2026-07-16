@@ -183,14 +183,14 @@ def _inject_floating_css(is_open: bool = False, img_b64: str = ""):
     avatar_css = ""
     if not is_open and img_b64:
         avatar_css = f"""
-        div[data-testid="stVerticalBlock"]:has(div.cs-toggle-marker):not(:has(div[data-testid="stVerticalBlock"]:has(div.cs-toggle-marker))) button {{
+        div[data-testid="stElementContainer"]:has(.cs-toggle-marker) + div[data-testid="stElementContainer"] button {{
             background-image: url('data:image/png;base64,{img_b64}') !important;
             background-size: cover !important;
             background-position: center !important;
             border: 2px solid #ffffff !important;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
         }}
-        div[data-testid="stVerticalBlock"]:has(div.cs-toggle-marker):not(:has(div[data-testid="stVerticalBlock"]:has(div.cs-toggle-marker))) button span[data-testid="stIconMaterial"] {{
+        div[data-testid="stElementContainer"]:has(.cs-toggle-marker) + div[data-testid="stElementContainer"] button * {{
             display: none !important;
         }}
         """
@@ -222,7 +222,7 @@ def _inject_floating_css(is_open: bool = False, img_b64: str = ""):
             width: auto !important;
         }}
 
-        div[data-testid="stVerticalBlock"]:has(div.cs-toggle-marker):not(:has(div[data-testid="stVerticalBlock"]:has(div.cs-toggle-marker))) button {{
+        div[data-testid="stElementContainer"]:has(.cs-toggle-marker) + div[data-testid="stElementContainer"] button {{
             border-radius: 50% !important;
             width: 56px !important;
             height: 56px !important;
@@ -235,8 +235,9 @@ def _inject_floating_css(is_open: bool = False, img_b64: str = ""):
             overflow: hidden !important;
         }}
 
-        div[data-testid="stVerticalBlock"]:has(div.cs-toggle-marker):not(:has(div[data-testid="stVerticalBlock"]:has(div.cs-toggle-marker))) button span[data-testid="stIconMaterial"] {{
-            font-size: 26px !important;
+        div[data-testid="stElementContainer"]:has(.cs-toggle-marker) + div[data-testid="stElementContainer"] button * {{
+            opacity: 0 !important; /* hide the icon but keep the size */
+            display: none !important;
         }}
 
         .cs-header {{
