@@ -231,7 +231,7 @@ function DashboardMock() {
 }
 
 /* ---------- Hero ---------- */
-function Hero() {
+export function Hero() {
   return (
     <section id="top" className="relative pt-14 pb-24 lg:pt-20 lg:pb-32 overflow-hidden">
       <div className="absolute inset-0 -z-10 hero-dots opacity-30" />
@@ -347,7 +347,7 @@ function Hero() {
 }
 
 /* ---------- Problem ---------- */
-function Problem() {
+export function Problem() {
   return (
     <section className="py-24 bg-slate-50 border-y border-slate-100">
       <div className="mx-auto max-w-4xl px-5 text-center lg:px-6">
@@ -411,7 +411,7 @@ const FEATURES = [
   },
 ];
 
-function Features() {
+export function Features() {
   return (
     <section id="features" className="py-24 lg:py-32 bg-white">
       <div className="mx-auto max-w-7xl px-5 lg:px-6">
@@ -455,7 +455,7 @@ const STEPS = [
   { icon: Mic, color: "#EA4335", bg: "bg-[#EA4335]/10", title: "Practice interview", desc: "Sampai kamu bener-bener interview-ready." },
 ];
 
-function HowItWorks() {
+export function HowItWorks() {
   return (
     <section id="how" className="py-24 lg:py-32 bg-slate-50 border-y border-slate-100">
       <div className="mx-auto max-w-7xl px-5 lg:px-6">
@@ -563,7 +563,7 @@ const CV_CONTENT = {
   },
 } as const;
 
-function CVGenerator() {
+export function CVGenerator() {
   const [lang, setLang] = useState<"id" | "en">("id");
   const c = CV_CONTENT[lang];
   const p = c.preview;
@@ -732,7 +732,7 @@ function CVGenerator() {
 /* ---------- CV Match Job ---------- */
 
 
-function CVMatchJob() {
+export function CVMatchJob() {
   const [score, setScore] = useState(82);
   const [subScores, setSubScores] = useState({ skills: 88, experience: 78, cultureFit: 84 });
   const [jobTitle, setJobTitle] = useState("Product Manager");
@@ -998,7 +998,7 @@ function CVMatchJob() {
   );
 }
 
-function Stats() {
+export function Stats() {
   const items: [string, string, string][] = [
     ["10,000+", "CVs Analyzed", "#4285F4"],
     ["85%", "Pass Rate Improvement", "#34A853"],
@@ -1052,7 +1052,7 @@ const TESTIMONIALS = [
   },
 ];
 
-function Testimonials() {
+export function Testimonials() {
   return (
     <section id="testimonials" className="py-24 lg:py-32 bg-white">
       <div className="mx-auto max-w-7xl px-5 lg:px-6">
@@ -1098,7 +1098,7 @@ function Testimonials() {
 }
 
 /* ---------- Final CTA ---------- */
-function FinalCTA() {
+export function FinalCTA() {
   return (
     <section className="py-24 px-5 lg:px-6 bg-white">
       <div className="mx-auto max-w-5xl bg-slate-900 rounded-[2rem] md:rounded-[3rem] p-10 md:p-20 text-center relative overflow-hidden shadow-2xl">
@@ -1190,7 +1190,7 @@ function SocialLinks() {
 }
 
 /* ---------- Footer ---------- */
-function Footer() {
+export function Footer() {
   return (
     <footer className="py-14 border-t border-slate-100 bg-white">
       <div className="mx-auto max-w-7xl px-5 lg:px-6">
