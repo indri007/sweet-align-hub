@@ -183,8 +183,8 @@ def _inject_floating_css(is_open: bool = False):
     st.markdown(
         f"""
         <style>
-        div[data-testid="stVerticalBlock"]:has(div.cs-widget-marker),
-        div[data-testid="stVerticalBlockBorderWrapper"]:has(div.cs-widget-marker) {{
+        div[data-testid="stVerticalBlock"]:has(div.cs-widget-marker):not(:has(div[data-testid="stVerticalBlock"]:has(div.cs-widget-marker))),
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(div.cs-widget-marker):not(:has(div[data-testid="stVerticalBlockBorderWrapper"]:has(div.cs-widget-marker))) {{
             position: fixed !important;
             bottom: 85px;
             right: 20px;
@@ -198,8 +198,8 @@ def _inject_floating_css(is_open: bool = False):
             overflow-y: auto;
         }}
 
-        div[data-testid="stVerticalBlock"]:has(div.cs-toggle-marker),
-        div[data-testid="stVerticalBlockBorderWrapper"]:has(div.cs-toggle-marker) {{
+        div[data-testid="stVerticalBlock"]:has(div.cs-toggle-marker):not(:has(div[data-testid="stVerticalBlock"]:has(div.cs-toggle-marker))),
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(div.cs-toggle-marker):not(:has(div[data-testid="stVerticalBlockBorderWrapper"]:has(div.cs-toggle-marker))) {{
             position: fixed !important;
             bottom: 20px;
             right: 20px;
