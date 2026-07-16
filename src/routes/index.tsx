@@ -265,10 +265,13 @@ export function Hero() {
           </Reveal>
           <Reveal delay={220}>
             <div className="mt-7 sm:mt-9 flex flex-col sm:flex-row gap-3 sm:items-center">
-              <button className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#4285F4] px-6 sm:px-8 py-3.5 sm:py-4 text-sm sm:text-base font-bold text-white shadow-lg shadow-[#4285F4]/25 transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-[#4285F4]/30">
+              <Link
+                to="/generate"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#4285F4] px-6 sm:px-8 py-3.5 sm:py-4 text-sm sm:text-base font-bold text-white shadow-lg shadow-[#4285F4]/25 transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-[#4285F4]/30"
+              >
                 Get My CV Score
                 <ArrowRight className="h-5 w-5" />
-              </button>
+              </Link>
             </div>
           </Reveal>
           <Reveal delay={280}>
