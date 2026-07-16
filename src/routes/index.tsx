@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouterState } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { sendMatchEmail } from "@/lib/send-match-email.functions";
 import { downloadMatchPdf } from "@/lib/match-pdf";
@@ -73,9 +73,9 @@ function Reveal({ children, delay = 0 }: { children: ReactNode; delay?: number }
 }
 
 /* ---------- Logo ---------- */
-function Logo({ dark = false }: { dark?: boolean }) {
+export function Logo({ dark = false }: { dark?: boolean }) {
   return (
-    <a href="#top" className="flex items-center gap-2.5">
+    <Link to="/" className="flex items-center gap-2.5">
       <div className="grid h-9 w-9 place-items-center rounded-xl bg-[#4285F4] shadow-sm">
         <Zap className="h-5 w-5 text-white" strokeWidth={2.5} />
       </div>
@@ -86,30 +86,37 @@ function Logo({ dark = false }: { dark?: boolean }) {
       >
         JobMatch<span className="text-[#4285F4]">AI</span>
       </span>
-    </a>
+    </Link>
   );
 }
 
 /* ---------- Navbar ---------- */
-function Navbar() {
+export function Navbar() {
   const [open, setOpen] = useState(false);
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
   const links = [
-    { href: "#features", label: "Features" },
-    { href: "#how", label: "How it works" },
-    { href: "#generate", label: "Generate CV" },
-    { href: "#match", label: "Match Job" },
-    { href: "#testimonials", label: "Testimonials" },
-  ];
+    { to: "/", label: "Home" },
+    { to: "/features", label: "Features" },
+    { to: "/generate", label: "Generate CV" },
+    { to: "/match", label: "Match Job" },
+  ] as const;
   return (
     <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-100">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 lg:px-6">
         <Logo />
         <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
-          {links.map((l) => (
-            <a key={l.href} href={l.href} className="hover:text-[#4285F4] transition-colors">
-              {l.label}
-            </a>
-          ))}
+          {links.map((l) => {
+            const active = pathname === l.to;
+            return (
+              <Link
+                key={l.to}
+                to={l.to}
+                className={`transition-colors ${active ? "text-[#4285F4]" : "hover:text-[#4285F4]"}`}
+              >
+                {l.label}
+              </Link>
+            );
+          })}
         </nav>
         <button
           className="md:hidden rounded-lg p-2 text-slate-800"
@@ -122,14 +129,14 @@ function Navbar() {
       {open && (
         <div className="md:hidden border-t border-gray-100 bg-white px-5 py-4 space-y-3">
           {links.map((l) => (
-            <a
-              key={l.href}
-              href={l.href}
+            <Link
+              key={l.to}
+              to={l.to}
               onClick={() => setOpen(false)}
               className="block text-sm font-medium text-slate-700"
             >
               {l.label}
-            </a>
+            </Link>
           ))}
         </div>
       )}
@@ -224,7 +231,7 @@ function DashboardMock() {
 }
 
 /* ---------- Hero ---------- */
-function Hero() {
+export function Hero() {
   return (
     <section id="top" className="relative pt-14 pb-24 lg:pt-20 lg:pb-32 overflow-hidden">
       <div className="absolute inset-0 -z-10 hero-dots opacity-30" />
@@ -258,10 +265,13 @@ function Hero() {
           </Reveal>
           <Reveal delay={220}>
             <div className="mt-7 sm:mt-9 flex flex-col sm:flex-row gap-3 sm:items-center">
-              <button className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#4285F4] px-6 sm:px-8 py-3.5 sm:py-4 text-sm sm:text-base font-bold text-white shadow-lg shadow-[#4285F4]/25 transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-[#4285F4]/30">
+              <Link
+                to="/generate"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#4285F4] px-6 sm:px-8 py-3.5 sm:py-4 text-sm sm:text-base font-bold text-white shadow-lg shadow-[#4285F4]/25 transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-[#4285F4]/30"
+              >
                 Get My CV Score
                 <ArrowRight className="h-5 w-5" />
-              </button>
+              </Link>
             </div>
           </Reveal>
           <Reveal delay={280}>
@@ -311,12 +321,8 @@ function Hero() {
 
               {/* Google Sign In sits below the photo, aligned with the panel */}
               <div className="relative mt-5 sm:mt-6">
-                <button
-                  type="button"
-                  onClick={() => {
-                    const el = document.getElementById("generate");
-                    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-                  }}
+                <Link
+                  to="/generate"
                   className="group inline-flex w-full items-center justify-center gap-3 rounded-xl bg-white px-5 py-3.5 text-sm sm:text-base font-bold text-slate-800 shadow-xl border border-slate-200 hover:-translate-y-0.5 hover:shadow-2xl transition-all"
                   aria-label="Sign in with Google"
                 >
@@ -327,7 +333,7 @@ function Hero() {
                     <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
                   </svg>
                   <span>Sign in with Google</span>
-                </button>
+                </Link>
               </div>
             </div>
 
@@ -340,7 +346,7 @@ function Hero() {
 }
 
 /* ---------- Problem ---------- */
-function Problem() {
+export function Problem() {
   return (
     <section className="py-24 bg-slate-50 border-y border-slate-100">
       <div className="mx-auto max-w-4xl px-5 text-center lg:px-6">
@@ -404,7 +410,7 @@ const FEATURES = [
   },
 ];
 
-function Features() {
+export function Features() {
   return (
     <section id="features" className="py-24 lg:py-32 bg-white">
       <div className="mx-auto max-w-7xl px-5 lg:px-6">
@@ -448,7 +454,7 @@ const STEPS = [
   { icon: Mic, color: "#EA4335", bg: "bg-[#EA4335]/10", title: "Practice interview", desc: "Sampai kamu bener-bener interview-ready." },
 ];
 
-function HowItWorks() {
+export function HowItWorks() {
   return (
     <section id="how" className="py-24 lg:py-32 bg-slate-50 border-y border-slate-100">
       <div className="mx-auto max-w-7xl px-5 lg:px-6">
@@ -556,7 +562,7 @@ const CV_CONTENT = {
   },
 } as const;
 
-function CVGenerator() {
+export function CVGenerator() {
   const [lang, setLang] = useState<"id" | "en">("id");
   const c = CV_CONTENT[lang];
   const p = c.preview;
@@ -725,7 +731,7 @@ function CVGenerator() {
 /* ---------- CV Match Job ---------- */
 
 
-function CVMatchJob() {
+export function CVMatchJob() {
   const [score, setScore] = useState(82);
   const [subScores, setSubScores] = useState({ skills: 88, experience: 78, cultureFit: 84 });
   const [jobTitle, setJobTitle] = useState("Product Manager");
@@ -991,7 +997,7 @@ function CVMatchJob() {
   );
 }
 
-function Stats() {
+export function Stats() {
   const items: [string, string, string][] = [
     ["10,000+", "CVs Analyzed", "#4285F4"],
     ["85%", "Pass Rate Improvement", "#34A853"],
@@ -1045,7 +1051,7 @@ const TESTIMONIALS = [
   },
 ];
 
-function Testimonials() {
+export function Testimonials() {
   return (
     <section id="testimonials" className="py-24 lg:py-32 bg-white">
       <div className="mx-auto max-w-7xl px-5 lg:px-6">
@@ -1091,7 +1097,7 @@ function Testimonials() {
 }
 
 /* ---------- Final CTA ---------- */
-function FinalCTA() {
+export function FinalCTA() {
   return (
     <section className="py-24 px-5 lg:px-6 bg-white">
       <div className="mx-auto max-w-5xl bg-slate-900 rounded-[2rem] md:rounded-[3rem] p-10 md:p-20 text-center relative overflow-hidden shadow-2xl">
@@ -1111,10 +1117,13 @@ function FinalCTA() {
         </Reveal>
         <Reveal delay={140}>
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 relative">
-            <button className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#4285F4] px-8 py-4 text-base font-bold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:shadow-xl">
+            <Link
+              to="/generate"
+              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#4285F4] px-8 py-4 text-base font-bold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:shadow-xl"
+            >
               Start Free Now
               <ArrowRight className="h-5 w-5" />
-            </button>
+            </Link>
           </div>
         </Reveal>
         <Reveal delay={200}>
@@ -1183,7 +1192,7 @@ function SocialLinks() {
 }
 
 /* ---------- Footer ---------- */
-function Footer() {
+export function Footer() {
   return (
     <footer className="py-14 border-t border-slate-100 bg-white">
       <div className="mx-auto max-w-7xl px-5 lg:px-6">
@@ -1211,22 +1220,24 @@ function Footer() {
   );
 }
 
-function Landing() {
+export function PageShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-white overflow-x-hidden">
       <Navbar />
-      <main>
-        <Hero />
-        <Problem />
-        <Features />
-        <HowItWorks />
-        <CVGenerator />
-        <CVMatchJob />
-        <Stats />
-        <Testimonials />
-        <FinalCTA />
-      </main>
+      <main>{children}</main>
       <Footer />
     </div>
+  );
+}
+
+function Landing() {
+  return (
+    <PageShell>
+      <Hero />
+      <Problem />
+      <Stats />
+      <Testimonials />
+      <FinalCTA />
+    </PageShell>
   );
 }
