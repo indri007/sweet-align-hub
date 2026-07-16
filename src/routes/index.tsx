@@ -1220,22 +1220,24 @@ export function Footer() {
   );
 }
 
-function Landing() {
+export function PageShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-white overflow-x-hidden">
       <Navbar />
-      <main>
-        <Hero />
-        <Problem />
-        <Features />
-        <HowItWorks />
-        <CVGenerator />
-        <CVMatchJob />
-        <Stats />
-        <Testimonials />
-        <FinalCTA />
-      </main>
+      <main>{children}</main>
       <Footer />
     </div>
+  );
+}
+
+function Landing() {
+  return (
+    <PageShell>
+      <Hero />
+      <Problem />
+      <Stats />
+      <Testimonials />
+      <FinalCTA />
+    </PageShell>
   );
 }
