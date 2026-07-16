@@ -631,15 +631,15 @@ header {
 }
 
 .jm-feature-title {
-    font-size: 1.1rem;
-    font-weight: 700;
+    font-size: 1.25rem;
+    font-weight: 800;
     color: #0f172a;
-    margin-bottom: 4px !important;
+    margin-bottom: 6px !important;
 }
 
 .jm-feature-desc {
     font-size: 0.95rem;
-    color: #475569;
+    color: #334155;
     margin: 0 !important;
     line-height: 1.6;
 }
