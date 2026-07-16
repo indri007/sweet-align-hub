@@ -138,9 +138,9 @@ def require_google_login():
         with _hero2:
             st.markdown(
                 """
-                <div style="padding:20px 0 0 0;font-family:'Inter',sans-serif;">
-                    <div style="background:linear-gradient(135deg,#1a73e8,#4285F4 50%,#1557b0);border-radius:28px;padding:20px;box-shadow:0 20px 50px rgba(66,133,244,0.2);">
-                        <div style="background:white;border-radius:18px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.05);">
+                <div style="padding:20px 0 0 0;font-family:'Inter',sans-serif;perspective:1000px;">
+                    <div style="background:linear-gradient(135deg,#1a73e8,#4285F4 50%,#1557b0);border-radius:28px;padding:20px;box-shadow:0 30px 60px rgba(66,133,244,0.35);transform:rotateY(-15deg) rotateX(10deg);transform-style:preserve-3d;transition:transform 0.5s ease;" onmouseover="this.style.transform='rotateY(-5deg) rotateX(5deg) translateY(-5px)'" onmouseout="this.style.transform='rotateY(-15deg) rotateX(10deg)'">
+                        <div style="background:white;border-radius:18px;overflow:hidden;box-shadow:0 15px 30px rgba(0,0,0,0.1);transform:translateZ(20px);">
                             <div style="background:#f8fafc;padding:14px 18px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;">
                                 <div style="display:flex;gap:6px;">
                                     <div style="width:10px;height:10px;border-radius:50%;background:#EA4335;"></div>
