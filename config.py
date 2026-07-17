@@ -11,12 +11,6 @@ from dotenv import load_dotenv
 BASE_DIR = Path(__file__).parent
 load_dotenv(BASE_DIR / ".env")
 
-# ─── OpenAI (opsional, dipakai untuk fitur voice interview jika diaktifkan) ──
-OPENAI_API_KEY = _cfg("OPENAI_API_KEY")
-OPENAI_MODEL = _cfg("OPENAI_MODEL", "gpt-4o")
-OPENAI_EMBEDDING_MODEL = _cfg("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small")
-
-# ─── Google Gemini ────────────────────────────────────────
 def _cfg(key, default=""):
     try:
         import streamlit as st
@@ -26,6 +20,14 @@ def _cfg(key, default=""):
         pass
     return os.getenv(key, default)
 
+
+
+# ─── OpenAI (opsional, dipakai untuk fitur voice interview jika diaktifkan) ──
+OPENAI_API_KEY = _cfg("OPENAI_API_KEY")
+OPENAI_MODEL = _cfg("OPENAI_MODEL", "gpt-4o")
+OPENAI_EMBEDDING_MODEL = _cfg("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small")
+
+# ─── Google Gemini ────────────────────────────────────────
 GEMINI_API_KEY = _cfg("GEMINI_API_KEY") or _cfg("GEMINI_API_KEY_1")
 GEMINI_MODEL = _cfg("GEMINI_MODEL", "gemini-2.5-flash")
 GEMINI_EMBEDDING_MODEL = _cfg("GEMINI_EMBEDDING_MODEL", "models/gemini-embedding-001")
