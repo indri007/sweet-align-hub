@@ -1,9 +1,36 @@
+# Secrets & credentials
 .env
 .env.yaml
+.env.for-secret-manager
+.env.*.backup
+.streamlit/secrets.toml
+aiven/ca.pem
+AIVEN_SETUP.md
+
+# Python
 *.pyc
+*.pyo
 __pycache__/
+*.egg-info/
+dist/
+build/
+
+# Virtual environments
 venv/
 .venv/
+env/
+
+# Data & local storage
 data/
+*.db
+*.sqlite
+
+# Logs
 *.log
+
+# macOS
 .DS_Store
+
+# IDE
+.vscode/
+.idea/

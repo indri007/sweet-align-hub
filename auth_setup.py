@@ -1,5 +1,17 @@
 """
-auth_setup.py — Login dengan Google Account untuk Streamlit (Cloud Run friendly)
+auth_setup.py — Login dengan Google Account untuk Streamlit
+
+Mendukung dua mode:
+- Streamlit Cloud  → redirect ke https://jobsmatch.streamlit.app/_auth/callback
+- Cloud Run / lokal → pakai AUTH_REDIRECT_URI dari env
+
+OAuth Client terdaftar (17 Jul 2026):
+  Client ID : 443770912596-sartmrtk9aeadbdvrqqdsf4o2bgiddtn.apps.googleusercontent.com
+  Redirect URIs yang didaftarkan di Google Console:
+    - https://jobsmatch.streamlit.app/_auth/callback   ← Streamlit native auth
+    - https://jobsmatch.streamlit.app/oauth2callback
+    - http://localhost:8501/oauth2callback
+    - https://digimetashop.web.id
 """
 
 import os
@@ -8,20 +20,35 @@ from streamlit.runtime.secrets import secrets_singleton
 
 _GOOGLE_METADATA_URL = "https://accounts.google.com/.well-known/openid-configuration"
 
+# Redirect URI default untuk Streamlit Cloud
+_DEFAULT_REDIRECT_URI = "https://jobsmatch.streamlit.app/_auth/callback"
+
 
 def _inject_auth_secrets():
-    redirect_uri = os.environ.get("AUTH_REDIRECT_URI", "")
+    # Prioritas: env var → default Streamlit Cloud URL
+    redirect_uri = (
+        os.environ.get("AUTH_REDIRECT_URI")
+        or _get_streamlit_secret("auth", "redirect_uri")
+        or _DEFAULT_REDIRECT_URI
+    )
     cookie_secret = os.environ.get("AUTH_COOKIE_SECRET", "")
     client_id = os.environ.get("GOOGLE_CLIENT_ID", "")
     client_secret = os.environ.get("GOOGLE_CLIENT_SECRET", "")
 
+    # Fallback ke Streamlit secrets (untuk Streamlit Cloud deployment)
+    if not client_id:
+        client_id = _get_streamlit_secret("auth", "client_id") or ""
+    if not client_secret:
+        client_secret = _get_streamlit_secret("auth", "client_secret") or ""
+    if not cookie_secret:
+        cookie_secret = _get_streamlit_secret("auth", "cookie_secret") or ""
+
     missing = [
         name
         for name, val in [
-            ("AUTH_REDIRECT_URI", redirect_uri),
-            ("AUTH_COOKIE_SECRET", cookie_secret),
             ("GOOGLE_CLIENT_ID", client_id),
             ("GOOGLE_CLIENT_SECRET", client_secret),
+            ("AUTH_COOKIE_SECRET", cookie_secret),
         ]
         if not val
     ]
@@ -38,6 +65,14 @@ def _inject_auth_secrets():
         }
     }
     return True, []
+
+
+def _get_streamlit_secret(section: str, key: str) -> str:
+    """Ambil nilai dari st.secrets tanpa crash kalau tidak ada."""
+    try:
+        return st.secrets.get(section, {}).get(key, "")
+    except Exception:
+        return ""
 
 
 def require_google_login():
