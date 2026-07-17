@@ -5,3 +5,5 @@ __pycache__/
 venv/
 .venv/
 data/
+*.log
+.DS_Store
