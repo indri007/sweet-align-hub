@@ -3,7 +3,9 @@ Database module — SQLite/MySQL query manager using SQLAlchemy.
 Handles structured job data queries (filters, stats, etc.)
 """
 
+import os
 import re
+import glob
 from typing import Optional
 from sqlalchemy import create_engine, Column, Integer, String, Text, Float
 from sqlalchemy.orm import sessionmaker, declarative_base
@@ -11,6 +13,21 @@ from sqlalchemy import text as sql_text
 import config
 
 Base = declarative_base()
+
+
+def _find_aiven_ca_cert():
+    """Cari file ca.pem untuk SSL Aiven MySQL — cek folder root project & subfolder aiven/."""
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    candidates = [
+        os.path.join(base_dir, "ca.pem"),
+        os.path.join(base_dir, "aiven", "ca.pem"),
+    ]
+    for path in candidates:
+        if os.path.isfile(path):
+            return path
+    # fallback: cari di mana saja dalam project (maks 2 level)
+    matches = glob.glob(os.path.join(base_dir, "**", "ca.pem"), recursive=True)
+    return matches[0] if matches else None
 
 
 class Job(Base):
@@ -66,7 +83,12 @@ class DatabaseManager:
 
     def __init__(self, db_url: Optional[str] = None):
         self.db_url = db_url or config.DATABASE_URL
-        self.engine = create_engine(self.db_url, echo=False)
+        connect_args = {}
+        if self.db_url and "mysql" in self.db_url.lower():
+            ca_path = _find_aiven_ca_cert()
+            if ca_path:
+                connect_args = {"ssl": {"ca": ca_path}}
+        self.engine = create_engine(self.db_url, echo=False, connect_args=connect_args)
         self.Session = sessionmaker(bind=self.engine)
 
     def create_tables(self):
