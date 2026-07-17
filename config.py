@@ -12,18 +12,27 @@ BASE_DIR = Path(__file__).parent
 load_dotenv(BASE_DIR / ".env")
 
 # ─── OpenAI (opsional, dipakai untuk fitur voice interview jika diaktifkan) ──
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
-OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o")
-OPENAI_EMBEDDING_MODEL = os.getenv("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small")
+OPENAI_API_KEY = _cfg("OPENAI_API_KEY")
+OPENAI_MODEL = _cfg("OPENAI_MODEL", "gpt-4o")
+OPENAI_EMBEDDING_MODEL = _cfg("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small")
 
 # ─── Google Gemini ────────────────────────────────────────
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
-GEMINI_EMBEDDING_MODEL = os.getenv("GEMINI_EMBEDDING_MODEL", "gemini-embedding-001")
+def _cfg(key, default=""):
+    try:
+        import streamlit as st
+        val = st.secrets.get(key, "")
+        if val: return str(val)
+    except Exception:
+        pass
+    return os.getenv(key, default)
+
+GEMINI_API_KEY = _cfg("GEMINI_API_KEY") or _cfg("GEMINI_API_KEY_1")
+GEMINI_MODEL = _cfg("GEMINI_MODEL", "gemini-2.5-flash")
+GEMINI_EMBEDDING_MODEL = _cfg("GEMINI_EMBEDDING_MODEL", "models/gemini-embedding-001")
 
 # ─── LLM Provider ─────────────────────────────────────────
 # "gemini" or "openai". Auto-detected from available keys unless set explicitly.
-_explicit_provider = os.getenv("LLM_PROVIDER", "").strip().lower()
+_explicit_provider = _cfg("LLM_PROVIDER", "").strip().lower()
 if _explicit_provider in ("gemini", "openai"):
     LLM_PROVIDER = _explicit_provider
 elif GEMINI_API_KEY:
@@ -34,17 +43,17 @@ else:
     LLM_PROVIDER = "gemini"  # default; will just report "not configured"
 
 # ─── Database ─────────────────────────────────────────────
-DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{BASE_DIR / 'data' / 'jobs.db'}")
+DATABASE_URL = _cfg("DATABASE_URL", f"sqlite:///{BASE_DIR / 'data' / 'jobs.db'}")
 
 # ─── Vector Store ─────────────────────────────────────────
-VECTOR_STORE = os.getenv("VECTOR_STORE", "chromadb")
+VECTOR_STORE = _cfg("VECTOR_STORE", "qdrant")
 CHROMA_PERSIST_DIR = os.getenv("CHROMA_PERSIST_DIR", str(BASE_DIR / "data" / "chroma_db"))
-QDRANT_URL = os.getenv("QDRANT_URL", "")
-QDRANT_API_KEY = os.getenv("QDRANT_API_KEY", "")
+QDRANT_URL = _cfg("QDRANT_URL")
+QDRANT_API_KEY = _cfg("QDRANT_API_KEY")
 COLLECTION_NAME = "indonesian_jobs"
 
 # ─── Embedding ────────────────────────────────────────────
-EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "local")  # "local", "openai", or "gemini"
+EMBEDDING_MODEL = _cfg("EMBEDDING_MODEL", "gemini")  # "local", "openai", or "gemini"
 
 # ─── N8N ──────────────────────────────────────────────────
 N8N_WEBHOOK_URL = os.getenv("N8N_WEBHOOK_URL", "")
