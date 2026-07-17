@@ -2,14 +2,14 @@
 auth_setup.py — Login dengan Google Account untuk Streamlit
 
 Mendukung dua mode:
-- Streamlit Cloud  → redirect ke https://jobsmatch.streamlit.app/_auth/callback
+- Streamlit Cloud  → redirect ke https://sweet-align-hub.streamlit.app/_auth/callback
 - Cloud Run / lokal → pakai AUTH_REDIRECT_URI dari env
 
 OAuth Client terdaftar (17 Jul 2026):
   Client ID : 443770912596-sartmrtk9aeadbdvrqqdsf4o2bgiddtn.apps.googleusercontent.com
   Redirect URIs yang didaftarkan di Google Console:
-    - https://jobsmatch.streamlit.app/_auth/callback   ← Streamlit native auth
-    - https://jobsmatch.streamlit.app/oauth2callback
+    - https://sweet-align-hub.streamlit.app/_auth/callback   ← Streamlit native auth
+    - https://sweet-align-hub.streamlit.app/oauth2callback
     - http://localhost:8501/oauth2callback
     - https://digimetashop.web.id
 """
@@ -21,7 +21,7 @@ from streamlit.runtime.secrets import secrets_singleton
 _GOOGLE_METADATA_URL = "https://accounts.google.com/.well-known/openid-configuration"
 
 # Redirect URI default untuk Streamlit Cloud
-_DEFAULT_REDIRECT_URI = "https://jobsmatch.streamlit.app/_auth/callback"
+_DEFAULT_REDIRECT_URI = "https://sweet-align-hub.streamlit.app/_auth/callback"
 
 
 def _inject_auth_secrets():

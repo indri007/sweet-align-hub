@@ -221,7 +221,7 @@ if __name__ == "__main__":
     Stack: Python Streamlit + MySQL (Aiven) + Qdrant (vector store) + Gemini API
     Cloud: GCP (Cloud Run → migrasi ke Streamlit Cloud)
     Auth: Google OAuth2 via Streamlit native auth
-    Deployment: https://jobsmatch.streamlit.app
+    Deployment: https://sweet-align-hub.streamlit.app
     Project GCP: autonomous-tube-502708-q4
 
     File utama:
