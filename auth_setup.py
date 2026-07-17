@@ -9,12 +9,23 @@ from streamlit.runtime.secrets import secrets_singleton
 _GOOGLE_METADATA_URL = "https://accounts.google.com/.well-known/openid-configuration"
 
 
-def _inject_auth_secrets():
-    redirect_uri = os.environ.get("AUTH_REDIRECT_URI", "")
-    cookie_secret = os.environ.get("AUTH_COOKIE_SECRET", "")
-    client_id = os.environ.get("GOOGLE_CLIENT_ID", "")
-    client_secret = os.environ.get("GOOGLE_CLIENT_SECRET", "")
+def _get_secret(key: str) -> str:
+    """Baca dari st.secrets dulu (Streamlit Cloud), fallback ke os.environ (lokal)."""
+    try:
+        if key in st.secrets:
+            val = st.secrets[key]
+            if val:
+                return str(val)
+    except Exception:
+        pass
+    return os.environ.get(key, "")
 
+
+def _inject_auth_secrets():
+    redirect_uri = _get_secret("AUTH_REDIRECT_URI")
+    cookie_secret = _get_secret("AUTH_COOKIE_SECRET")
+    client_id = _get_secret("GOOGLE_CLIENT_ID")
+    client_secret = _get_secret("GOOGLE_CLIENT_SECRET")
     missing = [
         name
         for name, val in [
@@ -27,7 +38,6 @@ def _inject_auth_secrets():
     ]
     if missing:
         return False, missing
-
     secrets_singleton._secrets = {
         "auth": {
             "redirect_uri": redirect_uri,
