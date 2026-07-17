@@ -1,0 +1,564 @@
+/* ═══════════════════════════════════════════════════════════
+   JobMatch AI — Premium Dark Theme CSS
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Google Fonts Import ─────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* ── CSS Variables ───────────────────────────────────────── */
+:root {
+    --bg-primary: #f8fafc;
+    --bg-secondary: #ffffff;
+    --bg-card: #ffffff;
+    --bg-card-hover: #eef5ff;
+    --accent-blue: #2D8CFF;
+    --accent-blue-rgb: 45, 140, 255;
+    --accent-blue-hover: #0B5CFF;
+    --accent-purple: #8a3ffc;
+    --accent-emerald: #198038;
+    --accent-amber: #b28600;
+    --accent-rose: #da1e28;
+    --text-primary: #161616;
+    --text-secondary: #525252;
+    --text-muted: #8d8d8d;
+    --border-color: #dde1e6;
+    --glass-bg: rgba(45, 140, 255, 0.06);
+    --shadow-glow: 0 4px 24px rgba(45, 140, 255, 0.15);
+    --gradient-primary: linear-gradient(135deg, #2D8CFF, #0B5CFF);
+    --gradient-success: linear-gradient(135deg, #24a148, #198038);
+    --gradient-warm: linear-gradient(135deg, #f1c21b, #da1e28);
+}
+
+/* ── Global Styles ───────────────────────────────────────── */
+.stApp {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    background-color: var(--bg-primary) !important;
+    color: var(--text-primary) !important;
+}
+
+/* ── Sidebar Styling ─────────────────────────────────────── */
+[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%) !important;
+    border-right: 1px solid var(--border-color) !important;
+}
+
+[data-testid="stSidebar"] .stMarkdown {
+    color: var(--text-primary) !important;
+}
+
+[data-testid="stSidebar"] .stMarkdown h1 {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 800;
+    font-size: 1.5rem;
+    text-align: center;
+    padding: 0.5rem 0;
+}
+
+/* ── Step Indicators in Sidebar ──────────────────────────── */
+.step-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    margin: 4px 0;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+.step-item.active {
+    background: rgba(var(--accent-blue-rgb), 0.1);
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 20px rgba(var(--accent-blue-rgb), 0.1);
+}
+
+.step-item.completed {
+    background: rgba(16, 185, 129, 0.08);
+    border-color: rgba(16, 185, 129, 0.3);
+}
+
+.step-item.locked {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.step-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.step-icon.active {
+    background: var(--gradient-primary);
+    color: white;
+    box-shadow: 0 0 15px rgba(var(--accent-blue-rgb), 0.4);
+}
+
+.step-icon.completed {
+    background: var(--gradient-success);
+    color: white;
+}
+
+.step-icon.locked {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-muted);
+    border: 1px solid var(--border-color);
+}
+
+.step-label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.step-label.locked {
+    color: var(--text-muted);
+}
+
+/* ── Glass Card ──────────────────────────────────────────── */
+.glass-card {
+    background: var(--bg-card);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 24px;
+    margin: 12px 0;
+    transition: all 0.3s ease;
+}
+
+.glass-card:hover {
+    background: var(--bg-card-hover);
+    border-color: rgba(var(--accent-blue-rgb), 0.2);
+    box-shadow: var(--shadow-glow);
+    transform: translateY(-2px);
+}
+
+/* ── Hero Section ────────────────────────────────────────── */
+.hero-container {
+    text-align: center;
+    padding: 40px 20px;
+    margin-bottom: 30px;
+}
+
+.hero-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 12px;
+    line-height: 1.2;
+}
+
+.hero-subtitle {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+/* ── Job Card ────────────────────────────────────────────── */
+.job-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 20px;
+    margin: 10px 0;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.job-card:hover {
+    border-color: rgba(var(--accent-blue-rgb), 0.3);
+    box-shadow: var(--shadow-glow);
+    transform: translateY(-2px);
+}
+
+.job-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--gradient-primary);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.job-card:hover::before {
+    opacity: 1;
+}
+
+.job-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+}
+
+.job-company {
+    font-size: 0.95rem;
+    color: var(--accent-blue);
+    font-weight: 500;
+    margin-bottom: 10px;
+}
+
+.job-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.job-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+}
+
+.job-tag.location {
+    color: var(--accent-emerald);
+    border-color: rgba(16, 185, 129, 0.3);
+}
+
+.job-tag.salary {
+    color: var(--accent-amber);
+    border-color: rgba(245, 158, 11, 0.3);
+}
+
+.job-tag.work-type {
+    color: var(--accent-purple);
+    border-color: rgba(124, 58, 237, 0.3);
+}
+
+/* ── Match Score Badge ───────────────────────────────────── */
+.match-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: white;
+}
+
+.match-badge.high {
+    background: var(--gradient-success);
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+}
+
+.match-badge.medium {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    box-shadow: 0 0 12px rgba(245, 158, 11, 0.3);
+}
+
+.match-badge.low {
+    background: linear-gradient(135deg, #64748b, #475569);
+}
+
+/* ── Chat Bubbles ────────────────────────────────────────── */
+.chat-user {
+    background: #e8f0fe;
+    border: 1px solid #c2d7fa;
+    border-radius: 16px 16px 4px 16px;
+    padding: 14px 18px;
+    margin: 8px 0;
+    margin-left: 40px;
+    color: #0b2265;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    font-weight: 500;
+}
+
+.chat-ai {
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px 16px 16px 4px;
+    padding: 14px 18px;
+    margin: 8px 0;
+    margin-right: 40px;
+    color: #1f2937;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+/* ── Stat Cards ──────────────────────────────────────────── */
+.stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-glow);
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 800;
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-top: 4px;
+}
+
+/* ── Upload Area ─────────────────────────────────────────── */
+[data-testid="stFileUploader"] {
+    border: 2px dashed rgba(var(--accent-blue-rgb), 0.3) !important;
+    border-radius: 16px !important;
+    padding: 20px !important;
+    transition: all 0.3s ease !important;
+}
+
+[data-testid="stFileUploader"]:hover {
+    border-color: var(--accent-blue) !important;
+    background: rgba(var(--accent-blue-rgb), 0.03) !important;
+}
+
+/* ── Buttons ─────────────────────────────────────────────── */
+.stButton>button {
+    border-radius: 12px !important;
+    font-weight: 600 !important;
+    font-family: 'Inter', sans-serif !important;
+    transition: all 0.3s ease !important;
+    border: none !important;
+    padding: 10px 28px !important;
+}
+
+.stButton>button[kind="primary"] {
+    background: var(--gradient-primary) !important;
+    color: white !important;
+    box-shadow: 0 4px 15px rgba(var(--accent-blue-rgb), 0.25) !important;
+}
+
+.stButton>button[kind="primary"]:hover {
+    box-shadow: 0 6px 25px rgba(var(--accent-blue-rgb), 0.4) !important;
+    transform: translateY(-1px) !important;
+}
+
+/* ── Progress Bar ────────────────────────────────────────── */
+.progress-container {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    padding: 4px;
+    margin: 16px 0;
+}
+
+.progress-fill {
+    height: 8px;
+    border-radius: 8px;
+    background: var(--gradient-primary);
+    transition: width 0.5s ease;
+}
+
+/* ── Section Divider ─────────────────────────────────────── */
+.section-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border-color), transparent);
+    margin: 24px 0;
+}
+
+/* ── Spinner & Loading ───────────────────────────────────── */
+.stSpinner>div {
+    border-color: var(--accent-blue) !important;
+}
+
+/* ── Tabs ─────────────────────────────────────────────────── */
+.stTabs [data-baseweb="tab-list"] {
+    gap: 4px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    padding: 4px;
+}
+
+.stTabs [data-baseweb="tab"] {
+    border-radius: 10px !important;
+    padding: 10px 20px !important;
+    font-weight: 500 !important;
+}
+
+.stTabs [aria-selected="true"] {
+    background: rgba(var(--accent-blue-rgb), 0.1) !important;
+}
+
+/* ── Expander ────────────────────────────────────────────── */
+.streamlit-expanderHeader {
+    background: var(--bg-card) !important;
+    border-radius: 12px !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+/* ── Markdown Improvements ───────────────────────────────── */
+.stMarkdown h2 {
+    color: var(--text-primary);
+    font-weight: 700;
+    margin-top: 1.5rem;
+}
+
+.stMarkdown h3 {
+    color: var(--accent-blue);
+    font-weight: 600;
+}
+
+/* ── Hide Streamlit Elements ─────────────────────────────── */
+#MainMenu {
+    visibility: hidden;
+}
+
+footer {
+    visibility: hidden;
+}
+
+header {
+    visibility: hidden;
+}
+
+/* ── Animations ──────────────────────────────────────────── */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.7;
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -1000px 0;
+    }
+
+    100% {
+        background-position: 1000px 0;
+    }
+}
+
+.animate-fade-in {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+/* ── Voice Recording Button ──────────────────────────────── */
+.voice-btn {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--gradient-warm);
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(244, 63, 94, 0.3);
+    transition: all 0.3s ease;
+}
+
+.voice-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 30px rgba(244, 63, 94, 0.5);
+}
+
+.voice-btn.recording {
+    animation: pulse 1s infinite;
+    background: var(--accent-rose);
+}
+
+/* ── Interactive Step Icons (Sidebar Nav) ────────────────── */
+.step-item .step-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    margin-right: 10px;
+    transition: transform 0.25s ease, filter 0.25s ease;
+}
+
+.step-item:hover .step-icon {
+    transform: scale(1.18) rotate(-4deg);
+    filter: drop-shadow(0 2px 6px rgba(var(--accent-blue-rgb), 0.45));
+}
+
+.step-item.active .step-icon {
+    transform: scale(1.1);
+    filter: drop-shadow(0 2px 8px rgba(var(--accent-blue-rgb), 0.55));
+}
+
+/* ── Google-style Profile Avatar ──────────────────────────── */
+.gauth-avatar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(var(--accent-blue-rgb), 0.06);
+    border: 1px solid rgba(var(--accent-blue-rgb), 0.18);
+    transition: all 0.25s ease;
+    width: fit-content;
+}
+
+.gauth-avatar-wrap:hover {
+    background: rgba(var(--accent-blue-rgb), 0.12);
+    box-shadow: 0 2px 12px rgba(var(--accent-blue-rgb), 0.25);
+}
+
+.gauth-avatar-img {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--accent-blue);
+    box-shadow: 0 0 0 3px rgba(var(--accent-blue-rgb), 0.15);
+    transition: box-shadow 0.25s ease;
+}
+
+.gauth-avatar-wrap:hover .gauth-avatar-img {
+    box-shadow: 0 0 0 4px rgba(var(--accent-blue-rgb), 0.3);
+}
+
+.gauth-avatar-name {
+    font-weight: 600;
+    font-size: 0.92rem;
+    color: var(--text-primary);
+}

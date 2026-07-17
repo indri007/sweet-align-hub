@@ -1,0 +1,14 @@
+.git
+.gitignore
+__pycache__/
+*.pyc
+.venv/
+venv/
+data/jobs.db
+data/chroma_db/
+.streamlit/secrets.toml
+.streamlit/
+*.bak_before_refactor
+*.bak_before_upload
+*.b64
+.streamlit/secrets.toml
