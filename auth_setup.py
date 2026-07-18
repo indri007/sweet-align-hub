@@ -22,6 +22,12 @@ def _get_secret(key: str) -> str:
 
 
 def _inject_auth_secrets():
+    try:
+        if "auth" in st.secrets and "google" in st.secrets["auth"]:
+            return True, []
+    except Exception:
+        pass
+
     redirect_uri = _get_secret("AUTH_REDIRECT_URI")
     cookie_secret = _get_secret("AUTH_COOKIE_SECRET")
     client_id = _get_secret("GOOGLE_CLIENT_ID")
