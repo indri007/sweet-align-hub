@@ -72,7 +72,7 @@ DATASET_PATH = BASE_DIR / "dataset" / "jobs.jsonl"
 DATA_DIR = BASE_DIR / "data"
 
 # ─── App Settings ─────────────────────────────────────────
-MAX_UPLOAD_SIZE_MB = 100
+MAX_UPLOAD_SIZE_MB = 5
 SUPPORTED_CV_FORMATS = [".pdf", ".docx"]  # legacy .doc dropped: python-docx can't parse binary .doc
 TOP_K_RESULTS = 10
 

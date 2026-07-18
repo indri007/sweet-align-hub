@@ -30,7 +30,7 @@ def render_step_a():
         uploaded_file = st.file_uploader(
             "Drag & drop CV kamu di sini",
             type=["pdf", "docx", "doc"],
-            help="Format yang didukung: PDF, DOCX, DOC. Maksimum 100MB.",
+            help="Format yang didukung: PDF, DOCX, DOC. Maksimum 5MB.",
             key="cv_uploader",
         )
 
@@ -85,7 +85,7 @@ def render_step_a():
                 <h4 style="color:var(--accent-blue);">📋 Panduan</h4>
                 <p style="font-size:0.85rem; color:var(--text-secondary); line-height:1.6;">
                     <strong>Format:</strong> PDF atau Word<br>
-                    <strong>Max Size:</strong> 100MB<br>
+                    <strong>Max Size:</strong> 5MB<br>
                     <strong>Tips:</strong> Pastikan CV kamu berisi informasi yang lengkap tentang pengalaman, skill, dan pendidikan.
                 </p>
             </div>""",
