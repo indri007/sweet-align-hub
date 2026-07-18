@@ -20,7 +20,17 @@ sentry_sdk.init(
     dsn=os.environ.get("SENTRY_DSN", ""),
     traces_sample_rate=0.2,       # 20% transaksi buat performance tracing
     environment=os.environ.get("ENVIRONMENT", "production"),
-    send_default_pii=False,       # jangan kirim data pribadi user ke Sentry
+)
+
+# ─── Page Config ──────────────────────────────────────────
+# Set page config at the very top. Dynamically collapse sidebar if not logged in
+# to prevent the native sidebar from flashing before CSS injection takes effect.
+is_logged_in = getattr(st.user, "is_logged_in", False)
+st.set_page_config(
+    page_title="JobMatch AI — CV Review & Job Recommendations",
+    page_icon="🎯",
+    layout="wide",
+    initial_sidebar_state="expanded" if is_logged_in else "collapsed",
 )
 
 from logger import get_logger
@@ -53,13 +63,7 @@ from pages.step_c_review import render_step_c
 from pages.step_d_consultation import render_step_d
 from pages.step_e_interview import render_step_e
 
-# ─── Page Config ──────────────────────────────────────────
-st.set_page_config(
-    page_title="JobMatch AI — CV Review & Job Recommendations",
-    page_icon="🎯",
-    layout="wide",
-    initial_sidebar_state="expanded",
-)
+# (Page config has been moved to the top of the file)
 
 # ─── Google Auth Check ─────────────────────────────────────
 # NOTE: kept exactly as in the original app.py. This duplicates
