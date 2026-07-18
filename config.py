@@ -58,8 +58,8 @@ COLLECTION_NAME = "indonesian_jobs"
 EMBEDDING_MODEL = _cfg("EMBEDDING_MODEL", "gemini")  # "local", "openai", or "gemini"
 
 # ─── N8N ──────────────────────────────────────────────────
-N8N_WEBHOOK_URL = os.getenv("N8N_WEBHOOK_URL", "")
-USE_N8N = os.getenv("USE_N8N", "false").lower() == "true"
+N8N_WEBHOOK_URL = _cfg("N8N_WEBHOOK_URL", "")
+USE_N8N = _cfg("USE_N8N", "false").lower() == "true"
 
 
 def is_n8n_configured() -> bool:
