@@ -30,30 +30,21 @@ def render_step_d():
     else:
         # Display chat history
         for msg in st.session_state.career_chat_history:
-            if msg["role"] == "user":
-                st.markdown(
-                    f'<div class="chat-user">🧑 {msg["content"]}</div>',
-                    unsafe_allow_html=True,
-                )
-            else:
-                st.markdown(
-                    f'<div class="chat-ai">🤖 {msg["content"]}</div>',
-                    unsafe_allow_html=True,
-                )
+            avatar = "🧑" if msg["role"] == "user" else "🤖"
+            with st.chat_message(msg["role"], avatar=avatar):
+                st.write(msg["content"])
 
         # Welcome message if no history
         if not st.session_state.career_chat_history:
-            st.markdown(
-                """<div class="chat-ai">
-                    🤖 Halo! Saya AI Career Consultant kamu. Saya sudah membaca CV kamu.<br><br>
-                    Silakan ceritakan tentang:<br>
-                    • 🎯 Cita-cita atau tujuan karir kamu<br>
-                    • 🤔 Keraguan tentang pilihan karir<br>
-                    • 📈 Skill yang ingin dikembangkan<br>
-                    • 💡 Atau apapun tentang karir kamu!
-                </div>""",
-                unsafe_allow_html=True,
-            )
+            with st.chat_message("assistant", avatar="🤖"):
+                st.markdown(
+                    "Halo! Saya AI Career Consultant kamu. Saya sudah membaca CV kamu.\n\n"
+                    "Silakan ceritakan tentang:\n"
+                    "* 🎯 Cita-cita atau tujuan karir kamu\n"
+                    "* 🤔 Keraguan tentang pilihan karir\n"
+                    "* 📈 Skill yang ingin dikembangkan\n"
+                    "* 💡 Atau apapun tentang karir kamu!"
+                )
 
         # Chat input
         user_input = st.chat_input("Ketik pesan kamu di sini...")

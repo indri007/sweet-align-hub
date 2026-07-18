@@ -30,18 +30,18 @@ def render_step_a():
         uploaded_file = st.file_uploader(
             "Drag & drop CV kamu di sini",
             type=["pdf", "docx", "doc"],
-            help="Format yang didukung: PDF, DOCX. Maksimum 100MB.",
+            help="Format yang didukung: PDF, DOCX, DOC. Maksimum 100MB.",
             key="cv_uploader",
         )
 
         if uploaded_file is not None:
-            file_bytes = uploaded_file.getvalue()
-
             # Validate size
             max_bytes = config.MAX_UPLOAD_SIZE_MB * 1024 * 1024
-            if len(file_bytes) > max_bytes:
+            if uploaded_file.size > max_bytes:
                 st.error(f"❌ File terlalu besar. Maksimum {config.MAX_UPLOAD_SIZE_MB}MB.")
                 st.stop()
+
+            file_bytes = uploaded_file.getvalue()
 
             # Validate
             is_valid, error_msg = validate_cv_file(file_bytes, uploaded_file.name)

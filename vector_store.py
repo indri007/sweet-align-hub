@@ -200,7 +200,7 @@ class QdrantVectorStore:
             document = payload.pop("_document", "")
             original_id = payload.pop("_original_id", str(point.id))
             # Qdrant cosine score: higher = more similar (roughly -1..1)
-            similarity = max(0, min(1, (point.score + 1) / 2)) if point.score < 0 else min(1, point.score)
+            similarity = max(0.0, min(1.0, (point.score + 1.0) / 2.0))
             jobs.append({
                 "id": original_id,
                 "document": document,

@@ -7,24 +7,24 @@
 
 /* ── CSS Variables ───────────────────────────────────────── */
 :root {
-    --bg-primary: #0a0a1a;
-    --bg-secondary: #1a1a2e;
-    --bg-card: rgba(26, 26, 46, 0.8);
-    --bg-card-hover: rgba(30, 30, 60, 0.9);
-    --accent-blue: #00d4ff;
-    --accent-purple: #7c3aed;
-    --accent-emerald: #10b981;
-    --accent-amber: #f59e0b;
-    --accent-rose: #f43f5e;
-    --text-primary: #e2e8f0;
-    --text-secondary: #94a3b8;
-    --text-muted: #64748b;
-    --border-color: rgba(255, 255, 255, 0.08);
+    --bg-primary: #FFFFFF;
+    --bg-secondary: #F5F7FA;
+    --bg-card: #FFFFFF;
+    --bg-card-hover: #F5F7FA;
+    --accent-blue: #4285F4;
+    --accent-purple: #0A66C2;
+    --accent-emerald: #34A853;
+    --accent-amber: #FBBC05;
+    --accent-rose: #EA4335;
+    --text-primary: #1F2937;
+    --text-secondary: #4B5563;
+    --text-muted: #6B7280;
+    --border-color: rgba(31, 41, 55, 0.12);
     --glass-bg: rgba(255, 255, 255, 0.03);
-    --shadow-glow: 0 0 30px rgba(0, 212, 255, 0.1);
-    --gradient-primary: linear-gradient(135deg, #00d4ff, #7c3aed);
-    --gradient-success: linear-gradient(135deg, #10b981, #059669);
-    --gradient-warm: linear-gradient(135deg, #f59e0b, #f43f5e);
+    --shadow-glow: 0 0 20px rgba(66, 133, 244, 0.15);
+    --gradient-primary: linear-gradient(135deg, #4285F4, #0A66C2);
+    --gradient-success: linear-gradient(135deg, #34A853, #1E7E34);
+    --gradient-warm: linear-gradient(135deg, #FBBC05, #EA4335);
 }
 
 /* ── Global Styles ───────────────────────────────────────── */
@@ -34,7 +34,7 @@
 
 /* ── Sidebar Styling ─────────────────────────────────────── */
 [data-testid="stSidebar"] {
-    background: linear-gradient(180deg, #0d0d24 0%, #1a1a2e 100%) !important;
+    background: #FFFFFF !important;
     border-right: 1px solid var(--border-color) !important;
 }
 
@@ -68,7 +68,7 @@
 
 .step-item.completed {
     background: rgba(16, 185, 129, 0.08);
-    border-color: rgba(16, 185, 129, 0.3);
+    border-color: rgba(52, 168, 83, 0.3);
 }
 
 .step-item.locked {
@@ -130,7 +130,7 @@
 
 .glass-card:hover {
     background: var(--bg-card-hover);
-    border-color: rgba(0, 212, 255, 0.2);
+    border-color: rgba(66, 133, 244, 0.3);
     box-shadow: var(--shadow-glow);
     transform: translateY(-2px);
 }
@@ -229,12 +229,12 @@
 
 .job-tag.location {
     color: var(--accent-emerald);
-    border-color: rgba(16, 185, 129, 0.3);
+    border-color: rgba(52, 168, 83, 0.3);
 }
 
 .job-tag.salary {
-    color: var(--accent-amber);
-    border-color: rgba(245, 158, 11, 0.3);
+    color: #9C7A00;
+    border-color: rgba(251, 188, 5, 0.5);
 }
 
 .job-tag.work-type {
@@ -753,4 +753,25 @@ header {
     margin: 0 auto 30px auto;
     padding-bottom: 20px;
     border-bottom: 1px solid #f1f5f9;
+}
+
+/* ── Final override: tema terang Google + LinkedIn ── */
+.glass-card, .stApp [data-testid="stVerticalBlock"] > div:has(.glass-card) {
+    background: #FFFFFF !important;
+    border: 1px solid rgba(31, 41, 55, 0.12) !important;
+}
+
+.job-tag.salary {
+    color: #9C7A00 !important;
+    border-color: rgba(251, 188, 5, 0.5) !important;
+}
+
+.job-tag.location {
+    color: #1E7E34 !important;
+    border-color: rgba(52, 168, 83, 0.3) !important;
+}
+
+body, .stApp {
+    background: #FFFFFF !important;
+    color: #1F2937 !important;
 }

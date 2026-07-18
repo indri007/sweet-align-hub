@@ -23,3 +23,5 @@ pdf2image
 ragas==0.3.9
 langchain-google-genai>=2.0.0
 authlib>=1.3.0
+docx2txt>=0.8
+mammoth>=1.7.0

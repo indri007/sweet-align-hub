@@ -86,38 +86,37 @@ def render_step_e():
             if not st.session_state.interview_started:
                 if st.button("🎬 Mulai Interview Sekarang", type="primary"):
                     with st.spinner("🤖 HR sedang mempersiapkan interview..."):
-                        from agents.interview_agent import start_interview
-                        result = start_interview(st.session_state.cv_text, job)
-                        if result["available"] and result["response"]:
-                            st.session_state.interview_history = [
-                                {"role": "assistant", "content": result["response"]}
-                            ]
-                            st.session_state.interview_started = True
-                            st.rerun()
+                        try:
+                            from agents.interview_agent import start_interview
+                            result = start_interview(st.session_state.cv_text, job)
+                            if result["available"] and result["response"]:
+                                st.session_state.interview_history = [
+                                    {"role": "assistant", "content": result["response"]}
+                                ]
+                                st.session_state.interview_started = True
+                                st.rerun()
+                            else:
+                                st.error("❌ Gagal memulai interview. Silakan coba lagi.")
+                        except Exception as e:
+                            st.error(f"❌ Terjadi kesalahan saat memulai interview: {e}")
             else:
                 # Display interview conversation
                 for msg in st.session_state.interview_history:
                     if msg["role"] == "assistant":
-                        st.markdown(
-                            f'<div class="chat-ai">🤵 HR: {msg["content"]}</div>',
-                            unsafe_allow_html=True,
-                        )
-
-                        # TTS for voice mode
-                        if mode == "🎙️ Voice" and msg == st.session_state.interview_history[-1]:
-                            try:
-                                from agents.interview_agent import text_to_speech
-                                audio_bytes = text_to_speech(msg["content"])
-                                if audio_bytes:
-                                    st.audio(audio_bytes, format="audio/mp3")
-                            except Exception:
-                                pass
-
+                        with st.chat_message("assistant", avatar="🤵"):
+                            st.write(msg["content"])
+                            # TTS for voice mode
+                            if mode == "🎙️ Voice" and msg == st.session_state.interview_history[-1]:
+                                try:
+                                    from agents.interview_agent import text_to_speech
+                                    audio_bytes = text_to_speech(msg["content"])
+                                    if audio_bytes:
+                                        st.audio(audio_bytes, format="audio/mp3")
+                                except Exception as e:
+                                    st.error(f"Gagal memutar audio: {e}")
                     else:
-                        st.markdown(
-                            f'<div class="chat-user">🧑 Kamu: {msg["content"]}</div>',
-                            unsafe_allow_html=True,
-                        )
+                        with st.chat_message("user", avatar="🧑"):
+                            st.write(msg["content"])
 
                 # Input area
                 if mode == "💬 Text":
@@ -127,17 +126,22 @@ def render_step_e():
                             {"role": "user", "content": answer}
                         )
                         with st.spinner("🤵 HR sedang mengevaluasi jawaban..."):
-                            from agents.interview_agent import continue_interview
-                            result = continue_interview(
-                                st.session_state.cv_text,
-                                job,
-                                st.session_state.interview_history[:-1],
-                                answer,
-                            )
-                            if result["available"] and result["response"]:
-                                st.session_state.interview_history.append(
-                                    {"role": "assistant", "content": result["response"]}
+                            try:
+                                from agents.interview_agent import continue_interview
+                                result = continue_interview(
+                                    st.session_state.cv_text,
+                                    job,
+                                    st.session_state.interview_history[:-1],
+                                    answer,
                                 )
+                                if result["available"] and result["response"]:
+                                    st.session_state.interview_history.append(
+                                        {"role": "assistant", "content": result["response"]}
+                                    )
+                                else:
+                                    st.error("❌ Gagal mendapatkan respon HR.")
+                            except Exception as e:
+                                st.error(f"❌ Terjadi kesalahan saat mengevaluasi jawaban: {e}")
                         st.rerun()
 
                 else:  # Voice mode
@@ -154,27 +158,32 @@ def render_step_e():
                             st.audio(audio_bytes, format="audio/wav")
                             if st.button("📤 Kirim Jawaban", type="primary"):
                                 with st.spinner("🎧 Transcribing audio..."):
-                                    from agents.interview_agent import (
-                                        transcribe_audio,
-                                        continue_interview,
-                                    )
-                                    transcribed = transcribe_audio(audio_bytes)
-                                    st.info(f"📝 Transcribed: {transcribed}")
-
-                                    st.session_state.interview_history.append(
-                                        {"role": "user", "content": transcribed}
-                                    )
-
-                                    result = continue_interview(
-                                        st.session_state.cv_text,
-                                        job,
-                                        st.session_state.interview_history[:-1],
-                                        transcribed,
-                                    )
-                                    if result["available"] and result["response"]:
-                                        st.session_state.interview_history.append(
-                                            {"role": "assistant", "content": result["response"]}
+                                    try:
+                                        from agents.interview_agent import (
+                                            transcribe_audio,
+                                            continue_interview,
                                         )
+                                        transcribed = transcribe_audio(audio_bytes)
+                                        st.info(f"📝 Transcribed: {transcribed}")
+
+                                        st.session_state.interview_history.append(
+                                            {"role": "user", "content": transcribed}
+                                        )
+
+                                        result = continue_interview(
+                                            st.session_state.cv_text,
+                                            job,
+                                            st.session_state.interview_history[:-1],
+                                            transcribed,
+                                        )
+                                        if result["available"] and result["response"]:
+                                            st.session_state.interview_history.append(
+                                                {"role": "assistant", "content": result["response"]}
+                                            )
+                                        else:
+                                            st.error("❌ Gagal mendapatkan respon HR.")
+                                    except Exception as e:
+                                        st.error(f"❌ Terjadi kesalahan saat memproses audio: {e}")
                                     st.rerun()
                     except ImportError:
                         st.warning("📦 Package `audio-recorder-streamlit` belum terinstall.")
