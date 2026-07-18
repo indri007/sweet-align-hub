@@ -150,7 +150,7 @@ class QdrantVectorStore:
         from qdrant_client import QdrantClient, models
         self._models = models
         self.collection_name = config.COLLECTION_NAME
-        self.client = QdrantClient(url=config.QDRANT_URL, api_key=config.QDRANT_API_KEY)
+        self.client = QdrantClient(url=config.QDRANT_URL, api_key=config.QDRANT_API_KEY, prefer_grpc=False, https=True)
         self._ensure_collection()
 
     def _ensure_collection(self):
