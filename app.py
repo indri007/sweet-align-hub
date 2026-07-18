@@ -83,9 +83,8 @@ if st.sidebar.button("Logout"):
     st.logout()
 
 # ─── Load CSS ─────────────────────────────────────────────
-css_path = Path(__file__).parent / "styles.css"
-if css_path.exists():
-    st.markdown(f"<style>{css_path.read_text(encoding='utf-8')}</style>", unsafe_allow_html=True)
+from theme import inject_material3_theme
+inject_material3_theme()
 
 # ─── Session State Initialization ─────────────────────────
 nav.init_session_state()
