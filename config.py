@@ -32,7 +32,7 @@ _raw_gemini_keys = _cfg("GEMINI_API_KEYS") or _cfg("GEMINI_API_KEY") or _cfg("GE
 GEMINI_API_KEYS = [k.strip() for k in _raw_gemini_keys.split(",")] if _raw_gemini_keys else []
 GEMINI_API_KEY = GEMINI_API_KEYS[0] if GEMINI_API_KEYS else ""
 GEMINI_MODEL = _cfg("GEMINI_MODEL", "gemini-2.5-flash")
-GEMINI_EMBEDDING_MODEL = _cfg("GEMINI_EMBEDDING_MODEL", "models/gemini-embedding-001")
+GEMINI_EMBEDDING_MODEL = _cfg("GEMINI_EMBEDDING_MODEL", "models/text-embedding-004")
 
 # ─── Multi-LLM Providers (Groq, OpenRouter, Mistral) ──────
 GROQ_API_KEY = _cfg("GROQ_API_KEY")
