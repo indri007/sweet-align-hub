@@ -69,6 +69,24 @@ def render_step_a():
                         st.session_state.cv_file_info = file_info
                         st.session_state.cv_bytes = file_bytes
 
+                        # Save profile to Aiven MySQL
+                        user_email = getattr(st.user, "email", None)
+                        if user_email:
+                            try:
+                                from database import DatabaseManager
+                                db = DatabaseManager()
+                                db.create_tables()
+                                db.save_user_profile(
+                                    email=user_email,
+                                    name=getattr(st.user, "name", "User"),
+                                    cv_text=cv_text,
+                                    cv_filename=uploaded_file.name
+                                )
+                                logger.info("User profile saved", extra={"email": user_email})
+                            except Exception as db_e:
+                                logger.error("Failed to save user profile", extra={"error": str(db_e)})
+
+
                         record_event("cv_upload_success")
                         logger.info("CV processed", extra={"uploaded_filename": uploaded_file.name})
                         st.success("✅ CV berhasil di-upload dan dibaca!")

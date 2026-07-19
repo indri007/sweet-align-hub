@@ -46,6 +46,16 @@ class Job(Base):
     scrape_timestamp = Column(String(100))
 
 
+class UserProfile(Base):
+    """User Profile model for storing uploaded CVs and metadata."""
+    __tablename__ = "user_profiles"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    email = Column(String(255), unique=True, nullable=False)
+    name = Column(String(255))
+    cv_text = Column(Text)
+    cv_filename = Column(String(500))
+    uploaded_at = Column(String(100))
 def parse_salary(salary_str: str) -> tuple[Optional[float], Optional[float]]:
     """
     Parse salary string into min and max values.
@@ -125,6 +135,51 @@ class DatabaseManager:
         except Exception as e:
             session.rollback()
             raise e
+        finally:
+            session.close()
+
+    def save_user_profile(self, email: str, name: str, cv_text: str, cv_filename: str):
+        """Insert or update a user's CV profile."""
+        from datetime import datetime
+        session = self.Session()
+        try:
+            profile = session.query(UserProfile).filter(UserProfile.email == email).first()
+            if profile:
+                profile.name = name
+                profile.cv_text = cv_text
+                profile.cv_filename = cv_filename
+                profile.uploaded_at = datetime.now().isoformat()
+            else:
+                profile = UserProfile(
+                    email=email,
+                    name=name,
+                    cv_text=cv_text,
+                    cv_filename=cv_filename,
+                    uploaded_at=datetime.now().isoformat()
+                )
+                session.add(profile)
+            session.commit()
+        except Exception as e:
+            session.rollback()
+            raise e
+        finally:
+            session.close()
+
+    def get_user_profile(self, email: str) -> Optional[dict]:
+        """Retrieve a user's CV profile."""
+        session = self.Session()
+        try:
+            profile = session.query(UserProfile).filter(UserProfile.email == email).first()
+            if not profile:
+                return None
+            return {
+                "id": profile.id,
+                "email": profile.email,
+                "name": profile.name,
+                "cv_text": profile.cv_text,
+                "cv_filename": profile.cv_filename,
+                "uploaded_at": profile.uploaded_at
+            }
         finally:
             session.close()
 
