@@ -93,10 +93,10 @@ KAFKA_CA_PATH = _cfg("KAFKA_CA_PATH", "ca.pem")
 # ─── Embedding ────────────────────────────────────────────
 EMBEDDING_MODEL = _cfg("EMBEDDING_MODEL", "gemini")  # "local", "openai", or "gemini"
 
-# ─── N8N ──────────────────────────────────────────────────
+# ─── N8N Webhooks (Automation) ────────────────────────────
+N8N_API_KEY = _cfg("N8N_API_KEY", "")
 N8N_WEBHOOK_URL = _cfg("N8N_WEBHOOK_URL", "")
 USE_N8N = _cfg("USE_N8N", "false").lower() == "true"
-
 
 def is_n8n_configured() -> bool:
     """Check if N8N webhook URL is set and USE_N8N is enabled."""
