@@ -26,7 +26,9 @@ def call_n8n_webhook(endpoint: str, data: dict, timeout: int = 120) -> dict:
     try:
         headers = {"Content-Type": "application/json"}
         if config.N8N_API_KEY:
+            # Send both Bearer and Header Auth for compatibility with the new webhook
             headers["Authorization"] = f"Bearer {config.N8N_API_KEY}"
+            headers["X-API-Key"] = config.N8N_API_KEY
             
         response = requests.post(
             url,
@@ -58,7 +60,26 @@ def call_n8n_webhook(endpoint: str, data: dict, timeout: int = 120) -> dict:
         return {"error": f"N8N error: {str(e)}"}
 
 
-# ─── Wrapper Functions for Each Workflow ──────────────────
+# ─── Unified V4 Agent Endpoint ────────────────────────────
+
+def ask_unified_agent_n8n(agent_type: str, query_text: str, session_id: str = "guest") -> str:
+    """
+    Call the unified N8N JobMatch AI V4 webhook (Router Switch).
+    agent_type: "veronika", "leonardo", or "main"
+    """
+    payload = {"session_id": session_id}
+    
+    if agent_type == "veronika":
+        payload["cs_query_veronika"] = query_text
+    elif agent_type == "leonardo":
+        payload["cs_query_leonardo"] = query_text
+    else:
+        payload["query"] = query_text
+        
+    result = call_n8n_webhook("/webhook/job-assistant", payload)
+    return result.get("output") or result.get("text") or result.get("response") or result.get("error", "")
+
+# ─── Wrapper Functions for Legacy Workflows ──────────────────
 
 
 def match_cv_to_jobs_n8n(cv_text: str, jobs_context: str) -> str:

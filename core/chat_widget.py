@@ -154,66 +154,23 @@ def _inject_floating_css(is_open: bool = False, img_b64: str = ""):
     )
 
 def _ask_cs_bot(chat_history: list, user_message: str, gemini_client, system_health: dict) -> str:
-    if not gemini_client:
-        return "Maaf, sistem AI utama sedang tidak tersedia untuk sementara waktu."
-
+    # Instead of hitting Gemini directly, we now route to the Unified N8N V4 Webhook
+    # so that N8N handles RAG, Vector Search, and Memory logging safely.
+    import streamlit as st
+    import n8n_client
+    
+    session_id = st.session_state.get("session_id", "guest")
+    
     try:
-        contents = []
-        for msg in chat_history:
-            role = "model" if msg["role"] == "assistant" else "user"
-            contents.append({"role": role, "parts": [{"text": msg["content"]}]})
-        contents.append({"role": "user", "parts": [{"text": user_message}]})
-
-        # RAG: Fetch CS Knowledge and CS Memory from Qdrant
-        import config
-        from vector_store import VectorStoreManager
+        reply = n8n_client.ask_unified_agent_n8n("leonardo", user_message, session_id)
         
-        cs_store = VectorStoreManager(collection_name=config.CS_KNOWLEDGE_COLLECTION)
-        cs_memory = VectorStoreManager(collection_name=config.CS_MEMORY_COLLECTION)
-        
-        cs_knowledge_chunks = cs_store.search_similar_jobs(user_message, top_k=2)
-        cs_memory_chunks = cs_memory.search_similar_jobs(user_message, top_k=2)
-        
-        rag_context = "\n".join([chunk["document"] for chunk in cs_knowledge_chunks]) if cs_knowledge_chunks else "Tidak ada panduan relevan dari knowledge base."
-        memory_context = "\n".join([chunk["document"] for chunk in cs_memory_chunks]) if cs_memory_chunks else "Tidak ada memori dari pengalaman masa lalu."
-        
-        system_health["rag_context"] = rag_context
-        system_health["memory_context"] = memory_context
-
-        # Inject real-time status and RAG context
-        active_system_prompt = get_dynamic_system_prompt(system_health)
-
-        response = gemini_client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=contents,
-            config=types.GenerateContentConfig(
-                system_instruction=active_system_prompt,
-                temperature=0.3,
-                top_p=0.9,
-                top_k=40,
-                max_output_tokens=1000,
-            ),
-        )
-        reply = response.text
-        
-        # Fire-and-forget thread to save memory and log to Kafka
+        # Fire-and-forget thread to log to Kafka
         import threading
-        import uuid
+        import time
         def _save_memory():
-            try:
-                interaction = f"User bertanya: {user_message}\nLeonardo menjawab: {reply}"
-                cs_memory.add_documents(
-                    documents=[interaction],
-                    metadatas=[{"source": "cs_chat_history"}],
-                    ids=[str(uuid.uuid4())]
-                )
-            except Exception as e:
-                print(f"[Memory] Gagal menyimpan kenangan Leonardo: {e}")
-                
             # Kafka Pilar 3: Pipa Log Aktivitas CS
             try:
                 from kafka_producer import send_kafka_message
-                import time
                 log_data = {
                     "event": "cs_chat",
                     "user_message": user_message,
