@@ -59,10 +59,12 @@ QDRANT_API_KEY = _cfg("QDRANT_API_KEY")
 COLLECTION_NAME = "indonesian_jobs"
 HR_KNOWLEDGE_COLLECTION = "hr_knowledge_base"
 
-# Secondary Cluster (CS Leonardo)
+# Secondary Cluster (CS Leonardo, Veronica, and Agentic Memory)
 CS_QDRANT_URL = _cfg("CS_QDRANT_URL", "https://b08d43f7-ee25-4bf2-baf8-f5df70f357c8.sa-east-1-0.aws.cloud.qdrant.io:6333")
 CS_QDRANT_API_KEY = _cfg("CS_QDRANT_API_KEY", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3MiOiJtIiwic3ViamVjdCI6ImFwaS1rZXk6YzBjNzNiYjEtYmExMy00MGMxLTg5YjQtNzdiNjkyODE1NDY5In0.0KHuOYAjfgU-5V2umoZkMi7oaqzC50FgYKTiVd-lROI")
 CS_KNOWLEDGE_COLLECTION = "cs_knowledge_base"
+CS_MEMORY_COLLECTION = "cs_memory"
+HR_MEMORY_COLLECTION = "hr_memory"
 
 # ─── Embedding ────────────────────────────────────────────
 EMBEDDING_MODEL = _cfg("EMBEDDING_MODEL", "gemini")  # "local", "openai", or "gemini"

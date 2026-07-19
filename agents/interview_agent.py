@@ -66,12 +66,18 @@ def start_interview(cv_text: str, job_info: dict) -> dict:
         return {"response": None, "available": False}
 
     try:
-        # RAG: Fetch HR Knowledge from Qdrant
+        # RAG: Fetch HR Knowledge and Memory from Qdrant
         from vector_store import VectorStoreManager
         hr_store = VectorStoreManager(collection_name=config.HR_KNOWLEDGE_COLLECTION)
+        hr_memory = VectorStoreManager(collection_name=config.HR_MEMORY_COLLECTION)
+        
         search_query = f"{job_info.get('job_title', '')} {job_info.get('company_name', '')}"
+        
         hr_knowledge_chunks = hr_store.search_similar_jobs(search_query, top_k=3)
+        hr_memory_chunks = hr_memory.search_similar_jobs(search_query, top_k=2)
+        
         hr_context = "\n".join([chunk["document"] for chunk in hr_knowledge_chunks]) if hr_knowledge_chunks else "Tidak ada instruksi spesifik. Gunakan penilaian standar HR."
+        memory_context = "\n".join([chunk["document"] for chunk in hr_memory_chunks]) if hr_memory_chunks else "Tidak ada kenangan masa lalu untuk peran ini."
 
         system_prompt = INTERVIEWER_PROMPT.format(
             job_title=job_info.get("job_title", "Unknown Position"),
@@ -91,6 +97,9 @@ Deskripsi Pekerjaan:
 
 [PANDUAN HR KHUSUS (RAG)]:
 {hr_context}
+
+[KENANGAN WAWANCARA SEBELUMNYA]:
+{memory_context}
 
 Mulai interview sekarang. Perkenalkan diri kamu sebagai HR dan mulai dengan pertanyaan pertama.""",
             },
@@ -139,12 +148,18 @@ def continue_interview(
         return {"response": None, "available": False}
 
     try:
-        # RAG: Fetch HR Knowledge from Qdrant
+        # RAG: Fetch HR Knowledge and Memory from Qdrant
         from vector_store import VectorStoreManager
         hr_store = VectorStoreManager(collection_name=config.HR_KNOWLEDGE_COLLECTION)
+        hr_memory = VectorStoreManager(collection_name=config.HR_MEMORY_COLLECTION)
+        
         search_query = f"{job_info.get('job_title', '')} {job_info.get('company_name', '')}"
+        
         hr_knowledge_chunks = hr_store.search_similar_jobs(search_query, top_k=3)
+        hr_memory_chunks = hr_memory.search_similar_jobs(search_query, top_k=2)
+        
         hr_context = "\n".join([chunk["document"] for chunk in hr_knowledge_chunks]) if hr_knowledge_chunks else "Tidak ada instruksi spesifik."
+        memory_context = "\n".join([chunk["document"] for chunk in hr_memory_chunks]) if hr_memory_chunks else "Tidak ada kenangan masa lalu."
 
         system_prompt = INTERVIEWER_PROMPT.format(
             job_title=job_info.get("job_title", "Unknown Position"),
@@ -155,7 +170,7 @@ def continue_interview(
             {"role": "system", "content": system_prompt},
             {
                 "role": "user",
-                "content": f"[KONTEKS]\nCV: {cv_text[:2000]}\nJob: {job_info.get('job_description', '')[:1000]}\n\n[PANDUAN HR KHUSUS (RAG)]:\n{hr_context}",
+                "content": f"[KONTEKS]\nCV: {cv_text[:2000]}\nJob: {job_info.get('job_description', '')[:1000]}\n\n[PANDUAN HR KHUSUS (RAG)]:\n{hr_context}\n\n[KENANGAN WAWANCARA SEBELUMNYA]:\n{memory_context}",
             },
             {
                 "role": "assistant",
@@ -179,6 +194,21 @@ def continue_interview(
             })
 
         reply = chat_completion(messages=messages, temperature=0.7, max_tokens=1200)
+
+        # Fire-and-forget thread to save memory
+        import threading
+        import uuid
+        def _save_memory():
+            try:
+                interaction = f"Posisi: {job_info.get('job_title', 'Unknown')}\nKandidat menjawab: {user_answer}\nVeronica HR merespons: {reply}"
+                hr_memory.add_documents(
+                    documents=[interaction],
+                    metadatas=[{"source": "hr_interview_history"}],
+                    ids=[str(uuid.uuid4())]
+                )
+            except Exception as e:
+                print(f"[Memory] Gagal menyimpan kenangan Veronica: {e}")
+        threading.Thread(target=_save_memory, daemon=True).start()
 
         return {
             "response": reply,

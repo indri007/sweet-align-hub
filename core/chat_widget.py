@@ -46,8 +46,11 @@ CAKUPAN BANTUAN KAMU (4 Area):
 3. FITUR — Review CV, Rekomendasi Semantic, Generate CV ATS, Konsultasi, Mock Interview.
 4. BENEFIT — Penjelasan logis (bukan iklan) mengapa fitur ini berguna.
 
-=== ILMU TAMBAHAN (DARI QDRANT) ===
-{system_health_status.get('rag_context', 'Belum ada ilmu tambahan.')}
+=== ILMU TAMBAHAN (DARI PANDUAN QDRANT) ===
+{system_health_status.get('rag_context', 'Belum ada panduan tambahan.')}
+
+=== KENANGAN MASA LALU (PENGALAMAN DARI USER LAIN) ===
+{system_health_status.get('memory_context', 'Belum ada kenangan masa lalu.')}
 
 {status_text}
 
@@ -161,13 +164,21 @@ def _ask_cs_bot(chat_history: list, user_message: str, gemini_client, system_hea
             contents.append({"role": role, "parts": [{"text": msg["content"]}]})
         contents.append({"role": "user", "parts": [{"text": user_message}]})
 
-        # RAG: Fetch CS Knowledge from Qdrant
+        # RAG: Fetch CS Knowledge and CS Memory from Qdrant
         import config
         from vector_store import VectorStoreManager
+        
         cs_store = VectorStoreManager(collection_name=config.CS_KNOWLEDGE_COLLECTION)
-        cs_knowledge_chunks = cs_store.search_similar_jobs(user_message, top_k=3)
-        rag_context = "\n".join([chunk["document"] for chunk in cs_knowledge_chunks]) if cs_knowledge_chunks else "Tidak ada dokumen relevan dari knowledge base."
+        cs_memory = VectorStoreManager(collection_name=config.CS_MEMORY_COLLECTION)
+        
+        cs_knowledge_chunks = cs_store.search_similar_jobs(user_message, top_k=2)
+        cs_memory_chunks = cs_memory.search_similar_jobs(user_message, top_k=2)
+        
+        rag_context = "\n".join([chunk["document"] for chunk in cs_knowledge_chunks]) if cs_knowledge_chunks else "Tidak ada panduan relevan dari knowledge base."
+        memory_context = "\n".join([chunk["document"] for chunk in cs_memory_chunks]) if cs_memory_chunks else "Tidak ada memori dari pengalaman masa lalu."
+        
         system_health["rag_context"] = rag_context
+        system_health["memory_context"] = memory_context
 
         # Inject real-time status and RAG context
         active_system_prompt = get_dynamic_system_prompt(system_health)
@@ -183,7 +194,24 @@ def _ask_cs_bot(chat_history: list, user_message: str, gemini_client, system_hea
                 max_output_tokens=1000,
             ),
         )
-        return response.text
+        reply = response.text
+        
+        # Fire-and-forget thread to save memory
+        import threading
+        import uuid
+        def _save_memory():
+            try:
+                interaction = f"User bertanya: {user_message}\nLeonardo menjawab: {reply}"
+                cs_memory.add_documents(
+                    documents=[interaction],
+                    metadatas=[{"source": "cs_chat_history"}],
+                    ids=[str(uuid.uuid4())]
+                )
+            except Exception as e:
+                print(f"[Memory] Gagal menyimpan kenangan Leonardo: {e}")
+        threading.Thread(target=_save_memory, daemon=True).start()
+
+        return reply
 
     except Exception as e:
         print(f"[Chatbot] Error: {e}")

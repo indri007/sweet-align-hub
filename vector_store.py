@@ -151,8 +151,14 @@ class QdrantVectorStore:
         self._models = models
         self.collection_name = collection_name or config.COLLECTION_NAME
         
-        # Route to secondary cluster if CS Knowledge or HR Knowledge, otherwise primary
-        if self.collection_name in (config.CS_KNOWLEDGE_COLLECTION, config.HR_KNOWLEDGE_COLLECTION):
+        # Route to secondary cluster if CS/HR Knowledge or Memory, otherwise primary
+        secondary_collections = (
+            config.CS_KNOWLEDGE_COLLECTION, 
+            config.HR_KNOWLEDGE_COLLECTION,
+            config.CS_MEMORY_COLLECTION,
+            config.HR_MEMORY_COLLECTION
+        )
+        if self.collection_name in secondary_collections:
             self.client = config.get_cs_qdrant_client()
         else:
             self.client = config.get_qdrant_client()
