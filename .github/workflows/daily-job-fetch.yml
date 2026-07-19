@@ -29,7 +29,8 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           QDRANT_URL: ${{ secrets.QDRANT_URL }}
           QDRANT_API_KEY: ${{ secrets.QDRANT_API_KEY }}
-          EMBEDDING_MODEL: local
+          EMBEDDING_MODEL: gemini
+          GEMINI_API_KEYS: ${{ secrets.GEMINI_API_KEYS }}
           RAPIDAPI_KEY: ${{ secrets.RAPIDAPI_KEY }}
         run: |
           python3 daily_fetch.py
