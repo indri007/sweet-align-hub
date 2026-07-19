@@ -43,10 +43,11 @@ Dokumen ini memetakan *End-to-End User Journey* dan aliran data (*Data Flow*) di
     3. LLM mengevaluasi *input* berdasarkan rubrik penilaian (*Scoring Matrix*) dan menghasilkan *feedback*.
 *   **Output:** Log evaluasi kuantitatif dan kualitatif.
 
-### Phase 6: Asynchronous Telemetry & Event Sourcing (Background)
-*   **Trigger:** Terjadi interaksi kritikal pada Phase 2, 3, 4, atau 5.
+### Phase 6: Asynchronous Telemetry, Memory & Event Sourcing (Background)
+*   **Trigger:** Terjadi interaksi kritikal pada Phase 2, 3, 4, 5, atau percakapan dengan agen **Veronika** dan **Leonardo**.
 *   **Proses:** 
     *   Alih-alih melakukan pemblokiran (*Synchronous HTTP Call*), sistem memanggil `kafka_producer.py`.
-    *   Data interaksi (*JSON payload*) diserialisasi dan di- *publish* ke Kafka *Topics* (`interview-logs`, `persona_logs`) pada *cluster* Aiven.
+    *   Data interaksi (*JSON payload*), riwayat obrolan, dan profil psikologis pengguna diserialisasi dan di- *publish* ke Kafka *Topics* (`interview-logs`, `persona_logs`, `cs-memory`) pada kluster **Aiven 2 (Secondary Kafka Cluster)**.
+    *   Secara terpisah, representasi semantik dari percakapan (Long-Term Memory) untuk agen Veronika dan Leonardo diindeks ke **Qdrant 2 (Secondary Vector DB)**.
     *   Sistem menggunakan mekanisme *Fire-and-Forget* dengan *callback* ringan untuk *error handling*.
-*   **Output:** Aliran data (*Data Stream*) yang persisten dan siap dikonsumsi (*consumed*) oleh *pipeline Analytics/ETL* di masa depan (*Data as an Asset*).
+*   **Output:** Aliran data (*Data Stream*) yang persisten dan siap dikonsumsi (*consumed*) oleh *pipeline Analytics/ETL* di masa depan (*Data as an Asset*). Mekanisme memori ganda (Kafka + Qdrant 2) ini memastikan Veronika dan Leonardo terus "belajar" dan mengingat pelanggan di sesi-sesi mendatang.

@@ -25,17 +25,18 @@ Mengingat latensi dan *rate-limiting* adalah *bottleneck* utama dalam aplikasi G
 
 ---
 
-## 3. Persistence & Retrieval Layer (Hybrid Data Store)
-Sistem memisahkan beban baca/tulis berdasarkan struktur data (OLTP vs. Vector Search):
-*   **Relational Database (Aiven MySQL):** Bertindak sebagai *System of Record* (SoR) untuk data terstruktur. Terhubung via *SQLAlchemy ORM* dengan protokol koneksi aman menggunakan `ca.pem` (*Mutual TLS*). Di sini, agen Text-to-SQL kita beroperasi secara deterministik.
-*   **Vector Database (Qdrant Cloud):** Mengadopsi arsitektur **Retrieval-Augmented Generation (RAG)**. Data berdimensi tinggi (seperti representasi semantik dari riwayat kerja dan deskripsi pekerjaan) diindeks menggunakan model `gemini-embedding-001`. *Compute* komparasi kosinus (Cosine Similarity) di-offload ke Qdrant *engine*, sehingga membebaskan beban CPU *instance* Streamlit.
+## 3. Persistence & Retrieval Layer (Hybrid Dual-Cluster)
+Sistem memisahkan beban operasional secara arsitektural menjadi dua kluster terpisah untuk menjaga isolasi data operasional vs memori agen:
+*   **Relational Database (Aiven 1 - Primary SQL):** Bertindak sebagai *System of Record* (SoR) untuk data terstruktur lowongan kerja dan profil pelamar. Terhubung via *SQLAlchemy ORM* menggunakan koneksi aman `ca.pem` (*Mutual TLS*).
+*   **Vector Database (Qdrant 1 - Primary Cloud):** Mengadopsi arsitektur **Retrieval-Augmented Generation (RAG)** untuk pencocokan (*matching*) CV pelamar dengan basis data lowongan (*Jobs*) dan pengetahuan HR.
+*   **Vector Database (Qdrant 2 - Secondary CS Cloud):** Diisolasi secara khusus untuk menampung *Knowledge Base* (Pengetahuan) dan *Long-Term Memory* (Memori Jangka Panjang) dari agen *Customer Service* kita, yaitu **Agen Veronika** dan **Agen Leonardo**. Hal ini mencegah kontaminasi pencarian (*search contamination*) antara data HR dan percakapan pelanggan.
 
 ---
 
-## 4. Telemetry & Asynchronous Event Streaming (Kafka)
-Untuk memenuhi standar *Enterprise Data-as-an-Asset*, sistem mengintegrasikan **Apache Kafka (Aiven)** menggunakan *library* `confluent-kafka` (C-based wrapper untuk performa I/O tinggi):
-*   **Fire-and-Forget Telemetry:** Log interaksi, scoring CV, dan profil persona dilemparkan ke *message broker* (Kafka Topics: `interview-logs`, `persona_logs`) secara *asynchronous*.
-*   Mekanisme ini memastikan proses *logging* tidak memblokir *Thread* utama aplikasi (*non-blocking I/O*). Secara arsitektural, ini mengisolasi (decouple) aplikasi *frontend* dari sistem *Downstream Analytics/Machine Learning* masa depan yang nantinya akan mengonsumsi (*consume*) *stream* data tersebut secara terpisah.
+## 4. Telemetry & Asynchronous Event Streaming (Kafka - Aiven 2)
+Untuk memenuhi standar *Enterprise Data-as-an-Asset*, sistem mengintegrasikan **Apache Kafka (Aiven 2 - Secondary Cluster)** menggunakan *library* `confluent-kafka` (C-based wrapper untuk performa I/O tinggi):
+*   **Fire-and-Forget Telemetry:** Log interaksi, *scoring* CV, dan percakapan (memori) dari **Veronika** dan **Leonardo** dilemparkan ke *message broker* (Kafka Topics: `interview-logs`, `persona_logs`, `cs-memory-stream`) secara *asynchronous*.
+*   Mekanisme *Data Stream* pada **Aiven 2** ini memastikan proses *logging* sejarah obrolan Veronika dan Leonardo tidak memblokir *Thread* utama aplikasi (*non-blocking I/O*). Seluruh sejarah *knowledge* ini dipersistenkan (*persisted*) agar agen-agen ini dapat "belajar dari sejarah (*history*)" untuk menjadi lebih baik (seperti sistem agen cerdas modern).
 
 ---
 
