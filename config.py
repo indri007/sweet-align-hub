@@ -34,13 +34,31 @@ GEMINI_API_KEY = GEMINI_API_KEYS[0] if GEMINI_API_KEYS else ""
 GEMINI_MODEL = _cfg("GEMINI_MODEL", "gemini-2.5-flash")
 GEMINI_EMBEDDING_MODEL = _cfg("GEMINI_EMBEDDING_MODEL", "models/gemini-embedding-001")
 
+# ─── Multi-LLM Providers (Groq, OpenRouter, Mistral) ──────
+GROQ_API_KEY = _cfg("GROQ_API_KEY")
+GROQ_MODEL = _cfg("GROQ_MODEL", "llama3-70b-8192")
+
+OPENROUTER_API_KEY = _cfg("OPENROUTER_API_KEY")
+OPENROUTER_MODEL = _cfg("OPENROUTER_MODEL", "meta-llama/llama-3-8b-instruct:free")
+
+MISTRAL_API_KEY = _cfg("MISTRAL_API_KEY")
+MISTRAL_MODEL = _cfg("MISTRAL_MODEL", "mistral-large-latest")
+
 # ─── LLM Provider ─────────────────────────────────────────
-# "gemini" or "openai". Auto-detected from available keys unless set explicitly.
+# "gemini", "openai", "groq", "openrouter", or "mistral". Auto-detected.
 _explicit_provider = _cfg("LLM_PROVIDER", "").strip().lower()
-if _explicit_provider in ("gemini", "openai"):
+_supported_providers = ("gemini", "openai", "groq", "openrouter", "mistral")
+
+if _explicit_provider in _supported_providers:
     LLM_PROVIDER = _explicit_provider
 elif GEMINI_API_KEY:
     LLM_PROVIDER = "gemini"
+elif GROQ_API_KEY:
+    LLM_PROVIDER = "groq"
+elif OPENROUTER_API_KEY:
+    LLM_PROVIDER = "openrouter"
+elif MISTRAL_API_KEY:
+    LLM_PROVIDER = "mistral"
 elif OPENAI_API_KEY:
     LLM_PROVIDER = "openai"
 else:
@@ -60,15 +78,15 @@ COLLECTION_NAME = "indonesian_jobs"
 HR_KNOWLEDGE_COLLECTION = "hr_knowledge_base"
 
 # Secondary Cluster (CS Leonardo, Veronica, and Agentic Memory)
-CS_QDRANT_URL = _cfg("CS_QDRANT_URL", "https://b08d43f7-ee25-4bf2-baf8-f5df70f357c8.sa-east-1-0.aws.cloud.qdrant.io:6333")
-CS_QDRANT_API_KEY = _cfg("CS_QDRANT_API_KEY", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3MiOiJtIiwic3ViamVjdCI6ImFwaS1rZXk6YzBjNzNiYjEtYmExMy00MGMxLTg5YjQtNzdiNjkyODE1NDY5In0.0KHuOYAjfgU-5V2umoZkMi7oaqzC50FgYKTiVd-lROI")
+CS_QDRANT_URL = _cfg("CS_QDRANT_URL", "INPUT_QDRANT_URL_HERE")
+CS_QDRANT_API_KEY = _cfg("CS_QDRANT_API_KEY", "INPUT_QDRANT_API_KEY_HERE")
 CS_KNOWLEDGE_COLLECTION = "cs_knowledge_base"
 CS_MEMORY_COLLECTION = "cs_memory"
 HR_MEMORY_COLLECTION = "hr_memory"
 
 # ─── Kafka (Data Streaming) ───────────────────────────────
-KAFKA_URI = _cfg("KAFKA_URI", "kafka-3dfd3f26-indri-b983.i.aivencloud.com:19453")
-KAFKA_USER = _cfg("KAFKA_USER", "avnadmin")
+KAFKA_URI = _cfg("KAFKA_URI", "INPUT_KAFKA_URI_HERE")
+KAFKA_USER = _cfg("KAFKA_USER", "INPUT_KAFKA_USER_HERE")
 KAFKA_PASS = _cfg("KAFKA_PASS", "INPUT_AIVEN_PASSWORD_HERE")
 KAFKA_CA_PATH = _cfg("KAFKA_CA_PATH", "ca.pem")
 

@@ -40,10 +40,36 @@ def chat_completion(messages: list[dict], temperature: float = 0.7, max_tokens: 
         return _gemini_chat(messages, temperature, max_tokens)
     elif config.LLM_PROVIDER == "openai":
         return _openai_chat(messages, temperature, max_tokens)
+    elif config.LLM_PROVIDER == "groq":
+        return _openai_compatible_chat(messages, temperature, max_tokens, 
+                                     api_key=config.GROQ_API_KEY, 
+                                     base_url="https://api.groq.com/openai/v1", 
+                                     model=config.GROQ_MODEL)
+    elif config.LLM_PROVIDER == "openrouter":
+        return _openai_compatible_chat(messages, temperature, max_tokens, 
+                                     api_key=config.OPENROUTER_API_KEY, 
+                                     base_url="https://openrouter.ai/api/v1", 
+                                     model=config.OPENROUTER_MODEL)
+    elif config.LLM_PROVIDER == "mistral":
+        return _openai_compatible_chat(messages, temperature, max_tokens, 
+                                     api_key=config.MISTRAL_API_KEY, 
+                                     base_url="https://api.mistral.ai/v1", 
+                                     model=config.MISTRAL_MODEL)
     else:
         raise RuntimeError(
-            "Tidak ada LLM yang dikonfigurasi. Set GEMINI_API_KEY atau OPENAI_API_KEY di .env"
+            f"Provider LLM tidak dikonfigurasi atau tidak didukung: {config.LLM_PROVIDER}"
         )
+
+def _openai_compatible_chat(messages: list[dict], temperature: float, max_tokens: int, api_key: str, base_url: str, model: str) -> str:
+    from openai import OpenAI
+    client = OpenAI(api_key=api_key, base_url=base_url)
+    response = client.chat.completions.create(
+        model=model,
+        messages=messages,
+        temperature=temperature,
+        max_tokens=max_tokens,
+    )
+    return response.choices[0].message.content
 
 
 def _openai_chat(messages: list[dict], temperature: float, max_tokens: int) -> str:
