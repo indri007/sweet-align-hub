@@ -1,8 +1,9 @@
 import json
 import logging
 import threading
-from kafka import KafkaProducer
+from confluent_kafka import Producer
 import config
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -19,18 +20,20 @@ class KafkaProducerSingleton:
 
     def _initialize(self):
         try:
-            import os
             ca_path = os.path.abspath(config.KAFKA_CA_PATH)
-            self.producer = KafkaProducer(
-                bootstrap_servers=[config.KAFKA_URI],
-                security_protocol="SASL_SSL",
-                sasl_mechanism="SCRAM-SHA-256",
-                sasl_plain_username=config.KAFKA_USER,
-                sasl_plain_password=config.KAFKA_PASS,
-                ssl_cafile=ca_path,
-                value_serializer=lambda v: json.dumps(v).encode('utf-8')
-            )
-            logger.info("✅ Berhasil terhubung ke Aiven Kafka!")
+            
+            conf = {
+                'bootstrap.servers': config.KAFKA_URI,
+                'security.protocol': 'SASL_SSL',
+                'sasl.mechanisms': 'SCRAM-SHA-256',
+                'sasl.username': config.KAFKA_USER,
+                'sasl.password': config.KAFKA_PASS,
+                'ssl.ca.location': ca_path,
+                'client.id': 'jobmatch-ai-producer'
+            }
+            
+            self.producer = Producer(conf)
+            logger.info("✅ Berhasil terhubung ke Aiven Kafka (via confluent-kafka)!")
         except Exception as e:
             logger.error(f"❌ Gagal terhubung ke Aiven Kafka: {e}")
             self.producer = None
@@ -41,10 +44,21 @@ class KafkaProducerSingleton:
             return
         
         try:
-            self.producer.send(topic, value=message)
-            self.producer.flush()
+            payload = json.dumps(message).encode('utf-8')
+            
+            # Fire and forget with a callback
+            def delivery_report(err, msg):
+                if err is not None:
+                    logger.error(f"❌ Message delivery failed: {err}")
+            
+            self.producer.produce(topic, value=payload, callback=delivery_report)
+            self.producer.poll(0) # Trigger callbacks
         except Exception as e:
             logger.error(f"❌ Error mengirim pesan ke Kafka ({topic}): {e}")
+            
+    def flush(self):
+        if self.producer:
+            self.producer.flush()
 
 # Global instance for easy import
 _kafka = KafkaProducerSingleton()
