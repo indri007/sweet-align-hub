@@ -17,12 +17,18 @@ import sentry_sdk
 from sentry_sdk.integrations.threading import ThreadingIntegration
 import streamlit as st
 
-sentry_sdk.init(
-    dsn=os.environ.get("SENTRY_DSN", ""),
-    traces_sample_rate=0.2,       # 20% transaksi buat performance tracing
-    environment=os.environ.get("ENVIRONMENT", "production"),
-    disabled_integrations=[ThreadingIntegration()],
-)
+@st.cache_resource
+def init_sentry():
+    dsn = os.environ.get("SENTRY_DSN", "")
+    if dsn:
+        sentry_sdk.init(
+            dsn=dsn,
+            traces_sample_rate=0.2,
+            environment=os.environ.get("ENVIRONMENT", "production"),
+            disabled_integrations=[ThreadingIntegration()],
+        )
+
+init_sentry()
 
 # ─── Page Config ──────────────────────────────────────────
 # Set page config at the very top. Dynamically collapse sidebar if not logged in
