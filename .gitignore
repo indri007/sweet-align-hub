@@ -49,3 +49,10 @@ job_search_app_05 July 2026 3/
 Tracker HR/
 *.zip
 *.docx
+
+# Environments & AI Agents
+venv/
+.venv/
+.agents/
+scratch/
+test_cvs/

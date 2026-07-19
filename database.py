@@ -88,7 +88,15 @@ class DatabaseManager:
             ca_path = _find_aiven_ca_cert()
             if ca_path:
                 connect_args = {"ssl": {"ca": ca_path}}
-        self.engine = create_engine(self.db_url, echo=False, connect_args=connect_args)
+        engine_kwargs = {"echo": False, "connect_args": connect_args}
+        if self.db_url and ("mysql" in self.db_url.lower() or "postgresql" in self.db_url.lower()):
+            engine_kwargs.update({
+                "pool_size": 10,
+                "max_overflow": 20,
+                "pool_recycle": 3600,
+                "pool_pre_ping": True  # Cek koneksi mati sebelum dipakai
+            })
+        self.engine = create_engine(self.db_url, **engine_kwargs)
         self.Session = sessionmaker(bind=self.engine)
 
     def create_tables(self):
