@@ -59,7 +59,7 @@ OUTPUT INSTRUCTIONS — provide results EXACTLY in this format (use these exact 
 ## 📝 Ringkasan Kesiapan ATS
 [One paragraph maximum 3 sentences summarizing how ready this CV is to pass ATS filters. No generic praise.]
 
-Respond in Bahasa Indonesia. Focus on SPECIFIC, actionable findings only."""
+Focus on SPECIFIC, actionable findings only."""
 
 
 ATS_CV_PROMPT = """Kamu adalah CV Writer Expert. Berdasarkan CV asli user berikut, buat versi CV yang ATS-friendly.
@@ -76,7 +76,32 @@ Output HANYA isi CV yang sudah diperbaiki, tanpa penjelasan tambahan.
 Gunakan format plain text dengan heading yang jelas."""
 
 
-def review_cv(cv_text: str, target_job: dict = None) -> dict:
+def detect_cv_language(cv_text: str) -> str:
+    """Deteksi otomatis bahasa CV: 'id' atau 'en'."""
+    text_lower = cv_text.lower()
+    indonesian_markers = [
+        "pengalaman", "pendidikan", "keterampilan", "keahlian",
+        "riwayat", "pekerjaan", "universitas", "sekolah",
+        "tanggung jawab", "prestasi", "kemampuan",
+    ]
+    english_markers = [
+        "experience", "education", "skills", "employment",
+        "responsibilities", "achievements", "university",
+        "objective", "summary", "certifications",
+    ]
+    id_score = sum(text_lower.count(w) for w in indonesian_markers)
+    en_score = sum(text_lower.count(w) for w in english_markers)
+    return "id" if id_score >= en_score else "en"
+
+
+def resolve_output_language(cv_text: str, output_language: str = "auto") -> str:
+    """Tentukan bahasa output akhir: 'auto', 'id', atau 'en'."""
+    if output_language in ("id", "en"):
+        return output_language
+    return detect_cv_language(cv_text)
+
+
+def review_cv(cv_text: str, target_job: dict = None, language: str = "auto") -> dict:
     """
     Analyze CV and return structured feedback.
 
@@ -101,7 +126,13 @@ def review_cv(cv_text: str, target_job: dict = None) -> dict:
         }
 
     try:
+        resolved_lang = resolve_output_language(cv_text, language)
         system_prompt = REVIEW_PROMPT
+        
+        if resolved_lang == "id":
+            system_prompt += "\n\nRespond in Bahasa Indonesia."
+        else:
+            system_prompt += "\n\nRespond in English. Translate all output headings to English as well (e.g. '## ATS Score' instead of '## Skor ATS')."
         target_context = ""
         if target_job:
             target_context = f"\n\nPosisi Target:\n- Jabatan: {target_job.get('job_title', 'N/A')}\n- Perusahaan: {target_job.get('company_name', 'N/A')}\n- Deskripsi Pekerjaan: {target_job.get('job_description', 'N/A')}"

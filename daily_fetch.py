@@ -128,8 +128,20 @@ def run():
         try:
             vs = VectorStoreManager()
             documents, metadatas, ids = [], [], []
-            base_id = f"daily_{datetime.date.today().isoformat()}"
-            for i, job in enumerate(jobs):
+            # Ambil ID asli dari SQL supaya konsisten dengan skema "job_{id}"
+            # yang dipakai data_preparation.py (mencegah data terduplikasi
+            # di Qdrant akibat skema ID yang berbeda-beda).
+            session = db.Session()
+            inserted_rows = (
+                session.query(Job)
+                .filter(Job.job_title.in_([j["job_title"] for j in jobs]))
+                .filter(Job.company_name.in_([j.get("company_name", "") for j in jobs]))
+                .all()
+            )
+            title_to_id = {(r.job_title, r.company_name): r.id for r in inserted_rows}
+            session.close()
+
+            for job in jobs:
                 documents.append(prepare_rag_document(job))
                 metadatas.append({
                     "job_title": job.get("job_title", ""),
@@ -138,7 +150,9 @@ def run():
                     "work_type": job.get("work_type", ""),
                     "salary": job.get("salary", "None"),
                 })
-                ids.append(f"{base_id}_{i}")
+                job_key = (job.get("job_title", ""), job.get("company_name", ""))
+                sql_id = title_to_id.get(job_key)
+                ids.append(f"job_{sql_id}" if sql_id else f"daily_{datetime.date.today().isoformat()}_{job_key}")
 
             vs.add_documents(documents, metadatas, ids)
             logger.info("Inserted jobs into vector store", extra={"count": len(jobs)})

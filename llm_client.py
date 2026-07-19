@@ -63,7 +63,7 @@ def _gemini_chat(messages: list[dict], temperature: float, max_tokens: int) -> s
     from google import genai
     from google.genai import types
 
-    client = genai.Client(api_key=config.GEMINI_API_KEY)
+    client = config.get_gemini_client()
 
     # Gemini keeps system instructions separate from the conversation turns,
     # and uses role "model" instead of "assistant".

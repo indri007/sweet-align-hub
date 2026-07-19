@@ -127,6 +127,39 @@ class ATSScorer:
             breakdown_by_category=breakdown, missing_items=[], weights=weights
         )
 
+def detect_cv_language(cv_text: str) -> str:
+    """
+    Deteksi otomatis bahasa CV: 'id' (Indonesia) atau 'en' (English).
+    Menghitung kemunculan kata umum khas masing-masing bahasa.
+    """
+    text_lower = cv_text.lower()
+
+    indonesian_markers = [
+        "pengalaman", "pendidikan", "keterampilan", "keahlian",
+        "riwayat", "pekerjaan", "universitas", "sekolah",
+        "tanggung jawab", "prestasi", "kemampuan",
+    ]
+    english_markers = [
+        "experience", "education", "skills", "employment",
+        "responsibilities", "achievements", "university",
+        "objective", "summary", "certifications",
+    ]
+
+    id_score = sum(text_lower.count(word) for word in indonesian_markers)
+    en_score = sum(text_lower.count(word) for word in english_markers)
+
+    return "id" if id_score >= en_score else "en"
+
+
+def resolve_output_language(cv_text: str, output_language: str = "auto") -> str:
+    """
+    Menentukan bahasa output akhir.
+    output_language: 'auto', 'id', atau 'en'
+    """
+    if output_language in ("id", "en"):
+        return output_language
+    return detect_cv_language(cv_text)
+
 class CVGenerator:
     """Generate/rewrite CV grounded di data user — TIDAK BOLEH hallucinate."""
     def __init__(self, gemini_client):
@@ -138,6 +171,12 @@ class CVGenerator:
         prompt += f"\nCV Asli:\n{candidate.raw_cv_text}"
         response = self.gemini_client.models.generate_content(model="gemini-2.5-flash", contents=prompt)
         return response.text
+
+    def generate(self, candidate: CandidateProfile, output_language: str = "auto", target_job: Optional[JobPosting] = None) -> str:
+        lang = resolve_output_language(candidate.raw_cv_text, output_language)
+        if lang == "id":
+            return self.generate_id(candidate, target_job)
+        return self.generate_en(candidate, target_job)
 
     def generate_en(self, candidate: CandidateProfile, target_job: Optional[JobPosting] = None) -> str:
         prompt = ATS_CV_PROMPT + "\n\nOutput CV ATS-friendly HARUS ditulis dalam Bahasa Inggris (English).\n"

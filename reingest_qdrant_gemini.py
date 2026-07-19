@@ -96,7 +96,7 @@ def main():
     from qdrant_client import QdrantClient
     from qdrant_client.models import Distance, VectorParams, PointStruct
 
-    gclient = genai.Client(api_key=GEMINI_API_KEY)
+    gclient = config.get_gemini_client()
     qclient = QdrantClient(url=QDRANT_URL, api_key=QDRANT_API_KEY)
 
     jobs = load_jobs(DATASET_PATH)

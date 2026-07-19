@@ -27,7 +27,7 @@ def extract_text_from_pdf(file_bytes: bytes) -> str:
             try:
                 from google import genai
                 from google.genai import types
-                client = genai.Client(api_key=config.GEMINI_API_KEY)
+                client = config.get_gemini_client()
                 response = client.models.generate_content(
                     model=config.GEMINI_MODEL,
                     contents=[

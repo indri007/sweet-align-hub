@@ -41,7 +41,7 @@ def _embed_openai(texts: list[str]) -> list[list[float]]:
 def _embed_gemini(texts: list[str]) -> list[list[float]]:
     from google import genai
     from google.genai import types
-    client = genai.Client(api_key=config.GEMINI_API_KEY)
+    client = config.get_gemini_client()
     dim = embedding_dimension()
     cfg = types.EmbedContentConfig(output_dimensionality=dim)
     result = client.models.embed_content(

@@ -28,7 +28,9 @@ OPENAI_MODEL = _cfg("OPENAI_MODEL", "gpt-4o")
 OPENAI_EMBEDDING_MODEL = _cfg("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small")
 
 # ─── Google Gemini ────────────────────────────────────────
-GEMINI_API_KEY = _cfg("GEMINI_API_KEY") or _cfg("GEMINI_API_KEY_1")
+_raw_gemini_keys = _cfg("GEMINI_API_KEYS") or _cfg("GEMINI_API_KEY") or _cfg("GEMINI_API_KEY_1")
+GEMINI_API_KEYS = [k.strip() for k in _raw_gemini_keys.split(",")] if _raw_gemini_keys else []
+GEMINI_API_KEY = GEMINI_API_KEYS[0] if GEMINI_API_KEYS else ""
 GEMINI_MODEL = _cfg("GEMINI_MODEL", "gemini-2.5-flash")
 GEMINI_EMBEDDING_MODEL = _cfg("GEMINI_EMBEDDING_MODEL", "models/gemini-embedding-001")
 
@@ -105,8 +107,48 @@ def ensure_data_dir():
 
 
 def get_gemini_client():
-    """Returns a Google Gemini API client instance."""
+    """Returns a Google Gemini API client instance with auto-rotation support."""
     from google import genai
+    import time
+    import logging
+
+    class RotatingModelsProxy:
+        def _call_with_rotation(self, method_name, *args, **kwargs):
+            import google.genai.errors
+            last_err = None
+            for key in GEMINI_API_KEYS:
+                client = genai.Client(api_key=key)
+                method = getattr(client.models, method_name)
+                try:
+                    return method(*args, **kwargs)
+                except google.genai.errors.APIError as e:
+                    if e.code in (429, 403, 503):
+                        last_err = e
+                        logging.warning(f"Gemini API Error {e.code} for key {key[:5]}... Rotating...")
+                        time.sleep(0.5)
+                        continue
+                    raise e
+                except Exception as e:
+                    if "429" in str(e) or "quota" in str(e).lower() or "exhausted" in str(e).lower():
+                        last_err = e
+                        logging.warning(f"Gemini API Exception {str(e)} for key {key[:5]}... Rotating...")
+                        time.sleep(0.5)
+                        continue
+                    raise e
+            raise last_err or Exception("All Gemini API keys exhausted.")
+
+        def generate_content(self, *args, **kwargs):
+            return self._call_with_rotation("generate_content", *args, **kwargs)
+
+        def embed_content(self, *args, **kwargs):
+            return self._call_with_rotation("embed_content", *args, **kwargs)
+
+    class RotatingGeminiClient:
+        def __init__(self):
+            self.models = RotatingModelsProxy()
+
+    if len(GEMINI_API_KEYS) > 1:
+        return RotatingGeminiClient()
     return genai.Client(api_key=GEMINI_API_KEY)
 
 

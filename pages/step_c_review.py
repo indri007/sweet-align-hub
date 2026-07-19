@@ -30,6 +30,19 @@ def render_step_c():
             icon="🔑",
         )
     else:
+        st.markdown("#### 🌐 Pilih Bahasa Output (Review & ATS CV)")
+        lang_choice = st.radio(
+            "Bahasa Output:",
+            options=["auto", "id", "en"],
+            format_func=lambda x: {
+                "auto": "Otomatis (Auto)",
+                "id": "Bahasa Indonesia",
+                "en": "English",
+            }[x],
+            horizontal=True,
+            label_visibility="collapsed",
+        )
+
         tab1, tab2 = st.tabs(["📊 Feedback & Saran", "📝 Generate CV ATS"])
 
         # ── Tab 1: CV Feedback ──
@@ -39,7 +52,7 @@ def render_step_c():
                     with st.spinner("🤖 AI sedang menganalisis CV kamu..."):
                         try:
                             from agents.cv_analyzer_agent import review_cv
-                            result = review_cv(st.session_state.cv_text)
+                            result = review_cv(st.session_state.cv_text, language=lang_choice)
                             if result["available"] and result["feedback"]:
                                 st.session_state.cv_feedback = result["feedback"]
                                 st.rerun()
@@ -97,19 +110,6 @@ def render_step_c():
                                 "company_name": man_company or "Unknown Company",
                                 "job_description": man_desc or "N/A"
                             }
-
-                st.markdown("#### 🌐 Pilih Bahasa CV ATS")
-                lang_choice = st.radio(
-                    "Bahasa output CV ATS:",
-                    options=["auto", "id", "en"],
-                    format_func=lambda x: {
-                        "auto": "🔄 Otomatis (ikuti bahasa CV asli)",
-                        "id": "🇮🇩 Bahasa Indonesia",
-                        "en": "🇬🇧 English",
-                    }[x],
-                    horizontal=True,
-                    label_visibility="collapsed",
-                )
 
                 if st.button(
                     "✨ Generate CV ATS",
