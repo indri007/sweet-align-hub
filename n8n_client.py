@@ -24,10 +24,14 @@ def call_n8n_webhook(endpoint: str, data: dict, timeout: int = 120) -> dict:
     url = config.N8N_WEBHOOK_URL.rstrip("/") + endpoint
 
     try:
+        headers = {"Content-Type": "application/json"}
+        if config.N8N_API_KEY:
+            headers["Authorization"] = f"Bearer {config.N8N_API_KEY}"
+            
         response = requests.post(
             url,
             json=data,
-            headers={"Content-Type": "application/json"},
+            headers=headers,
             timeout=timeout,
         )
         response.raise_for_status()
