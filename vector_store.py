@@ -147,10 +147,10 @@ class QdrantVectorStore:
     """Manages a Qdrant Cloud vector store for semantic job search."""
 
     def __init__(self):
-        from qdrant_client import QdrantClient, models
+        from qdrant_client import models
         self._models = models
         self.collection_name = config.COLLECTION_NAME
-        self.client = QdrantClient(url=config.QDRANT_URL, api_key=config.QDRANT_API_KEY, prefer_grpc=False, https=True)
+        self.client = config.get_qdrant_client()
         self._ensure_collection()
 
     def _ensure_collection(self):

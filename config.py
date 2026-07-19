@@ -152,14 +152,17 @@ def get_gemini_client():
     return genai.Client(api_key=GEMINI_API_KEY)
 
 
+import streamlit as st
+
+@st.cache_resource
 def get_qdrant_client():
-    """Returns a Qdrant client instance."""
+    """Returns a Qdrant client instance. Cached to prevent port exhaustion."""
     from qdrant_client import QdrantClient
     return QdrantClient(url=QDRANT_URL, api_key=QDRANT_API_KEY, prefer_grpc=False, https=True)
 
-
+@st.cache_resource
 def get_db_engine():
-    """Returns the SQLAlchemy engine for the database."""
+    """Returns the SQLAlchemy engine for the database. Cached to reuse connection pool."""
     from database import DatabaseManager
     return DatabaseManager().engine
 
