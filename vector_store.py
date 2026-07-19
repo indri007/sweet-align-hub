@@ -80,10 +80,10 @@ def _stable_point_id(raw_id: str) -> str:
 class ChromaVectorStore:
     """Manages a local ChromaDB vector store for semantic job search."""
 
-    def __init__(self, persist_dir: Optional[str] = None):
+    def __init__(self, persist_dir: Optional[str] = None, collection_name: Optional[str] = None):
         import chromadb
         self.persist_dir = persist_dir or config.CHROMA_PERSIST_DIR
-        self.collection_name = config.COLLECTION_NAME
+        self.collection_name = collection_name or config.COLLECTION_NAME
         self.client = chromadb.PersistentClient(path=self.persist_dir)
         self._collection = None
 
@@ -146,10 +146,10 @@ class ChromaVectorStore:
 class QdrantVectorStore:
     """Manages a Qdrant Cloud vector store for semantic job search."""
 
-    def __init__(self):
+    def __init__(self, collection_name: Optional[str] = None):
         from qdrant_client import models
         self._models = models
-        self.collection_name = config.COLLECTION_NAME
+        self.collection_name = collection_name or config.COLLECTION_NAME
         self.client = config.get_qdrant_client()
         self._ensure_collection()
 
@@ -230,12 +230,12 @@ class QdrantVectorStore:
 
 # ─── Factory ──────────────────────────────────────────────────────────────────
 
-def VectorStoreManager(*args, **kwargs):
+def VectorStoreManager(collection_name: Optional[str] = None, *args, **kwargs):
     """
     Factory function returning the configured vector store backend.
     Kept as a callable named like a class for backward compatibility with
     existing call sites (`VectorStoreManager()`).
     """
     if config.VECTOR_STORE == "qdrant":
-        return QdrantVectorStore()
-    return ChromaVectorStore(*args, **kwargs)
+        return QdrantVectorStore(collection_name=collection_name)
+    return ChromaVectorStore(collection_name=collection_name, *args, **kwargs)

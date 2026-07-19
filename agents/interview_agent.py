@@ -8,21 +8,22 @@ import config
 from llm_client import chat_completion
 
 
-INTERVIEWER_PROMPT = """Kamu adalah seorang HR Interviewer profesional di perusahaan besar Indonesia. 
-Kamu sedang melakukan mock interview dengan seorang kandidat.
+INTERVIEWER_PROMPT = """Kamu adalah Veronica, seorang HR Interviewer profesional dan berpengalaman di perusahaan besar Indonesia. 
+Kamu sedang melakukan sesi "Mock Interview" dengan seorang kandidat.
 
-Konteks:
-- CV Kandidat sudah diberikan
+Konteks (Knowledge yang kamu miliki):
+- Teks CV Kandidat lengkap
 - Posisi yang dilamar: {job_title} di {company_name}
-- Deskripsi pekerjaan sudah diberikan
+- Deskripsi pekerjaan (Job Description) lengkap dari posisi tersebut
 
-Aturan:
-1. Tanyakan SATU pertanyaan interview pada satu waktu
-2. Setelah kandidat menjawab, berikan feedback singkat dan lanjut pertanyaan berikutnya
-3. Campurkan pertanyaan behavioral, technical, dan situational
-4. Bersikap profesional tapi ramah
-5. Gunakan Bahasa Indonesia (kecuali posisi mengharuskan Bahasa Inggris)
-6. Setelah 5-7 pertanyaan, akhiri interview dan berikan ringkasan feedback
+Aturan Wawancara:
+1. Perkenalkan diri kamu dengan nama Veronica secara singkat di awal.
+2. Tanyakan SATU pertanyaan interview pada satu waktu.
+3. Setelah kandidat menjawab, berikan feedback singkat dan apresiasi, lalu lanjut ke pertanyaan berikutnya.
+4. Campurkan pertanyaan behavioral, technical, dan situational yang sangat relevan dengan Job Description.
+5. Bersikap profesional, elegan, namun tetap ramah.
+6. Gunakan Bahasa Indonesia (kecuali kandidat menggunakan Bahasa Inggris atau posisi mengharuskan Bahasa Inggris).
+7. Setelah 5 pertanyaan (atau jika kandidat ingin menyudahi), akhiri interview dan berikan ringkasan evaluasi.
 
 Format jawaban:
 - Jika ini pertanyaan baru: langsung tanyakan pertanyaannya
@@ -65,6 +66,13 @@ def start_interview(cv_text: str, job_info: dict) -> dict:
         return {"response": None, "available": False}
 
     try:
+        # RAG: Fetch HR Knowledge from Qdrant
+        from vector_store import VectorStoreManager
+        hr_store = VectorStoreManager(collection_name=config.HR_KNOWLEDGE_COLLECTION)
+        search_query = f"{job_info.get('job_title', '')} {job_info.get('company_name', '')}"
+        hr_knowledge_chunks = hr_store.search_similar_jobs(search_query, top_k=3)
+        hr_context = "\n".join([chunk["document"] for chunk in hr_knowledge_chunks]) if hr_knowledge_chunks else "Tidak ada instruksi spesifik. Gunakan penilaian standar HR."
+
         system_prompt = INTERVIEWER_PROMPT.format(
             job_title=job_info.get("job_title", "Unknown Position"),
             company_name=job_info.get("company_name", "Unknown Company"),
@@ -80,6 +88,9 @@ CV Kandidat:
 
 Deskripsi Pekerjaan:
 {job_info.get('job_description', 'N/A')[:2000]}
+
+[PANDUAN HR KHUSUS (RAG)]:
+{hr_context}
 
 Mulai interview sekarang. Perkenalkan diri kamu sebagai HR dan mulai dengan pertanyaan pertama.""",
             },
@@ -128,6 +139,13 @@ def continue_interview(
         return {"response": None, "available": False}
 
     try:
+        # RAG: Fetch HR Knowledge from Qdrant
+        from vector_store import VectorStoreManager
+        hr_store = VectorStoreManager(collection_name=config.HR_KNOWLEDGE_COLLECTION)
+        search_query = f"{job_info.get('job_title', '')} {job_info.get('company_name', '')}"
+        hr_knowledge_chunks = hr_store.search_similar_jobs(search_query, top_k=3)
+        hr_context = "\n".join([chunk["document"] for chunk in hr_knowledge_chunks]) if hr_knowledge_chunks else "Tidak ada instruksi spesifik."
+
         system_prompt = INTERVIEWER_PROMPT.format(
             job_title=job_info.get("job_title", "Unknown Position"),
             company_name=job_info.get("company_name", "Unknown Company"),
@@ -137,7 +155,7 @@ def continue_interview(
             {"role": "system", "content": system_prompt},
             {
                 "role": "user",
-                "content": f"[KONTEKS]\nCV: {cv_text[:2000]}\nJob: {job_info.get('job_description', '')[:1000]}",
+                "content": f"[KONTEKS]\nCV: {cv_text[:2000]}\nJob: {job_info.get('job_description', '')[:1000]}\n\n[PANDUAN HR KHUSUS (RAG)]:\n{hr_context}",
             },
             {
                 "role": "assistant",

@@ -55,6 +55,7 @@ CHROMA_PERSIST_DIR = os.getenv("CHROMA_PERSIST_DIR", str(BASE_DIR / "data" / "ch
 QDRANT_URL = _cfg("QDRANT_URL")
 QDRANT_API_KEY = _cfg("QDRANT_API_KEY")
 COLLECTION_NAME = "indonesian_jobs"
+HR_KNOWLEDGE_COLLECTION = "hr_knowledge_base"
 
 # ─── Embedding ────────────────────────────────────────────
 EMBEDDING_MODEL = _cfg("EMBEDDING_MODEL", "gemini")  # "local", "openai", or "gemini"
