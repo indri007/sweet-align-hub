@@ -14,12 +14,14 @@ monolithic app.py.
 """
 import os
 import sentry_sdk
+from sentry_sdk.integrations.threading import ThreadingIntegration
 import streamlit as st
 
 sentry_sdk.init(
     dsn=os.environ.get("SENTRY_DSN", ""),
     traces_sample_rate=0.2,       # 20% transaksi buat performance tracing
     environment=os.environ.get("ENVIRONMENT", "production"),
+    disabled_integrations=[ThreadingIntegration()],
 )
 
 # ─── Page Config ──────────────────────────────────────────
