@@ -125,6 +125,24 @@ def render_step_c():
                                 st.session_state.ats_cv_text = result["ats_text"]
                                 st.session_state.ats_docx_bytes = None
                                 st.session_state.ats_pdf_bytes = None
+                                
+                                # Kafka Pilar 4: Rekam Persona Kandidat
+                                try:
+                                    from kafka_producer import send_kafka_message
+                                    import time
+                                    persona_data = {
+                                        "email": getattr(st.user, "email", "Guest"),
+                                        "target_job_title": selected_job.get("job_title", "Unknown"),
+                                        "original_cv_snippet": st.session_state.cv_text[:500],
+                                        "generated_ats_cv": result["ats_text"],
+                                        "language": lang_choice,
+                                        "timestamp": int(time.time())
+                                    }
+                                    # Kamar baru khusus ATS Persona (terpisah dari Veronica & Leonardo)
+                                    send_kafka_message("user_personas", persona_data)
+                                except ImportError:
+                                    pass
+
                                 st.rerun()
                             else:
                                 st.error("❌ Gagal membuat CV ATS. Coba lagi beberapa saat.")
