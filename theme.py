@@ -215,6 +215,100 @@ div[data-testid="stProgress"] > div > div {
 .stMarkdown {
     color: var(--md-on-background) !important;
 }
+
+/* 7. Input Fields (Material Outlined) */
+.stTextInput > div > div > div, .stSelectbox > div > div > div, .stTextArea > div > div > textarea {
+    border-radius: var(--md-shape-chip) !important;
+    border: 1px solid var(--md-outline) !important;
+    background-color: transparent !important;
+    transition: all 0.2s !important;
+}
+.stTextInput > div > div > div:focus-within, .stSelectbox > div > div > div:focus-within, .stTextArea > div > div > textarea:focus {
+    border: 2px solid var(--md-primary) !important;
+    box-shadow: none !important;
+}
+
+/* 8. Chat Messages (Google Assistant / Messages Style) */
+.stChatMessage {
+    background-color: transparent !important;
+    padding: 0 !important;
+    gap: 16px !important;
+    margin-bottom: 24px !important;
+}
+.stChatMessage[data-testid="chat-message-user"] {
+    flex-direction: row-reverse;
+}
+.stChatMessage[data-testid="chat-message-user"] .stMarkdown {
+    background-color: var(--md-primary-container) !important;
+    color: var(--md-on-primary-container) !important;
+    padding: 12px 20px !important;
+    border-radius: 24px 24px 4px 24px !important;
+    box-shadow: var(--md-elevation-1);
+}
+.stChatMessage[data-testid="chat-message-assistant"] .stMarkdown {
+    background-color: var(--md-surface) !important;
+    color: var(--md-on-surface) !important;
+    border: 1px solid var(--md-outline) !important;
+    padding: 12px 20px !important;
+    border-radius: 24px 24px 24px 4px !important;
+    box-shadow: var(--md-elevation-1);
+}
+
+/* 9. Sidebar Navigation Pills (Google Workspace Style) */
+.step-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    margin: 4px 0px;
+    border-radius: 100px;
+    transition: all 0.2s;
+    color: var(--md-on-surface-variant);
+    font-weight: 500;
+}
+.step-item:hover {
+    background-color: rgba(26, 115, 232, 0.04);
+}
+.step-item.active {
+    background-color: var(--md-primary-container);
+    color: var(--md-on-primary-container);
+}
+.step-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: bold;
+    border: 2px solid var(--md-outline);
+}
+.step-icon.active {
+    background-color: var(--md-primary);
+    border-color: var(--md-primary);
+    color: white;
+}
+.step-icon.completed {
+    background-color: var(--md-success);
+    border-color: var(--md-success);
+    color: white;
+}
+.step-item.locked {
+    opacity: 0.5;
+}
+.progress-container {
+    width: 100%;
+    background-color: var(--md-surface-variant);
+    border-radius: 100px;
+    height: 6px;
+}
+.progress-fill {
+    height: 100%;
+    background-color: var(--md-primary);
+    border-radius: 100px;
+    transition: width 0.3s ease;
+}
 """
 
 def inject_material3_theme():
