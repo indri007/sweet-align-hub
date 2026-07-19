@@ -113,7 +113,7 @@ def get_gemini_client():
 def get_qdrant_client():
     """Returns a Qdrant client instance."""
     from qdrant_client import QdrantClient
-    return QdrantClient(url=QDRANT_URL, api_key=QDRANT_API_KEY)
+    return QdrantClient(url=QDRANT_URL, api_key=QDRANT_API_KEY, prefer_grpc=False, https=True)
 
 
 def get_db_engine():
