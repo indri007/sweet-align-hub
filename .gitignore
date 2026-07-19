@@ -56,3 +56,11 @@ venv/
 .agents/
 scratch/
 test_cvs/
+
+# File sensitif — jangan pernah di-commit (berisi token/API key)
+set_github_secrets.py
+test_qdrant.py
+test_gemini.py
+test_gemini_embed.py
+test_openai.py
+wipe_qdrant.py
