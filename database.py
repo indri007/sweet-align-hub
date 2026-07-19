@@ -279,6 +279,11 @@ class DatabaseManager:
 
     def execute_raw_sql(self, query_str: str) -> list[dict]:
         """Execute a raw SQL query and return results as dicts. For SQL Agent."""
+        # SECURITY PENTEST: Prevent destructive operations (Prompt Injection Defense)
+        query_upper = query_str.strip().upper()
+        if not query_upper.startswith("SELECT"):
+            return [{"error": "SECURITY BLOCK: Hanya kueri READ-ONLY (SELECT) yang diizinkan oleh sistem."}]
+            
         session = self.Session()
         try:
             result = session.execute(sql_text(query_str))
