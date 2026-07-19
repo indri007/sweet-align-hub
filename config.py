@@ -52,10 +52,17 @@ DATABASE_URL = _cfg("DATABASE_URL", f"sqlite:///{BASE_DIR / 'data' / 'jobs.db'}"
 # ─── Vector Store ─────────────────────────────────────────
 VECTOR_STORE = _cfg("VECTOR_STORE", "qdrant")
 CHROMA_PERSIST_DIR = os.getenv("CHROMA_PERSIST_DIR", str(BASE_DIR / "data" / "chroma_db"))
+
+# Primary Cluster (Jobs & HR)
 QDRANT_URL = _cfg("QDRANT_URL")
 QDRANT_API_KEY = _cfg("QDRANT_API_KEY")
 COLLECTION_NAME = "indonesian_jobs"
 HR_KNOWLEDGE_COLLECTION = "hr_knowledge_base"
+
+# Secondary Cluster (CS Leonardo)
+CS_QDRANT_URL = _cfg("CS_QDRANT_URL", "https://b08d43f7-ee25-4bf2-baf8-f5df70f357c8.sa-east-1-0.aws.cloud.qdrant.io:6333")
+CS_QDRANT_API_KEY = _cfg("CS_QDRANT_API_KEY", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3MiOiJtIiwic3ViamVjdCI6ImFwaS1rZXk6YzBjNzNiYjEtYmExMy00MGMxLTg5YjQtNzdiNjkyODE1NDY5In0.0KHuOYAjfgU-5V2umoZkMi7oaqzC50FgYKTiVd-lROI")
+CS_KNOWLEDGE_COLLECTION = "cs_knowledge_base"
 
 # ─── Embedding ────────────────────────────────────────────
 EMBEDDING_MODEL = _cfg("EMBEDDING_MODEL", "gemini")  # "local", "openai", or "gemini"
@@ -157,9 +164,15 @@ import streamlit as st
 
 @st.cache_resource
 def get_qdrant_client():
-    """Returns a Qdrant client instance. Cached to prevent port exhaustion."""
+    """Returns a Qdrant client instance for the primary cluster (Jobs/HR). Cached to prevent port exhaustion."""
     from qdrant_client import QdrantClient
     return QdrantClient(url=QDRANT_URL, api_key=QDRANT_API_KEY, prefer_grpc=False, https=True)
+
+@st.cache_resource
+def get_cs_qdrant_client():
+    """Returns a Qdrant client instance for the secondary cluster (CS Leonardo). Cached to prevent port exhaustion."""
+    from qdrant_client import QdrantClient
+    return QdrantClient(url=CS_QDRANT_URL, api_key=CS_QDRANT_API_KEY, prefer_grpc=False, https=True)
 
 @st.cache_resource
 def get_db_engine():

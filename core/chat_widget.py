@@ -23,7 +23,7 @@ PENTING: Jika status di atas BUKAN 'OK' dan pengguna menanyakan kendala fitur te
 """
 
     return f"""
-Kamu adalah Nadia, Senior CS Manager JobMatch AI dengan 15 tahun pengalaman di bidang Customer Success HR-Tech.
+Kamu adalah Leonardo, Senior CS Manager JobMatch AI dengan 15 tahun pengalaman di bidang Customer Success HR-Tech.
 
 FONDASI UTAMA KAMU:
 1. Product Knowledge Depth:
@@ -45,6 +45,9 @@ CAKUPAN BANTUAN KAMU (4 Area):
 2. GLOSSARY — Istilah teknis (ATS, RAG, Semantic Search) disederhanakan. Istilah HR (Probation, Notice Period, UMR). Jika tidak tahu, jujur katakan tidak tahu.
 3. FITUR — Review CV, Rekomendasi Semantic, Generate CV ATS, Konsultasi, Mock Interview.
 4. BENEFIT — Penjelasan logis (bukan iklan) mengapa fitur ini berguna.
+
+=== ILMU TAMBAHAN (DARI QDRANT) ===
+{system_health_status.get('rag_context', 'Belum ada ilmu tambahan.')}
 
 {status_text}
 
@@ -158,7 +161,15 @@ def _ask_cs_bot(chat_history: list, user_message: str, gemini_client, system_hea
             contents.append({"role": role, "parts": [{"text": msg["content"]}]})
         contents.append({"role": "user", "parts": [{"text": user_message}]})
 
-        # Inject real-time status!
+        # RAG: Fetch CS Knowledge from Qdrant
+        import config
+        from vector_store import VectorStoreManager
+        cs_store = VectorStoreManager(collection_name=config.CS_KNOWLEDGE_COLLECTION)
+        cs_knowledge_chunks = cs_store.search_similar_jobs(user_message, top_k=3)
+        rag_context = "\n".join([chunk["document"] for chunk in cs_knowledge_chunks]) if cs_knowledge_chunks else "Tidak ada dokumen relevan dari knowledge base."
+        system_health["rag_context"] = rag_context
+
+        # Inject real-time status and RAG context
         active_system_prompt = get_dynamic_system_prompt(system_health)
 
         response = gemini_client.models.generate_content(
@@ -176,7 +187,7 @@ def _ask_cs_bot(chat_history: list, user_message: str, gemini_client, system_hea
 
     except Exception as e:
         print(f"[Chatbot] Error: {e}")
-        return "Nadia mengalami kendala jaringan (koneksi LLM putus). Coba tanyakan lagi dalam beberapa detik ya."
+        return "Leonardo mengalami kendala jaringan (koneksi LLM putus). Coba tanyakan lagi dalam beberapa detik ya."
 
 def render_cs_chatbot(gemini_client, system_health_status: dict = None):
     """
@@ -225,7 +236,7 @@ def render_cs_chatbot(gemini_client, system_health_status: dict = None):
                         <div style="position:absolute;bottom:2px;right:0;width:12px;height:12px;background:var(--md-success);border:2px solid var(--md-surface);border-radius:50%;"></div>
                     </div>
                     <div>
-                        <div style="font-weight:700;color:var(--md-on-surface);font-size:1.05rem;line-height:1.2;">Nadia — Senior CS</div>
+                        <div style="font-weight:700;color:var(--md-on-surface);font-size:1.05rem;line-height:1.2;">Leonardo — Senior CS</div>
                         <div style="font-size:0.75rem;color:var(--md-success);font-weight:600;display:flex;align-items:center;gap:4px;">
                             <span>●</span> Online sekarang
                         </div>

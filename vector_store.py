@@ -150,7 +150,13 @@ class QdrantVectorStore:
         from qdrant_client import models
         self._models = models
         self.collection_name = collection_name or config.COLLECTION_NAME
-        self.client = config.get_qdrant_client()
+        
+        # Route to secondary cluster if CS Knowledge, otherwise primary
+        if self.collection_name == config.CS_KNOWLEDGE_COLLECTION:
+            self.client = config.get_cs_qdrant_client()
+        else:
+            self.client = config.get_qdrant_client()
+            
         self._ensure_collection()
 
     def _ensure_collection(self):
