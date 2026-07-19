@@ -195,6 +195,21 @@ def continue_interview(
 
         reply = chat_completion(messages=messages, temperature=0.7, max_tokens=1200)
 
+        # Kafka Pilar 1: Siaran Wawancara (Interview Streaming)
+        try:
+            from kafka_producer import send_kafka_message
+            import time
+            stream_data = {
+                "kandidat_id": cv_text[:50].replace('\n', ' '), # Just a snippet for id
+                "job_title": job_info.get("job_title", "Unknown"),
+                "tanya_user": user_answer,
+                "jawab_veronica": reply,
+                "timestamp": int(time.time())
+            }
+            send_kafka_message("interview_streams", stream_data)
+        except ImportError:
+            pass
+
         # Fire-and-forget thread to save memory
         import threading
         import uuid

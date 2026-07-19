@@ -66,6 +66,12 @@ CS_KNOWLEDGE_COLLECTION = "cs_knowledge_base"
 CS_MEMORY_COLLECTION = "cs_memory"
 HR_MEMORY_COLLECTION = "hr_memory"
 
+# ─── Kafka (Data Streaming) ───────────────────────────────
+KAFKA_URI = _cfg("KAFKA_URI", "kafka-3dfd3f26-indri-b983.i.aivencloud.com:19453")
+KAFKA_USER = _cfg("KAFKA_USER", "avnadmin")
+KAFKA_PASS = _cfg("KAFKA_PASS", "INPUT_AIVEN_PASSWORD_HERE")
+KAFKA_CA_PATH = _cfg("KAFKA_CA_PATH", "ca.pem")
+
 # ─── Embedding ────────────────────────────────────────────
 EMBEDDING_MODEL = _cfg("EMBEDDING_MODEL", "gemini")  # "local", "openai", or "gemini"
 

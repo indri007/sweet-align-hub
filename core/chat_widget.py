@@ -196,7 +196,7 @@ def _ask_cs_bot(chat_history: list, user_message: str, gemini_client, system_hea
         )
         reply = response.text
         
-        # Fire-and-forget thread to save memory
+        # Fire-and-forget thread to save memory and log to Kafka
         import threading
         import uuid
         def _save_memory():
@@ -209,13 +209,40 @@ def _ask_cs_bot(chat_history: list, user_message: str, gemini_client, system_hea
                 )
             except Exception as e:
                 print(f"[Memory] Gagal menyimpan kenangan Leonardo: {e}")
+                
+            # Kafka Pilar 3: Pipa Log Aktivitas CS
+            try:
+                from kafka_producer import send_kafka_message
+                import time
+                log_data = {
+                    "event": "cs_chat",
+                    "user_message": user_message,
+                    "leonardo_reply": reply,
+                    "timestamp": int(time.time())
+                }
+                send_kafka_message("system_logs", log_data)
+            except ImportError:
+                pass
+                
         threading.Thread(target=_save_memory, daemon=True).start()
 
         return reply
 
     except Exception as e:
         print(f"[Chatbot] Error: {e}")
-        return "Leonardo mengalami kendala jaringan (koneksi LLM putus). Coba tanyakan lagi dalam beberapa detik ya."
+        # Kafka Error Logging
+        try:
+            from kafka_producer import send_kafka_message
+            import time
+            err_data = {
+                "event": "cs_error",
+                "error_message": str(e),
+                "timestamp": int(time.time())
+            }
+            send_kafka_message("system_logs", err_data)
+        except ImportError:
+            pass
+        return "Maaf, sistem AI sedang mengalami kendala. Silakan coba beberapa saat lagi."
 
 def render_cs_chatbot(gemini_client, system_health_status: dict = None):
     """

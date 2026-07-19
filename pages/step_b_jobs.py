@@ -39,6 +39,25 @@ def render_step_b():
                     result = match_cv_to_jobs(st.session_state.cv_text, top_k=config.TOP_K_RESULTS)
                     st.session_state.job_matches = result.get("matches", [])
                     st.session_state.ai_summary = result.get("ai_summary")
+
+                    # Kafka Pilar 2: Notifikasi Kecocokan Tinggi (High Match Alerts)
+                    try:
+                        from kafka_producer import send_kafka_message
+                        import time
+                        for match in st.session_state.job_matches:
+                            score = match.get("similarity_score", 0)
+                            if score >= 90:
+                                meta = match.get("metadata", {})
+                                alert_data = {
+                                    "kandidat_email": getattr(st.user, "email", "Guest"),
+                                    "job_title": meta.get("job_title", "Unknown"),
+                                    "company": meta.get("company_name", "Unknown"),
+                                    "match_score": score,
+                                    "timestamp": int(time.time())
+                                }
+                                send_kafka_message("high_match_alerts", alert_data)
+                    except ImportError:
+                        pass
                 except Exception as e:
                     st.error(f"❌ Error: {str(e)}")
                     st.info("💡 Pastikan `data_preparation.py` sudah dijalankan untuk menyiapkan data.")
