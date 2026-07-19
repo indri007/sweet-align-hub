@@ -30,6 +30,6 @@ jobs:
           QDRANT_URL: ${{ secrets.QDRANT_URL }}
           QDRANT_API_KEY: ${{ secrets.QDRANT_API_KEY }}
           EMBEDDING_MODEL: local
-          JSEARCH_API_KEY: ${{ secrets.JSEARCH_API_KEY }}
+          RAPIDAPI_KEY: ${{ secrets.RAPIDAPI_KEY }}
         run: |
           python3 daily_fetch.py
