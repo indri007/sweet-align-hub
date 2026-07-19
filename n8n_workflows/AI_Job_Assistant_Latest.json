@@ -1,0 +1,230 @@
+{
+  "name": "AI Job Assistant",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "job-assistant",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "b870661b-79cb-45c9-855e-54e04fef4088",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [
+        176,
+        -176
+      ],
+      "webhookId": "3d047310-11a9-4b30-a0bc-7e144e70ffca"
+    },
+    {
+      "parameters": {
+        "agent": "toolsAgent",
+        "promptType": "define",
+        "text": "={{ $json.body.query }}",
+        "options": {}
+      },
+      "id": "d899f28a-bc6a-4b91-a044-248955350d9d",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.4,
+      "position": [
+        464,
+        -176
+      ]
+    },
+    {
+      "parameters": {
+        "name": "qdranttool",
+        "description": "Cari informasi pekerjaan (job_title, company_name, job_description) di database vektor Qdrant.",
+        "topK": 10
+      },
+      "id": "b1264cdd-7ef0-43f4-ad50-75a79adc3622",
+      "name": "Vector Store Tool",
+      "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
+      "typeVersion": 1,
+      "position": [
+        800,
+        32
+      ]
+    },
+    {
+      "parameters": {
+        "qdrantCollection": {
+          "__rl": true,
+          "value": "indonesian_jobs_n8n",
+          "mode": "list",
+          "cachedResultName": "indonesian_jobs_n8n"
+        },
+        "options": {
+          "contentPayloadKey": "document"
+        }
+      },
+      "id": "ac8b6d83-f919-4144-8a6d-8f74962f8e29",
+      "name": "Qdrant Vector Store",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+      "typeVersion": 1,
+      "position": [
+        784,
+        256
+      ],
+      "credentials": {
+        "qdrantApi": {
+          "id": "wyfhb025LhPdqv8X",
+          "name": "Qdrant cvatsjob"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "5bd4ab74-5575-4561-bf4a-d8fedd6c012e",
+      "name": "Gemini Embeddings",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        736,
+        432
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "afSVvCI66b95QyJI",
+          "name": "Gemini cvatsjob"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Query tabel MySQL bernama \"jobs\" untuk mencari lowongan berdasarkan data terstruktur seperti gaji atau tipe kerja. Kolom yang tersedia: job_title (varchar), company_name (varchar), location (varchar), work_type (varchar, contoh: Full time, Kontrak/Temporer, Paruh waktu, Kasual), salary_min (float, gaji minimum dalam Rupiah), salary_max (float, gaji maksimum dalam Rupiah), job_description (text). Gunakan tool ini HANYA JIKA pertanyaan berkaitan dengan ANGKA GAJI atau TIPE PEKERJAAN spesifik. PENTING - ATURAN SQL WAJIB: SELALU gunakan tanda kutip TUNGGAL (apostrof) untuk nilai teks/string di query, JANGAN PERNAH pakai tanda kutip ganda (database ini akan error kalau pakai kutip ganda untuk nilai). Contoh query yang BENAR: SELECT job_title, company_name, salary_min, salary_max FROM jobs WHERE salary_min >= 8000000 AND work_type = 'Full time' LIMIT 10;",
+        "operation": "executeQuery",
+        "query": "{{$fromAI('query', 'The SQL SELECT query to execute')}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySqlTool",
+      "typeVersion": 2.5,
+      "position": [
+        576,
+        64
+      ],
+      "id": "e1e5a2f9-bf5f-4512-829f-18f7bf43d93c",
+      "name": "Execute a SQL query in MySQL",
+      "credentials": {
+        "mySql": {
+          "id": "xPwkS4hRLsvaF53j",
+          "name": "MySQL cvatsjob"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        336,
+        64
+      ],
+      "id": "e2bb8ea8-4976-4624-9409-e77275c52386",
+      "name": "Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "afSVvCI66b95QyJI",
+          "name": "Gemini cvatsjob"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vector Store Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qdrant Vector Store": {
+      "ai_vectorStore": [
+        [
+          {
+            "node": "Vector Store Tool",
+            "type": "ai_vectorStore",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query in MySQL": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        []
+      ]
+    },
+    "Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Vector Store Tool",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini Embeddings": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Qdrant Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "40159aa5-676f-45f2-bf06-fb3760169f84",
+  "meta": {
+    "instanceId": "5339293d85928bc760485385f5ff46eb25ac9218165c9e70c2dbd619391c468b"
+  },
+  "id": "joc429PfquCLynfI",
+  "tags": []
+}
