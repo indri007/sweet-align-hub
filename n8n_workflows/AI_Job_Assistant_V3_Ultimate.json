@@ -13,8 +13,8 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1.1,
       "position": [
-        100,
-        -200
+        0,
+        350
       ],
       "webhookId": "3d047310-11a9-4b30-a0bc-7e144e70ffca"
     },
@@ -30,8 +30,8 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 1.4,
       "position": [
-        450,
-        -200
+        550,
+        200
       ]
     },
     {
@@ -45,8 +45,8 @@
       "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
       "typeVersion": 1,
       "position": [
-        800,
-        50
+        850,
+        300
       ]
     },
     {
@@ -66,8 +66,8 @@
       "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
       "typeVersion": 1,
       "position": [
-        800,
-        250
+        1150,
+        300
       ],
       "credentials": {
         "qdrantApi": {
@@ -83,8 +83,8 @@
       "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
       "typeVersion": 1,
       "position": [
-        750,
-        450
+        1150,
+        500
       ],
       "credentials": {
         "googlePalmApi": {
@@ -104,8 +104,8 @@
       "type": "n8n-nodes-base.mySqlTool",
       "typeVersion": 2.5,
       "position": [
-        600,
-        -50
+        850,
+        100
       ],
       "id": "e1e5a2f9-bf5f-4512-829f-18f7bf43d93c",
       "name": "Aiven 1 (Primary SQL)",
@@ -123,7 +123,7 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
       "typeVersion": 1,
       "position": [
-        350,
+        400,
         50
       ],
       "id": "e2bb8ea8-4976-4624-9409-e77275c52386",
@@ -143,8 +143,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 2.5,
       "position": [
-        300,
-        -350
+        250,
+        350
       ],
       "id": "844f71dc-70e1-40e4-94fe-73ef962d7d95",
       "name": "Google Auth Validator",
@@ -167,8 +167,8 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 1.4,
       "position": [
-        450,
-        250
+        550,
+        450
       ]
     },
     {
@@ -183,8 +183,8 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 1.4,
       "position": [
-        450,
-        500
+        550,
+        700
       ]
     },
     {
@@ -198,8 +198,8 @@
       "type": "n8n-nodes-base.mySqlTool",
       "typeVersion": 2.5,
       "position": [
-        600,
-        250
+        850,
+        550
       ],
       "id": "f39e8c25-20ee-42df-bef4-2a6b0f688108",
       "name": "Aiven 2 (Telemetry/Kafka)",
@@ -227,8 +227,8 @@
       "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
       "typeVersion": 1,
       "position": [
-        1000,
-        500
+        1150,
+        750
       ],
       "credentials": {
         "qdrantApi": {
@@ -248,8 +248,8 @@
       "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
       "typeVersion": 1,
       "position": [
-        1000,
-        250
+        850,
+        750
       ]
     }
   ],
