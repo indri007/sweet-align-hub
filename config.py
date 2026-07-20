@@ -30,7 +30,7 @@ OPENAI_EMBEDDING_MODEL = _cfg("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small"
 # ─── Google Gemini ────────────────────────────────────────
 _raw_gemini_keys = _cfg("GEMINI_API_KEYS") or _cfg("GEMINI_API_KEY") or _cfg("GEMINI_API_KEY_1")
 GEMINI_API_KEYS = [k.strip() for k in _raw_gemini_keys.split(",")] if _raw_gemini_keys else []
-GEMINI_API_KEY = GEMINI_API_KEYS[0] if GEMINI_API_KEYS else "AIzaSyA94-L_4vtb4pPGeSsgo0tLZzRopzFTLoQ"
+GEMINI_API_KEY = GEMINI_API_KEYS[0] if GEMINI_API_KEYS else ""
 GEMINI_MODEL = _cfg("GEMINI_MODEL", "gemini-2.5-flash")
 GEMINI_EMBEDDING_MODEL = _cfg("GEMINI_EMBEDDING_MODEL", "models/gemini-embedding-001")
 
