@@ -140,7 +140,7 @@
     },
     {
       "parameters": {
-        "modelName": "models/text-embedding-004"
+        "modelName": "models/gemini-embedding-001"
       },
       "id": "5bd4ab74-5575-4561-bf4a-d8fedd6c012e",
       "name": "Gemini Embeddings",
@@ -298,7 +298,9 @@
         [
           { "node": "Main Orchestrator Agent", "type": "ai_languageModel", "index": 0 },
           { "node": "Veronika (CS Agent)", "type": "ai_languageModel", "index": 0 },
-          { "node": "Leonardo (CS Agent)", "type": "ai_languageModel", "index": 0 }
+          { "node": "Leonardo (CS Agent)", "type": "ai_languageModel", "index": 0 },
+          { "node": "HR Knowledge Tool", "type": "ai_languageModel", "index": 0 },
+          { "node": "CS Knowledge Tool", "type": "ai_languageModel", "index": 0 }
         ]
       ]
     },

@@ -160,6 +160,8 @@ def _ask_cs_bot(chat_history: list, user_message: str, gemini_client, system_hea
     import n8n_client
     
     session_id = st.session_state.get("session_id", "guest")
+    if getattr(st.user, "is_logged_in", False):
+        session_id = getattr(st.user, "email", session_id)
     
     try:
         reply = n8n_client.ask_unified_agent_n8n("leonardo", user_message, session_id)

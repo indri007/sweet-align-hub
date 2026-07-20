@@ -22,6 +22,15 @@ def call_n8n_webhook(endpoint: str, data: dict, timeout: int = 120) -> dict:
         dict with the response data, or {"error": "..."} on failure
     """
     url = config.N8N_WEBHOOK_URL.rstrip("/") + endpoint
+    
+    # Otomatis menambahkan identitas user dari Google Auth ke payload N8N
+    try:
+        import streamlit as st
+        if getattr(st.user, "is_logged_in", False):
+            data["user_email"] = getattr(st.user, "email", "")
+            data["user_name"] = getattr(st.user, "name", "")
+    except Exception:
+        pass
 
     try:
         headers = {"Content-Type": "application/json"}
