@@ -303,7 +303,7 @@ export function Hero() {
 
               <div className="relative rounded-2xl overflow-hidden border border-white/20 shadow-xl bg-white">
                 <img
-                  src={heroPhoto.url}
+                  src="/hero.png"
                   alt="Job seeker reviewing CV with JobMatch AI"
                   className="w-full h-auto object-cover"
                   loading="eager"
