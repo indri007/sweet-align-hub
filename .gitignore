@@ -39,6 +39,7 @@ __pycache__/
 
 # Local Secrets / Environments
 .env
+.env.*
 env
 .streamlit/secrets.toml
 
@@ -66,3 +67,7 @@ n8n_mcp_config.json
 generate_n8n_*.py
 tidy_n8n.py
 verify_qdrant.py
+check_*.py
+update_*.py
+fix_*.py
+qdrant_*.py
