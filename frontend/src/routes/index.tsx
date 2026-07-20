@@ -31,6 +31,7 @@ import {
   XCircle,
   Percent,
   Linkedin,
+  Facebook,
   Instagram,
   Youtube,
 } from "lucide-react";
@@ -1225,10 +1226,7 @@ function ThreadsIcon({ className }: { className?: string }) {
 function SocialLinks() {
   const links = [
     { name: "LinkedIn", href: "#", Icon: Linkedin, hoverBg: "hover:bg-[#0A66C2]" },
-    { name: "WhatsApp", href: "#", Icon: WhatsAppIcon, hoverBg: "hover:bg-[#25D366]" },
-    { name: "Instagram", href: "#", Icon: Instagram, hoverBg: "hover:bg-gradient-to-tr hover:from-[#F58529] hover:via-[#DD2A7B] hover:to-[#8134AF]" },
-    { name: "TikTok", href: "#", Icon: TikTokIcon, hoverBg: "hover:bg-[#000000]" },
-    { name: "YouTube", href: "#", Icon: Youtube, hoverBg: "hover:bg-[#FF0000]" },
+    { name: "Facebook", href: "#", Icon: Facebook, hoverBg: "hover:bg-[#1877F2]" },
     { name: "Threads", href: "#", Icon: ThreadsIcon, hoverBg: "hover:bg-[#000000]" },
   ];
 
@@ -1265,10 +1263,14 @@ export function Footer() {
             </p>
           </div>
           <div className="flex flex-col gap-8 sm:flex-row sm:gap-16">
-            <div className="flex flex-wrap gap-x-8 gap-y-3 text-sm font-medium text-slate-600 sm:flex-col sm:gap-3">
-              <a href="#" className="hover:text-[#0A66C2] transition-colors">Privacy Policy</a>
-              <a href="#" className="hover:text-[#0A66C2] transition-colors">Terms</a>
-              <a href="#" className="hover:text-[#0A66C2] transition-colors">Contact</a>
+            <div className="flex flex-col gap-3 text-sm font-medium text-slate-600">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Dukung Aplikasi Ini</span>
+              <a href="#" className="hover:text-[#0A66C2] transition-colors">Dukungan Link 1</a>
+              <a href="#" className="hover:text-[#0A66C2] transition-colors">Dukungan Link 2</a>
+              <a href="#" className="hover:text-[#0A66C2] transition-colors">Dukungan Link 3</a>
+              <a href="#" className="hover:text-[#0A66C2] transition-colors">Dukungan Link 4</a>
+              <a href="#" className="hover:text-[#0A66C2] transition-colors">Dukungan Link 5</a>
+              <a href="#" className="hover:text-[#0A66C2] transition-colors">Dukungan Link 6</a>
             </div>
             <SocialLinks />
           </div>
