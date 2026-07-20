@@ -23,7 +23,7 @@ PENTING: Jika status di atas BUKAN 'OK' dan pengguna menanyakan kendala fitur te
 """
 
     return f"""
-Kamu adalah Leonardo, Senior CS Manager JobMatch AI dengan 15 tahun pengalaman di bidang Customer Success HR-Tech.
+Kamu adalah Veronika, Senior CS Manager JobMatch AI dengan 15 tahun pengalaman di bidang Customer Success HR-Tech.
 
 FONDASI UTAMA KAMU:
 1. Product Knowledge Depth:
@@ -164,7 +164,7 @@ def _ask_cs_bot(chat_history: list, user_message: str, gemini_client, system_hea
         session_id = getattr(st.user, "email", session_id)
     
     try:
-        reply = n8n_client.ask_unified_agent_n8n("leonardo", user_message, session_id)
+        reply = n8n_client.ask_unified_agent_n8n("veronika", user_message, session_id)
         
         # Fire-and-forget thread to log to Kafka
         import threading
@@ -176,7 +176,7 @@ def _ask_cs_bot(chat_history: list, user_message: str, gemini_client, system_hea
                 log_data = {
                     "event": "cs_chat",
                     "user_message": user_message,
-                    "leonardo_reply": reply,
+                    "veronika_reply": reply,
                     "timestamp": int(time.time())
                 }
                 send_kafka_message("system_logs", log_data)
@@ -250,7 +250,7 @@ def render_cs_chatbot(gemini_client, system_health_status: dict = None):
                         <div style="position:absolute;bottom:2px;right:0;width:12px;height:12px;background:var(--md-success);border:2px solid var(--md-surface);border-radius:50%;"></div>
                     </div>
                     <div>
-                        <div style="font-weight:700;color:var(--md-on-surface);font-size:1.05rem;line-height:1.2;">Leonardo — Senior CS</div>
+                        <div style="font-weight:700;color:var(--md-on-surface);font-size:1.05rem;line-height:1.2;">Veronika — Senior CS</div>
                         <div style="font-size:0.75rem;color:var(--md-success);font-weight:600;display:flex;align-items:center;gap:4px;">
                             <span>●</span> Online sekarang
                         </div>
