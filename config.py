@@ -103,6 +103,12 @@ def is_n8n_configured() -> bool:
     return USE_N8N and bool(N8N_WEBHOOK_URL)
 
 
+# ─── Snowflake (Database & Data App) ──────────────────────
+SNOWFLAKE_ACCOUNT = _cfg("SNOWFLAKE_ACCOUNT", "")
+SNOWFLAKE_TOKEN = _cfg("SNOWFLAKE_TOKEN", "")
+SNOWFLAKE_DB = _cfg("SNOWFLAKE_DB", "SWEET_ALIGN_HUB")
+SNOWFLAKE_SCHEMA = _cfg("SNOWFLAKE_SCHEMA", "APP")
+
 # ─── Dataset ──────────────────────────────────────────────
 DATASET_PATH = BASE_DIR / "dataset" / "jobs.jsonl"
 DATA_DIR = BASE_DIR / "data"
