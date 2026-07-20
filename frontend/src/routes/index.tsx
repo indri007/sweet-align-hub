@@ -34,6 +34,7 @@ import {
   Facebook,
   Instagram,
   Youtube,
+  Twitter,
 } from "lucide-react";
 
 export const Route = createFileRoute("/")({
@@ -1228,6 +1229,9 @@ function SocialLinks() {
     { name: "LinkedIn", href: "#", Icon: Linkedin, hoverBg: "hover:bg-[#0088FF]" },
     { name: "Facebook", href: "#", Icon: Facebook, hoverBg: "hover:bg-[#1877F2]" },
     { name: "Threads", href: "#", Icon: ThreadsIcon, hoverBg: "hover:bg-[#000000]" },
+    { name: "Twitter", href: "#", Icon: Twitter, hoverBg: "hover:bg-[#1DA1F2]" },
+    { name: "Instagram", href: "#", Icon: Instagram, hoverBg: "hover:bg-[#E1306C]" },
+    { name: "YouTube", href: "#", Icon: Youtube, hoverBg: "hover:bg-[#FF0000]" },
   ];
 
   return (
