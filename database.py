@@ -98,6 +98,13 @@ class DatabaseManager:
             ca_path = _find_aiven_ca_cert()
             if ca_path:
                 connect_args = {"ssl": {"ca": ca_path}}
+            else:
+                # Bypass SSL verification for Streamlit Cloud (Aiven requires SSL)
+                import ssl
+                ctx = ssl.create_default_context()
+                ctx.check_hostname = False
+                ctx.verify_mode = ssl.CERT_NONE
+                connect_args = {"ssl": ctx}
         engine_kwargs = {"echo": False, "connect_args": connect_args}
         if self.db_url and ("mysql" in self.db_url.lower() or "postgresql" in self.db_url.lower()):
             engine_kwargs.update({
