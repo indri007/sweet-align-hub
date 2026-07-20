@@ -68,20 +68,11 @@ class DatabaseManager:
         self.db_url = db_url or config.DATABASE_URL
         connect_args = {}
         if self.db_url.startswith("mysql"):
-            import os
-            from pathlib import Path
-            base_dir = Path(__file__).parent
-            ca_path = base_dir / "ca.pem"
-            if not ca_path.exists():
-                ca_path = base_dir / "aiven" / "ca.pem"
-            if ca_path.exists():
-                connect_args = {"ssl": {"ca": str(ca_path)}}
-            else:
-                import ssl
-                ctx = ssl.create_default_context()
-                ctx.check_hostname = False
-                ctx.verify_mode = ssl.CERT_NONE
-                connect_args = {"ssl": ctx}
+            import ssl
+            ctx = ssl.create_default_context()
+            ctx.check_hostname = False
+            ctx.verify_mode = ssl.CERT_NONE
+            connect_args = {"ssl": ctx}
         self.engine = create_engine(self.db_url, echo=False, connect_args=connect_args)
         self.Session = sessionmaker(bind=self.engine)
 
