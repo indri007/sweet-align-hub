@@ -35,10 +35,16 @@ init_sentry()
 # to prevent the native sidebar from flashing before CSS injection takes effect.
 is_logged_in = getattr(st.user, "is_logged_in", False)
 st.set_page_config(
-    page_title="JobMatch AI — CV Review & Job Recommendations",
-    page_icon="🎯",
+    page_title="JobMatch AI — Lolos ATS, Dapetin Kerja Impian",
+    page_icon="⚡",
     layout="wide",
     initial_sidebar_state="expanded" if is_logged_in else "collapsed",
+)
+
+# Google Search Console Verification
+st.markdown(
+    '<meta name="google-site-verification" content="fe961245f82f4089" />',
+    unsafe_allow_html=True
 )
 
 from logger import get_logger
