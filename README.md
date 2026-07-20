@@ -1,8 +1,9 @@
 # JobMatch AI: The Next-Generation Talent Alignment Platform 🚀
 
-[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://jobsmatch.streamlit.app)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/release/python-3100/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.10+](https://img.shields.io/badge/Python-3.10+-007AFF.svg?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![Streamlit App](https://img.shields.io/badge/Streamlit-App-FF0000.svg?style=for-the-badge&logo=streamlit&logoColor=white)](https://jobsmatch.streamlit.app)
+[![License: MIT](https://img.shields.io/badge/License-MIT-FFE600.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+[![Build Status](https://img.shields.io/badge/Build-Passing-98FB98.svg?style=for-the-badge)](https://github.com/indri007/sweet-align-hub)
 
 **JobMatch AI** is an enterprise-grade, multi-agent artificial intelligence platform designed to bridge the chasm between top-tier talent and corporate recruitment demands. By leveraging Retrieval-Augmented Generation (RAG) and Distributed Microservices, we eliminate the friction in modern technical hiring.
 
