@@ -253,12 +253,12 @@ export function Hero() {
           </Reveal>
           <Reveal delay={80}>
             <h1 className="font-display text-3xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-[1.05] tracking-tight text-slate-900">
-              Bukan Kamu yang Kurang Kompeten. CV-mu Aja yang Belum "Ngomong" Bahasa yang <span className="text-[#0A66C2]">System</span>-nya Paham.
+              It's not you. Your resume just isn't speaking the language the <span className="text-[#0A66C2]">system</span> understands.
             </h1>
           </Reveal>
           <Reveal delay={160}>
             <p className="mt-5 sm:mt-6 max-w-xl text-base sm:text-lg leading-relaxed text-slate-600">
-              Bukan soal <i className="text-slate-500">'robot nge-reject CV kamu dalam 6 detik'</i> — itu <i className="text-[#0A66C2] font-medium">myth</i>. Real <i className="text-[#0A66C2] font-medium">fact</i>-nya: lebih dari separuh CV cuma dapat <i className="text-[#0A66C2] font-medium">score</i> di bawah 50/100 sebelum di-optimize, dan rata-rata setengah <i className="text-[#0A66C2] font-medium">keyword</i> penting dari job description yang kamu <i className="text-[#0A66C2] font-medium">apply</i> gak ada di CV kamu. Hasil akhirnya sama aja — CV kamu ke-<i className="text-[#0A66C2] font-medium">bury</i>, bukan di-<i className="text-[#0A66C2] font-medium">reject</i>.
+              Forget the "robot rejects your resume in 6 seconds" myth — there's no study behind that claim. Here's what actually happens: over half of resumes score below 50/100 before optimization, and on average, half the keywords from the job description never make it into the resume. Same outcome, different reason — your resume gets buried, not rejected.
             </p>
           </Reveal>
           <Reveal delay={220}>
