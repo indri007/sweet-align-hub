@@ -77,7 +77,7 @@ function Reveal({ children, delay = 0 }: { children: ReactNode; delay?: number }
 export function Logo({ dark = false }: { dark?: boolean }) {
   return (
     <Link to="/" className="flex items-center gap-2.5">
-      <div className="grid h-9 w-9 place-items-center rounded-xl bg-[#007AFF] shadow-sm">
+      <div className="grid h-9 w-9 place-items-center rounded-xl bg-[#0088FF] shadow-sm">
         <Zap className="h-5 w-5 text-white" strokeWidth={2.5} />
       </div>
       <span
@@ -85,7 +85,7 @@ export function Logo({ dark = false }: { dark?: boolean }) {
           dark ? "text-white" : "text-slate-900"
         }`}
       >
-        JobMatch<span className="text-[#007AFF]">AI</span>
+        JobMatch<span className="text-[#0088FF]">AI</span>
       </span>
     </Link>
   );
@@ -112,7 +112,7 @@ export function Navbar() {
               <Link
                 key={l.to}
                 to={l.to}
-                className={`transition-colors ${active ? "text-[#007AFF]" : "hover:text-[#007AFF]"}`}
+                className={`transition-colors ${active ? "text-[#0088FF]" : "hover:text-[#0088FF]"}`}
               >
                 {l.label}
               </Link>
@@ -149,13 +149,13 @@ export function Navbar() {
 function DashboardMock() {
   return (
     <div className="relative">
-      <div className="absolute -inset-4 bg-gradient-to-tr from-[#007AFF] to-[#1DB954] opacity-20 blur-3xl rounded-full" />
+      <div className="absolute -inset-4 bg-gradient-to-tr from-[#0088FF] to-[#98FB98] opacity-20 blur-3xl rounded-full" />
       <div className="relative bg-slate-50 rounded-3xl border border-slate-200 shadow-2xl p-6 sm:p-8">
         <div className="flex items-center justify-between mb-8">
           <div className="flex gap-1.5">
             <div className="h-3 w-3 rounded-full bg-[#FF0000]" />
-            <div className="h-3 w-3 rounded-full bg-[#FFC107]" />
-            <div className="h-3 w-3 rounded-full bg-[#1DB954]" />
+            <div className="h-3 w-3 rounded-full bg-[#FFE600]" />
+            <div className="h-3 w-3 rounded-full bg-[#98FB98]" />
           </div>
           <div className="px-3 py-1 bg-white rounded-full text-[10px] font-mono text-slate-400 border border-slate-200">
             jobmatch.ai/dashboard
@@ -171,7 +171,7 @@ function DashboardMock() {
               87<span className="text-xl text-slate-400 font-normal">/100</span>
             </div>
             <div className="mt-4 h-2 w-full bg-slate-100 rounded-full overflow-hidden">
-              <div className="h-full bg-[#007AFF] rounded-full" style={{ width: "87%" }} />
+              <div className="h-full bg-[#0088FF] rounded-full" style={{ width: "87%" }} />
             </div>
           </div>
           <div className="flex-[2] flex flex-col justify-center">
@@ -179,7 +179,7 @@ function DashboardMock() {
               Analysis
             </div>
             <div className="text-lg font-bold text-slate-900">Product Manager Role</div>
-            <div className="mt-1 inline-flex items-center gap-1.5 text-sm text-[#1DB954] font-semibold">
+            <div className="mt-1 inline-flex items-center gap-1.5 text-sm text-[#98FB98] font-semibold">
               <Check className="h-4 w-4" /> Optimized &amp; Ready
             </div>
           </div>
@@ -190,37 +190,37 @@ function DashboardMock() {
             <div>
               <div className="flex justify-between text-xs font-bold mb-1 text-slate-600">
                 <span>Keywords match</span>
-                <span className="text-[#1DB954]">92%</span>
+                <span className="text-[#98FB98]">92%</span>
               </div>
               <div className="h-1.5 bg-slate-200 rounded-full overflow-hidden">
-                <div className="h-full bg-[#1DB954] rounded-full" style={{ width: "92%" }} />
+                <div className="h-full bg-[#98FB98] rounded-full" style={{ width: "92%" }} />
               </div>
             </div>
             <div>
               <div className="flex justify-between text-xs font-bold mb-1 text-slate-600">
                 <span>Experience</span>
-                <span className="text-[#FFC107]">78%</span>
+                <span className="text-[#FFE600]">78%</span>
               </div>
               <div className="h-1.5 bg-slate-200 rounded-full overflow-hidden">
-                <div className="h-full bg-[#FFC107] rounded-full" style={{ width: "78%" }} />
+                <div className="h-full bg-[#FFE600] rounded-full" style={{ width: "78%" }} />
               </div>
             </div>
           </div>
 
           <div className="bg-white/70 backdrop-blur p-4 rounded-xl border border-slate-100">
             <div className="flex items-center gap-2 mb-3">
-              <Sparkles className="h-4 w-4 text-[#007AFF]" />
+              <Sparkles className="h-4 w-4 text-[#0088FF]" />
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                 AI Suggestions
               </span>
             </div>
             <ul className="text-xs space-y-2 text-slate-600">
               <li className="flex items-start gap-2">
-                <Check className="h-3.5 w-3.5 mt-0.5 text-[#1DB954] shrink-0" strokeWidth={3} />
+                <Check className="h-3.5 w-3.5 mt-0.5 text-[#98FB98] shrink-0" strokeWidth={3} />
                 Add keyword <span className="font-semibold text-slate-900">"Agile roadmap"</span> ke summary section
               </li>
               <li className="flex items-start gap-2">
-                <Check className="h-3.5 w-3.5 mt-0.5 text-[#1DB954] shrink-0" strokeWidth={3} />
+                <Check className="h-3.5 w-3.5 mt-0.5 text-[#98FB98] shrink-0" strokeWidth={3} />
                 Kuantifikasi impact di role terakhir (e.g. grew revenue 20%)
               </li>
             </ul>
@@ -236,25 +236,25 @@ export function Hero() {
   return (
     <section id="top" className="relative pt-14 pb-24 lg:pt-20 lg:pb-32 overflow-hidden">
       <div className="absolute inset-0 -z-10 hero-dots opacity-30" />
-      <div className="absolute -top-24 -left-24 w-96 h-96 bg-[#007AFF]/5 rounded-full blur-3xl -z-10" />
-      <div className="absolute top-1/2 -right-24 w-96 h-96 bg-[#FFC107]/5 rounded-full blur-3xl -z-10" />
+      <div className="absolute -top-24 -left-24 w-96 h-96 bg-[#0088FF]/5 rounded-full blur-3xl -z-10" />
+      <div className="absolute top-1/2 -right-24 w-96 h-96 bg-[#FFE600]/5 rounded-full blur-3xl -z-10" />
 
       <div className="mx-auto grid max-w-7xl gap-12 px-4 sm:px-5 lg:grid-cols-2 lg:items-center lg:gap-16 lg:px-6">
         <div>
           <Reveal>
-            <div className="inline-flex items-center gap-2.5 rounded-full bg-[#007AFF]/10 border border-[#007AFF]/15 px-4 py-2 mb-5 sm:mb-6">
+            <div className="inline-flex items-center gap-2.5 rounded-full bg-[#0088FF]/10 border border-[#0088FF]/15 px-4 py-2 mb-5 sm:mb-6">
               <span className="relative flex h-2.5 w-2.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#007AFF] opacity-75" />
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#007AFF]" />
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0088FF] opacity-75" />
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#0088FF]" />
               </span>
-              <span className="text-xs sm:text-sm font-bold text-[#005BB5] uppercase tracking-wider">
+              <span className="text-xs sm:text-sm font-bold text-[#0066CC] uppercase tracking-wider">
                 AI-Powered · Made in Indonesia 🇮🇩
               </span>
             </div>
           </Reveal>
           <Reveal delay={80}>
             <h1 className="font-display text-3xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-[1.05] tracking-tight text-slate-900">
-              It's not you. Your resume just isn't speaking the language the <span className="text-[#007AFF]">system</span> understands.
+              It's not you. Your resume just isn't speaking the language the <span className="text-[#0088FF]">system</span> understands.
             </h1>
           </Reveal>
           <Reveal delay={160}>
@@ -266,7 +266,7 @@ export function Hero() {
             <div className="mt-7 sm:mt-9 flex flex-col sm:flex-row gap-3 sm:items-center">
               <Link
                 to="/generate"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#007AFF] px-6 sm:px-8 py-3.5 sm:py-4 text-sm sm:text-base font-bold text-white shadow-lg shadow-[#007AFF]/25 transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-[#007AFF]/30"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#0088FF] px-6 sm:px-8 py-3.5 sm:py-4 text-sm sm:text-base font-bold text-white shadow-lg shadow-[#0088FF]/25 transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-[#0088FF]/30"
               >
                 Cek Skor ATS CV Kamu Sekarang — Gratis & Instant
                 <ArrowRight className="h-5 w-5" />
@@ -275,11 +275,11 @@ export function Hero() {
           </Reveal>
           <Reveal delay={280}>
             <div className="mt-6 flex flex-wrap items-center gap-3 sm:gap-x-6 sm:gap-y-2">
-              <span className="inline-flex items-center gap-2 rounded-lg bg-[#1DB954]/10 border border-[#1DB954]/15 px-3 py-2 text-xs sm:text-sm font-bold text-[#107533]">
-                <Check className="h-4 w-4 text-[#1DB954] shrink-0" /> No credit card
+              <span className="inline-flex items-center gap-2 rounded-lg bg-[#98FB98]/10 border border-[#98FB98]/15 px-3 py-2 text-xs sm:text-sm font-bold text-[#55C655]">
+                <Check className="h-4 w-4 text-[#98FB98] shrink-0" /> No credit card
               </span>
-              <span className="inline-flex items-center gap-2 rounded-lg bg-[#1DB954]/10 border border-[#1DB954]/15 px-3 py-2 text-xs sm:text-sm font-bold text-[#107533]">
-                <Check className="h-4 w-4 text-[#1DB954] shrink-0" /> Results in 2 minutes
+              <span className="inline-flex items-center gap-2 rounded-lg bg-[#98FB98]/10 border border-[#98FB98]/15 px-3 py-2 text-xs sm:text-sm font-bold text-[#55C655]">
+                <Check className="h-4 w-4 text-[#98FB98] shrink-0" /> Results in 2 minutes
               </span>
             </div>
           </Reveal>
@@ -288,7 +288,7 @@ export function Hero() {
         <Reveal delay={200}>
           <div className="relative">
             {/* Blue panel background (Google blue gradient) */}
-            <div className="relative rounded-[2rem] overflow-hidden shadow-2xl bg-gradient-to-br from-[#007AFF] via-[#007AFF] to-[#005BB5] p-4 sm:p-8 lg:p-10">
+            <div className="relative rounded-[2rem] overflow-hidden shadow-2xl bg-gradient-to-br from-[#0088FF] via-[#0088FF] to-[#0066CC] p-4 sm:p-8 lg:p-10">
               {/* subtle dot grid */}
               <div
                 className="absolute inset-0 opacity-[0.08] pointer-events-none"
@@ -299,8 +299,8 @@ export function Hero() {
                 }}
               />
               {/* accent blobs */}
-              <div className="absolute -top-16 -right-16 w-64 h-64 bg-[#FFC107]/30 rounded-full blur-3xl" />
-              <div className="absolute -bottom-20 -left-16 w-72 h-72 bg-[#1DB954]/25 rounded-full blur-3xl" />
+              <div className="absolute -top-16 -right-16 w-64 h-64 bg-[#FFE600]/30 rounded-full blur-3xl" />
+              <div className="absolute -bottom-20 -left-16 w-72 h-72 bg-[#98FB98]/25 rounded-full blur-3xl" />
 
               <div className="relative rounded-2xl overflow-hidden border border-white/20 shadow-xl bg-white">
                 <img
@@ -311,7 +311,7 @@ export function Hero() {
                 />
                 {/* Floating live badge — kept small so it doesn't obscure the photo */}
                 <div className="absolute top-3 left-3 sm:top-4 sm:left-4 flex items-center gap-2 rounded-full bg-white/95 backdrop-blur px-3 py-1.5 shadow-lg border border-white/60">
-                  <span className="flex h-2.5 w-2.5 rounded-full bg-[#1DB954] animate-pulse" />
+                  <span className="flex h-2.5 w-2.5 rounded-full bg-[#98FB98] animate-pulse" />
                   <span className="text-[11px] sm:text-xs font-bold text-slate-800 tracking-wide uppercase">
                     ATS Scan Live
                   </span>
@@ -327,9 +327,9 @@ export function Hero() {
                 >
                   <svg className="h-5 w-5 sm:h-6 sm:w-6" viewBox="0 0 48 48" aria-hidden="true">
                     <path fill="#FF0000" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
-                    <path fill="#007AFF" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-                    <path fill="#FFC107" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
-                    <path fill="#1DB954" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                    <path fill="#0088FF" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                    <path fill="#FFE600" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+                    <path fill="#98FB98" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
                   </svg>
                   <span>Sign in with Google</span>
                 </a>
@@ -357,7 +357,7 @@ export function Problem() {
         <Reveal delay={80}>
           <h2 className="mt-5 font-display text-4xl md:text-5xl font-bold text-slate-900">
             75% of CVs Never Get{" "}
-            <span className="text-[#007AFF]">Read by a Human</span>
+            <span className="text-[#0088FF]">Read by a Human</span>
           </h2>
         </Reveal>
         <Reveal delay={140}>
@@ -377,25 +377,25 @@ export function Problem() {
 const FEATURES = [
   {
     icon: FileText,
-    color: "#007AFF",
-    bg: "bg-[#007AFF]/10",
-    hover: "hover:border-[#007AFF]/30 hover:shadow-blue-500/10",
+    color: "#0088FF",
+    bg: "bg-[#0088FF]/10",
+    hover: "hover:border-[#0088FF]/30 hover:shadow-blue-500/10",
     title: "ATS Score Check",
     desc: "Upload CV, get instant compatibility score lengkap dengan breakdown dan rekomendasi improvement.",
   },
   {
     icon: Sparkles,
-    color: "#FFC107",
-    bg: "bg-[#FFC107]/10",
-    hover: "hover:border-[#FFC107]/40 hover:shadow-yellow-500/10",
+    color: "#FFE600",
+    bg: "bg-[#FFE600]/10",
+    hover: "hover:border-[#FFE600]/40 hover:shadow-yellow-500/10",
     title: "Smart CV Builder",
     desc: "Scan CV lama kamu (even dari foto atau PDF berantakan) — auto-rapikan jadi format yang ATS-friendly.",
   },
   {
     icon: MessageSquare,
-    color: "#1DB954",
-    bg: "bg-[#1DB954]/10",
-    hover: "hover:border-[#1DB954]/30 hover:shadow-green-500/10",
+    color: "#98FB98",
+    bg: "bg-[#98FB98]/10",
+    hover: "hover:border-[#98FB98]/30 hover:shadow-green-500/10",
     title: "AI Mock Interview",
     desc: "Practice real-time sama AI interviewer — dapet feedback on tone, delivery, sampai konten jawaban kamu.",
   },
@@ -417,7 +417,7 @@ export function Features() {
           <div className="text-center mb-16 lg:mb-20">
             <h2 className="font-display text-4xl md:text-5xl font-bold text-slate-900">
               Everything you need to{" "}
-              <span className="text-[#007AFF]">land the interview</span>
+              <span className="text-[#0088FF]">land the interview</span>
             </h2>
             <p className="mt-4 text-slate-500 max-w-2xl mx-auto">
               Four powerful tools designed for the modern Indonesian job market.
@@ -454,7 +454,7 @@ export function WhyJobMatch() {
         <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
           <div>
             <Reveal>
-              <span className="inline-block rounded-full bg-[#007AFF]/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-[#005BB5]">
+              <span className="inline-block rounded-full bg-[#0088FF]/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-[#0066CC]">
                 The Story Behind This
               </span>
               <h2 className="mt-4 font-display text-3xl md:text-4xl font-bold text-slate-900 leading-tight">
@@ -463,39 +463,39 @@ export function WhyJobMatch() {
             </Reveal>
             <Reveal delay={80}>
               <p className="mt-5 text-base sm:text-lg text-slate-600 leading-relaxed">
-                Kebanyakan job seeker gak pernah tahu kenapa lamaran mereka <i className="text-slate-800 font-medium">silent</i> — CV yang keliatan bagus di mata manusia belum tentu kebaca dengan benar sama <i className="text-[#007AFF] font-medium">system</i> yang dipakai perusahaan buat nyaring ratusan applicant sekaligus.
+                Kebanyakan job seeker gak pernah tahu kenapa lamaran mereka <i className="text-slate-800 font-medium">silent</i> — CV yang keliatan bagus di mata manusia belum tentu kebaca dengan benar sama <i className="text-[#0088FF] font-medium">system</i> yang dipakai perusahaan buat nyaring ratusan applicant sekaligus.
               </p>
             </Reveal>
             <Reveal delay={160}>
               <p className="mt-4 text-base sm:text-lg text-slate-600 leading-relaxed">
-                JobMatch AI dibuat buat nutup gap itu. Kita analisis CV kamu persis kayak cara ATS beneran baca — kasih <i className="text-[#007AFF] font-medium">score</i> yang objektif per kategori, terus <i className="text-[#007AFF] font-medium">match</i> profil kamu secara <i className="text-[#007AFF] font-medium">semantic</i> ke lowongan yang bener-bener relevan. Bukan cuma cocokin <i className="text-[#007AFF] font-medium">keyword</i> doang, tapi paham makna di balik <i className="text-[#007AFF] font-medium">experience</i> yang udah kamu bangun.
+                JobMatch AI dibuat buat nutup gap itu. Kita analisis CV kamu persis kayak cara ATS beneran baca — kasih <i className="text-[#0088FF] font-medium">score</i> yang objektif per kategori, terus <i className="text-[#0088FF] font-medium">match</i> profil kamu secara <i className="text-[#0088FF] font-medium">semantic</i> ke lowongan yang bener-bener relevan. Bukan cuma cocokin <i className="text-[#0088FF] font-medium">keyword</i> doang, tapi paham makna di balik <i className="text-[#0088FF] font-medium">experience</i> yang udah kamu bangun.
               </p>
             </Reveal>
             <Reveal delay={240}>
-              <div className="mt-6 p-5 rounded-2xl bg-[#007AFF]/5 border border-[#007AFF]/10">
+              <div className="mt-6 p-5 rounded-2xl bg-[#0088FF]/5 border border-[#0088FF]/10">
                 <p className="text-base sm:text-lg font-semibold text-slate-900 leading-relaxed">
-                  Intinya: kita bantu CV kamu ngomong bahasa yang dipahami <i className="text-[#007AFF]">system</i>, biar effort kamu selama ini gak sia-sia cuma gara-gara format yang salah.
+                  Intinya: kita bantu CV kamu ngomong bahasa yang dipahami <i className="text-[#0088FF]">system</i>, biar effort kamu selama ini gak sia-sia cuma gara-gara format yang salah.
                 </p>
               </div>
             </Reveal>
           </div>
           <Reveal delay={200}>
             <div className="relative flex justify-center lg:justify-end">
-              <div className="absolute inset-0 bg-gradient-to-tr from-[#005BB5] to-[#007AFF] opacity-10 blur-3xl rounded-full" />
+              <div className="absolute inset-0 bg-gradient-to-tr from-[#0066CC] to-[#0088FF] opacity-10 blur-3xl rounded-full" />
               <div className="relative bg-white rounded-3xl border border-slate-100 shadow-xl p-8 max-w-md w-full">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex flex-col items-center justify-center p-6 bg-slate-50 rounded-2xl">
                     <FileText className="h-8 w-8 text-slate-400 mb-3" />
                     <span className="text-xs font-bold text-slate-500 uppercase text-center">Human View</span>
                   </div>
-                  <div className="flex flex-col items-center justify-center p-6 bg-[#007AFF]/10 border border-[#007AFF]/20 rounded-2xl">
-                    <Sparkles className="h-8 w-8 text-[#007AFF] mb-3" />
-                    <span className="text-xs font-bold text-[#005BB5] uppercase text-center">ATS View</span>
+                  <div className="flex flex-col items-center justify-center p-6 bg-[#0088FF]/10 border border-[#0088FF]/20 rounded-2xl">
+                    <Sparkles className="h-8 w-8 text-[#0088FF] mb-3" />
+                    <span className="text-xs font-bold text-[#0066CC] uppercase text-center">ATS View</span>
                   </div>
                 </div>
                 <div className="mt-6 flex items-center justify-center gap-3">
                   <ArrowRight className="h-5 w-5 text-slate-300" />
-                  <div className="px-4 py-2 bg-[#1DB954]/10 text-[#107533] rounded-full text-sm font-bold">
+                  <div className="px-4 py-2 bg-[#98FB98]/10 text-[#55C655] rounded-full text-sm font-bold">
                     Match Found 🎯
                   </div>
                 </div>
@@ -511,8 +511,8 @@ export function WhyJobMatch() {
 
 /* ---------- How it works ---------- */
 const STEPS = [
-  { icon: Upload, color: "#007AFF", bg: "bg-[#007AFF]/10", title: "Upload your CV", desc: "PDF atau foto — kita handle semua format." },
-  { icon: BarChart3, color: "#1DB954", bg: "bg-[#1DB954]/10", title: "Get your ATS score", desc: "Detailed insights + rekomendasi actionable." },
+  { icon: Upload, color: "#0088FF", bg: "bg-[#0088FF]/10", title: "Upload your CV", desc: "PDF atau foto — kita handle semua format." },
+  { icon: BarChart3, color: "#98FB98", bg: "bg-[#98FB98]/10", title: "Get your ATS score", desc: "Detailed insights + rekomendasi actionable." },
   { icon: Mic, color: "#FF0000", bg: "bg-[#FF0000]/10", title: "Practice interview", desc: "Sampai kamu bener-bener interview-ready." },
 ];
 
@@ -522,11 +522,11 @@ export function HowItWorks() {
       <div className="mx-auto max-w-7xl px-5 lg:px-6">
         <Reveal>
           <div className="text-center mb-16">
-            <span className="inline-block rounded-full bg-[#1DB954]/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-[#1DB954]">
+            <span className="inline-block rounded-full bg-[#98FB98]/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-[#98FB98]">
               How It Works
             </span>
             <h2 className="mt-4 font-display text-4xl md:text-5xl font-bold text-slate-900">
-              3 steps, <span className="text-[#007AFF]">no ribet</span>
+              3 steps, <span className="text-[#0088FF]">no ribet</span>
             </h2>
           </div>
         </Reveal>
@@ -635,7 +635,7 @@ export function CVGenerator() {
         <div className="grid gap-14 lg:grid-cols-2 lg:items-center lg:gap-16">
           <div>
             <Reveal>
-              <span className="inline-flex items-center gap-2 rounded-full bg-[#007AFF]/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-[#007AFF]">
+              <span className="inline-flex items-center gap-2 rounded-full bg-[#0088FF]/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-[#0088FF]">
                 <Wand2 className="h-3.5 w-3.5" />
                 {c.badge}
               </span>
@@ -643,7 +643,7 @@ export function CVGenerator() {
             <Reveal delay={80}>
               <h2 className="mt-5 font-display text-4xl md:text-5xl font-bold text-slate-900 leading-tight">
                 {c.heading}
-                <span className="text-[#007AFF]">{c.headingAccent}</span>.
+                <span className="text-[#0088FF]">{c.headingAccent}</span>.
               </h2>
             </Reveal>
             <Reveal delay={140}>
@@ -662,7 +662,7 @@ export function CVGenerator() {
                     onClick={() => setLang(code)}
                     className={`rounded-full px-4 py-1.5 text-sm font-bold transition-all ${
                       lang === code
-                        ? "bg-white text-[#007AFF] shadow-sm ring-1 ring-slate-200"
+                        ? "bg-white text-[#0088FF] shadow-sm ring-1 ring-slate-200"
                         : "text-slate-500 hover:text-slate-800"
                     }`}
                   >
@@ -681,9 +681,9 @@ export function CVGenerator() {
                   <input
                     type="text"
                     placeholder={c.inputPlaceholder}
-                    className="flex-1 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/30 focus:border-[#007AFF]"
+                    className="flex-1 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0088FF]/30 focus:border-[#0088FF]"
                   />
-                  <button className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#007AFF] px-5 py-3 text-sm font-bold text-white shadow-lg shadow-[#007AFF]/25 transition-all hover:-translate-y-0.5 hover:shadow-xl">
+                  <button className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#0088FF] px-5 py-3 text-sm font-bold text-white shadow-lg shadow-[#0088FF]/25 transition-all hover:-translate-y-0.5 hover:shadow-xl">
                     <Sparkles className="h-4 w-4" />
                     {c.button}
                   </button>
@@ -694,10 +694,10 @@ export function CVGenerator() {
             <Reveal delay={320}>
               <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm font-medium text-slate-500">
                 <span className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-[#1DB954]" /> ATS-optimized layout
+                  <Check className="h-4 w-4 text-[#98FB98]" /> ATS-optimized layout
                 </span>
                 <span className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-[#1DB954]" /> ID &amp; EN keywords
+                  <Check className="h-4 w-4 text-[#98FB98]" /> ID &amp; EN keywords
                 </span>
               </div>
             </Reveal>
@@ -705,11 +705,11 @@ export function CVGenerator() {
 
           <Reveal delay={200}>
             <div className="relative">
-              <div className="absolute -inset-4 bg-gradient-to-tr from-[#007AFF] to-[#FFC107] opacity-15 blur-3xl rounded-full" />
+              <div className="absolute -inset-4 bg-gradient-to-tr from-[#0088FF] to-[#FFE600] opacity-15 blur-3xl rounded-full" />
               <div className="relative bg-white rounded-3xl border border-slate-200 shadow-2xl overflow-hidden">
                 <div className="flex items-center justify-between px-5 py-3 border-b border-slate-100 bg-slate-50">
                   <div className="flex items-center gap-2">
-                    <FileText className="h-4 w-4 text-[#007AFF]" />
+                    <FileText className="h-4 w-4 text-[#0088FF]" />
                     <span className="text-xs font-bold text-slate-600">
                       {lang === "id" ? "CV_Rania_ATS_ID.pdf" : "CV_Rania_ATS_EN.pdf"}
                     </span>
@@ -723,7 +723,7 @@ export function CVGenerator() {
                 <div className="p-6 sm:p-8 text-slate-800">
                   <div className="pb-4 border-b border-slate-200">
                     <div className="font-display text-2xl font-bold text-slate-900">{p.name}</div>
-                    <div className="text-sm font-semibold text-[#007AFF] mt-0.5">{p.title}</div>
+                    <div className="text-sm font-semibold text-[#0088FF] mt-0.5">{p.title}</div>
                     <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-slate-500">
                       <span className="flex items-center gap-1"><Mail className="h-3 w-3" />{p.email}</span>
                       <span className="flex items-center gap-1"><Phone className="h-3 w-3" />{p.phone}</span>
@@ -732,14 +732,14 @@ export function CVGenerator() {
                   </div>
 
                   <div className="mt-5">
-                    <div className="text-[10px] font-black uppercase tracking-widest text-[#007AFF]">
+                    <div className="text-[10px] font-black uppercase tracking-widest text-[#0088FF]">
                       {p.summaryLabel}
                     </div>
                     <p className="mt-1.5 text-xs leading-relaxed text-slate-600">{p.summary}</p>
                   </div>
 
                   <div className="mt-5">
-                    <div className="text-[10px] font-black uppercase tracking-widest text-[#007AFF] flex items-center gap-1.5">
+                    <div className="text-[10px] font-black uppercase tracking-widest text-[#0088FF] flex items-center gap-1.5">
                       <Briefcase className="h-3 w-3" /> {p.expLabel}
                     </div>
                     <div className="mt-2">
@@ -750,7 +750,7 @@ export function CVGenerator() {
                       <ul className="mt-1.5 space-y-1 text-xs text-slate-600">
                         {p.expBullets.map((b) => (
                           <li key={b} className="flex gap-2">
-                            <span className="text-[#1DB954] mt-0.5">•</span>
+                            <span className="text-[#98FB98] mt-0.5">•</span>
                             <span>{b}</span>
                           </li>
                         ))}
@@ -759,21 +759,21 @@ export function CVGenerator() {
                   </div>
 
                   <div className="mt-5">
-                    <div className="text-[10px] font-black uppercase tracking-widest text-[#007AFF] flex items-center gap-1.5">
+                    <div className="text-[10px] font-black uppercase tracking-widest text-[#0088FF] flex items-center gap-1.5">
                       <GraduationCap className="h-3 w-3" /> {p.eduLabel}
                     </div>
                     <div className="mt-1.5 text-xs text-slate-700">{p.edu}</div>
                   </div>
 
                   <div className="mt-5">
-                    <div className="text-[10px] font-black uppercase tracking-widest text-[#007AFF]">
+                    <div className="text-[10px] font-black uppercase tracking-widest text-[#0088FF]">
                       {p.skillsLabel}
                     </div>
                     <div className="mt-2 flex flex-wrap gap-1.5">
                       {p.skills.map((s) => (
                         <span
                           key={s}
-                          className="rounded-full bg-[#007AFF]/10 px-2.5 py-0.5 text-[11px] font-semibold text-[#007AFF]"
+                          className="rounded-full bg-[#0088FF]/10 px-2.5 py-0.5 text-[11px] font-semibold text-[#0088FF]"
                         >
                           {s}
                         </span>
@@ -841,16 +841,16 @@ export function CVMatchJob() {
         <div className="grid gap-14 lg:grid-cols-2 lg:items-center lg:gap-16">
           <Reveal>
             <div className="relative order-2 lg:order-1">
-              <div className="absolute -inset-4 bg-gradient-to-tr from-[#1DB954] to-[#007AFF] opacity-15 blur-3xl rounded-full" />
+              <div className="absolute -inset-4 bg-gradient-to-tr from-[#98FB98] to-[#0088FF] opacity-15 blur-3xl rounded-full" />
               <div className="relative bg-white rounded-3xl border border-slate-200 shadow-2xl overflow-hidden">
                 <div className="flex items-center justify-between px-5 py-3 border-b border-slate-100 bg-slate-50">
                   <div className="flex items-center gap-2">
-                    <Target className="h-4 w-4 text-[#1DB954]" />
+                    <Target className="h-4 w-4 text-[#98FB98]" />
                     <span className="text-xs font-bold text-slate-600">
                       CV × {jobTitle || "Target Role"}
                     </span>
                   </div>
-                  <span className="rounded-full bg-[#1DB954]/10 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-[#1DB954]">
+                  <span className="rounded-full bg-[#98FB98]/10 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-[#98FB98]">
                     Live Match
                   </span>
                 </div>
@@ -865,7 +865,7 @@ export function CVMatchJob() {
                           cy="20"
                           r="16"
                           className="fill-none"
-                          stroke="#1DB954"
+                          stroke="#98FB98"
                           strokeWidth="4"
                           strokeLinecap="round"
                           strokeDasharray={`${(score / 100) * 100.5} 100.5`}
@@ -895,14 +895,14 @@ export function CVMatchJob() {
                   </div>
 
                   <div className="mt-6">
-                    <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#1DB954]">
+                    <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#98FB98]">
                       <Check className="h-3.5 w-3.5" /> Matched Keywords
                     </div>
                     <div className="mt-2 flex flex-wrap gap-1.5">
                       {matched.map((k) => (
                         <span
                           key={k}
-                          className="inline-flex items-center gap-1 rounded-full bg-[#1DB954]/10 px-2.5 py-0.5 text-[11px] font-semibold text-[#1AA34A]"
+                          className="inline-flex items-center gap-1 rounded-full bg-[#98FB98]/10 px-2.5 py-0.5 text-[11px] font-semibold text-[#77DD77]"
                         >
                           <Check className="h-3 w-3" /> {k}
                         </span>
@@ -928,9 +928,9 @@ export function CVMatchJob() {
 
                   <div className="mt-6 grid grid-cols-3 gap-3">
                     {([
-                      ["Skills", subScores.skills, "#007AFF"],
-                      ["Experience", subScores.experience, "#FFC107"],
-                      ["Culture Fit", subScores.cultureFit, "#1DB954"],
+                      ["Skills", subScores.skills, "#0088FF"],
+                      ["Experience", subScores.experience, "#FFE600"],
+                      ["Culture Fit", subScores.cultureFit, "#98FB98"],
                     ] as const).map(([l, v, c]) => (
                       <div key={l} className="rounded-xl border border-slate-100 bg-slate-50 p-3">
                         <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
@@ -949,14 +949,14 @@ export function CVMatchJob() {
 
           <div className="order-1 lg:order-2">
             <Reveal>
-              <span className="inline-flex items-center gap-2 rounded-full bg-[#1DB954]/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-[#1DB954]">
+              <span className="inline-flex items-center gap-2 rounded-full bg-[#98FB98]/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-[#98FB98]">
                 <Target className="h-3.5 w-3.5" />
                 CV × Job Match
               </span>
             </Reveal>
             <Reveal delay={80}>
               <h2 className="mt-5 font-display text-4xl md:text-5xl font-bold text-slate-900 leading-tight">
-                Cek Seberapa <span className="text-[#1DB954]">Match</span> CV Kamu sama Job Impian.
+                Cek Seberapa <span className="text-[#98FB98]">Match</span> CV Kamu sama Job Impian.
               </h2>
             </Reveal>
             <Reveal delay={140}>
@@ -975,7 +975,7 @@ export function CVMatchJob() {
                   value={jobTitle}
                   onChange={(e) => setJobTitle(e.target.value)}
                   placeholder="e.g. Product Manager @ Gojek"
-                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#1DB954]/30 focus:border-[#1DB954]"
+                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#98FB98]/30 focus:border-[#98FB98]"
                 />
 
                 <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 pt-2">
@@ -984,13 +984,13 @@ export function CVMatchJob() {
                 <textarea
                   rows={4}
                   placeholder="cth. We're looking for a Product Manager with 3+ years of experience in mobile products, strong analytical skills, familiarity with SQL, Mixpanel, and Agile methodology..."
-                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#1DB954]/30 focus:border-[#1DB954] resize-none"
+                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#98FB98]/30 focus:border-[#98FB98] resize-none"
                 />
 
                 <div className="flex flex-wrap gap-2">
                   <button
                     onClick={handleAnalyze}
-                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#1DB954] px-6 py-3 text-sm font-bold text-white shadow-lg shadow-[#1DB954]/25 transition-all hover:-translate-y-0.5 hover:shadow-xl"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#98FB98] px-6 py-3 text-sm font-bold text-white shadow-lg shadow-[#98FB98]/25 transition-all hover:-translate-y-0.5 hover:shadow-xl"
                   >
                     <Percent className="h-4 w-4" />
                     Analyze Match Score
@@ -999,9 +999,9 @@ export function CVMatchJob() {
                     onClick={() =>
                       downloadMatchPdf({ jobTitle: jobTitle || "Target Role", score, matched, missing, subScores })
                     }
-                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-6 py-3 text-sm font-bold text-slate-900 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md hover:border-[#007AFF]"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-6 py-3 text-sm font-bold text-slate-900 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md hover:border-[#0088FF]"
                   >
-                    <Download className="h-4 w-4 text-[#007AFF]" />
+                    <Download className="h-4 w-4 text-[#0088FF]" />
                     Download PDF
                   </button>
                 </div>
@@ -1011,7 +1011,7 @@ export function CVMatchJob() {
             <Reveal delay={260}>
               <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-5">
                 <div className="flex items-center gap-2">
-                  <Mail className="h-4 w-4 text-[#007AFF]" />
+                  <Mail className="h-4 w-4 text-[#0088FF]" />
                   <div className="text-sm font-bold text-slate-900">
                     Kirim hasil analisis ke email
                   </div>
@@ -1023,14 +1023,14 @@ export function CVMatchJob() {
                   <button
                     onClick={handleSend}
                     disabled={status === "sending"}
-                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#007AFF] px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-[#007AFF]/25 transition-all hover:-translate-y-0.5 disabled:opacity-60 disabled:hover:translate-y-0"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#0088FF] px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-[#0088FF]/25 transition-all hover:-translate-y-0.5 disabled:opacity-60 disabled:hover:translate-y-0"
                   >
                     <Mail className="h-4 w-4" />
                     {status === "sending" ? "Mengirim..." : "Kirim Laporan ke Email"}
                   </button>
                 </div>
                 {status === "sent" && (
-                  <div className="mt-3 flex items-center gap-2 rounded-lg bg-[#1DB954]/10 px-3 py-2 text-xs font-semibold text-[#1AA34A]">
+                  <div className="mt-3 flex items-center gap-2 rounded-lg bg-[#98FB98]/10 px-3 py-2 text-xs font-semibold text-[#77DD77]">
                     <Check className="h-4 w-4" /> Terkirim! Cek inbox Anda (termasuk folder Spam/Promotions).
                   </div>
                 )}
@@ -1045,10 +1045,10 @@ export function CVMatchJob() {
             <Reveal delay={320}>
               <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm font-medium text-slate-500">
                 <span className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-[#1DB954]" /> Instant fit-score
+                  <Check className="h-4 w-4 text-[#98FB98]" /> Instant fit-score
                 </span>
                 <span className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-[#1DB954]" /> Bilingual email report
+                  <Check className="h-4 w-4 text-[#98FB98]" /> Bilingual email report
                 </span>
               </div>
             </Reveal>
@@ -1061,9 +1061,9 @@ export function CVMatchJob() {
 
 export function Stats() {
   const items: [string, string, string][] = [
-    ["10,000+", "CVs Analyzed", "#007AFF"],
-    ["85%", "Pass Rate Improvement", "#1DB954"],
-    ["4.8/5", "User Rating", "#FFC107"],
+    ["10,000+", "CVs Analyzed", "#0088FF"],
+    ["85%", "Pass Rate Improvement", "#98FB98"],
+    ["4.8/5", "User Rating", "#FFE600"],
   ];
   return (
     <section className="py-16 lg:py-20 bg-white">
@@ -1093,7 +1093,7 @@ const TESTIMONIALS = [
     quote:
       "CV gue di-ghost 20+ perusahaan. Setelah pakai JobMatch AI, ATS score naik dari 42 ke 89. Minggu depannya langsung 3 interview call.",
     avatar: "https://i.pravatar.cc/120?img=47",
-    accent: "#007AFF",
+    accent: "#0088FF",
   },
   {
     name: "Michael Santoso",
@@ -1101,7 +1101,7 @@ const TESTIMONIALS = [
     quote:
       "Mock interview-nya seriously game-changer. Feedback-nya detail sampai ke intonasi. Confidence naik banget pas interview beneran.",
     avatar: "https://i.pravatar.cc/120?img=12",
-    accent: "#1DB954",
+    accent: "#98FB98",
   },
   {
     name: "Dinda Ayu",
@@ -1119,11 +1119,11 @@ export function Testimonials() {
       <div className="mx-auto max-w-7xl px-5 lg:px-6">
         <Reveal>
           <div className="text-center mb-16">
-            <span className="inline-block rounded-full bg-[#FFC107]/15 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-[#B28704]">
+            <span className="inline-block rounded-full bg-[#FFE600]/15 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-[#CCB800]">
               Loved by job seekers
             </span>
             <h2 className="mt-4 font-display text-4xl md:text-5xl font-bold text-slate-900">
-              Real people, <span className="text-[#007AFF]">real offers</span>
+              Real people, <span className="text-[#0088FF]">real offers</span>
             </h2>
           </div>
         </Reveal>
@@ -1131,7 +1131,7 @@ export function Testimonials() {
           {TESTIMONIALS.map((t, i) => (
             <Reveal key={t.name} delay={i * 100}>
               <div className="card-lift h-full rounded-3xl border border-slate-100 bg-white p-7 hover:shadow-xl transition-all">
-                <div className="flex items-center gap-1 text-[#FFC107]">
+                <div className="flex items-center gap-1 text-[#FFE600]">
                   {Array.from({ length: 5 }).map((_, k) => (
                     <Star key={k} className="h-4 w-4 fill-current" />
                   ))}
@@ -1163,9 +1163,9 @@ export function FinalCTA() {
   return (
     <section className="py-24 px-5 lg:px-6 bg-white">
       <div className="mx-auto max-w-5xl bg-slate-900 rounded-[2rem] md:rounded-[3rem] p-10 md:p-20 text-center relative overflow-hidden shadow-2xl">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-[#007AFF] opacity-20 blur-[100px]" />
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#1DB954] opacity-20 blur-[100px]" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 w-72 h-72 bg-[#FFC107] opacity-10 blur-[100px]" />
+        <div className="absolute top-0 right-0 w-64 h-64 bg-[#0088FF] opacity-20 blur-[100px]" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#98FB98] opacity-20 blur-[100px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 w-72 h-72 bg-[#FFE600] opacity-10 blur-[100px]" />
 
         <Reveal>
           <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-white relative">
@@ -1181,7 +1181,7 @@ export function FinalCTA() {
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 relative">
             <Link
               to="/generate"
-              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#007AFF] px-8 py-4 text-base font-bold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:shadow-xl"
+              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#0088FF] px-8 py-4 text-base font-bold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:shadow-xl"
             >
               Start Free Now
               <ArrowRight className="h-5 w-5" />
@@ -1225,7 +1225,7 @@ function ThreadsIcon({ className }: { className?: string }) {
 
 function SocialLinks() {
   const links = [
-    { name: "LinkedIn", href: "#", Icon: Linkedin, hoverBg: "hover:bg-[#007AFF]" },
+    { name: "LinkedIn", href: "#", Icon: Linkedin, hoverBg: "hover:bg-[#0088FF]" },
     { name: "Facebook", href: "#", Icon: Facebook, hoverBg: "hover:bg-[#1877F2]" },
     { name: "Threads", href: "#", Icon: ThreadsIcon, hoverBg: "hover:bg-[#000000]" },
   ];
@@ -1265,12 +1265,12 @@ export function Footer() {
           <div className="flex flex-col gap-8 sm:flex-row sm:gap-16">
             <div className="flex flex-col gap-3 text-sm font-medium text-slate-600">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Dukung Aplikasi Ini</span>
-              <a href="#" className="hover:text-[#007AFF] transition-colors">Dukungan Link 1</a>
-              <a href="#" className="hover:text-[#007AFF] transition-colors">Dukungan Link 2</a>
-              <a href="#" className="hover:text-[#007AFF] transition-colors">Dukungan Link 3</a>
-              <a href="#" className="hover:text-[#007AFF] transition-colors">Dukungan Link 4</a>
-              <a href="#" className="hover:text-[#007AFF] transition-colors">Dukungan Link 5</a>
-              <a href="#" className="hover:text-[#007AFF] transition-colors">Dukungan Link 6</a>
+              <a href="#" className="hover:text-[#0088FF] transition-colors">Dukungan Link 1</a>
+              <a href="#" className="hover:text-[#0088FF] transition-colors">Dukungan Link 2</a>
+              <a href="#" className="hover:text-[#0088FF] transition-colors">Dukungan Link 3</a>
+              <a href="#" className="hover:text-[#0088FF] transition-colors">Dukungan Link 4</a>
+              <a href="#" className="hover:text-[#0088FF] transition-colors">Dukungan Link 5</a>
+              <a href="#" className="hover:text-[#0088FF] transition-colors">Dukungan Link 6</a>
             </div>
             <SocialLinks />
           </div>
