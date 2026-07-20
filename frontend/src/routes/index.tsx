@@ -1016,7 +1016,7 @@ export function CVMatchJob() {
                   </div>
                 </div>
                 <p className="text-xs text-slate-500 mt-1">
-                  Ringkasan lengkap (🇮🇩 Bahasa + 🇬🇧 English) + breakdown score dikirim ke inbox owner (ravipridh88@gmail.com).
+                  Ringkasan lengkap (🇮🇩 Bahasa + 🇬🇧 English) + breakdown score akan dikirim langsung ke email Anda.
                 </p>
                 <div className="mt-3 flex flex-col sm:flex-row gap-2">
                   <button
@@ -1025,12 +1025,12 @@ export function CVMatchJob() {
                     className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#0A66C2] px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-[#0A66C2]/25 transition-all hover:-translate-y-0.5 disabled:opacity-60 disabled:hover:translate-y-0"
                   >
                     <Mail className="h-4 w-4" />
-                    {status === "sending" ? "Mengirim..." : "Send Report to Owner Inbox"}
+                    {status === "sending" ? "Mengirim..." : "Kirim Laporan ke Email"}
                   </button>
                 </div>
                 {status === "sent" && (
                   <div className="mt-3 flex items-center gap-2 rounded-lg bg-[#34A853]/10 px-3 py-2 text-xs font-semibold text-[#1E7A38]">
-                    <Check className="h-4 w-4" /> Terkirim! Cek inbox owner (mungkin di folder Promotions).
+                    <Check className="h-4 w-4" /> Terkirim! Cek inbox Anda (termasuk folder Spam/Promotions).
                   </div>
                 )}
                 {status === "error" && (
