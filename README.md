@@ -45,6 +45,37 @@ Our platform utilizes a decoupled, cloud-native architecture:
 - **Database Layer:** Aiven MySQL (Structured), Qdrant (Vector/Semantic).
 - **Data Streaming:** Confluent Kafka (C-based high-throughput streaming).
 
+### 🤖 Advanced N8N Multi-Agent Architecture (V4)
+
+JobMatch AI features an advanced **Multi-Agent Orchestration** system built on top of n8n. Instead of relying on a monolithic agent, the workload is distributed dynamically to specialized agents via an intelligent router to prevent fan-out collisions.
+
+```mermaid
+graph TD
+    %% Styling
+    classDef ui fill:#007AFF,stroke:#fff,stroke-width:2px,color:#fff;
+    classDef router fill:#FFE600,stroke:#333,stroke-width:2px,color:#333;
+    classDef agent fill:#FF0000,stroke:#fff,stroke-width:2px,color:#fff;
+    classDef db fill:#98FB98,stroke:#333,stroke-width:2px,color:#333;
+    
+    A[Streamlit UI / Client]:::ui -->|HTTP POST Payload| B(Webhook Entrypoint):::router
+    B --> C{Intelligent Router\nSwitch Node}:::router
+    
+    C -->|payload: cs_query_veronika| D[Veronika Agent\nSenior CS Manager]:::agent
+    C -->|payload: cs_query_leonardo| E[Leonardo Agent\nSenior HRD/CS]:::agent
+    C -->|default / CV upload| F[Main Orchestrator\nCore AI Agent]:::agent
+    
+    D -.->|Semantic Context| G[(Qdrant Vector DB)]:::db
+    E -.->|Semantic Context| G
+    F -.->|Semantic Context| G
+    
+    D -.->|Stateful Buffer| H[(Window Memory)]:::db
+    E -.->|Stateful Buffer| H
+    
+    D ===>|LLM Inference| I([Groq Llama-3 / Gemini 2.5]):::ui
+    E ===>|LLM Inference| I
+    F ===>|LLM Inference| I
+```
+
 *For a detailed technical breakdown, please refer to [ARCHITECTURE.md](ARCHITECTURE.md).*
 
 ---
