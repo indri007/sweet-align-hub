@@ -14,7 +14,7 @@ class EmbeddingPipeline:
         self.mysql_conn = mysql_conn
         
         # Configuration
-        self.collection_name = "indonesian_jobs"
+        self.collection_name = config.COLLECTION_NAME
         self._ensure_collection()
 
     def _ensure_collection(self):

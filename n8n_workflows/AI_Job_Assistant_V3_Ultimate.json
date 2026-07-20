@@ -255,27 +255,16 @@
   ],
   "pinData": {},
   "connections": {
-    "Webhook": {
-      "main": [
-        [
-          {
-            "node": "AI Agent",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Gemini Chat Model": {
       "ai_languageModel": [
         [
           {
-            "node": "AI Agent",
+            "node": "Main Orchestrator Agent",
             "type": "ai_languageModel",
             "index": 0
           },
           {
-            "node": "Vector Store Tool",
+            "node": "HR Knowledge Tool",
             "type": "ai_languageModel",
             "index": 0
           },
@@ -387,7 +376,7 @@
       "ai_vectorStore": [
         [
           {
-            "node": "Vector Store Tool",
+            "node": "HR Knowledge Tool",
             "type": "ai_vectorStore",
             "index": 0
           }
@@ -398,7 +387,7 @@
       "ai_tool": [
         [
           {
-            "node": "AI Agent",
+            "node": "Main Orchestrator Agent",
             "type": "ai_tool",
             "index": 0
           }
@@ -414,7 +403,7 @@
       "ai_tool": [
         [
           {
-            "node": "AI Agent",
+            "node": "Main Orchestrator Agent",
             "type": "ai_tool",
             "index": 0
           }
