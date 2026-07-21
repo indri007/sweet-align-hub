@@ -26,7 +26,7 @@ def is_llm_configured() -> bool:
     return config.is_llm_configured()
 
 
-def chat_completion(messages: list[dict], temperature: float = 0.7, max_tokens: int = 1500) -> str:
+def chat_completion(messages: list[dict], temperature: float = 0.7, max_tokens: int = 1500, use_google_search: bool = False) -> str:
     """
     Send a chat-style request to whichever LLM provider is configured.
 
@@ -37,14 +37,30 @@ def chat_completion(messages: list[dict], temperature: float = 0.7, max_tokens: 
     Raises an Exception on failure -- callers should catch and handle.
     """
     if config.LLM_PROVIDER == "gemini":
-        return _gemini_chat(messages, temperature, max_tokens)
+        return _gemini_chat(messages, temperature, max_tokens, use_google_search)
     elif config.LLM_PROVIDER == "openai":
         return _openai_chat(messages, temperature, max_tokens)
     elif config.LLM_PROVIDER == "groq":
+        import random
+        api_key = random.choice(config.GROQ_API_KEYS) if config.GROQ_API_KEYS else ""
         return _openai_compatible_chat(messages, temperature, max_tokens, 
-                                     api_key=config.GROQ_API_KEY, 
+                                     api_key=api_key, 
                                      base_url="https://api.groq.com/openai/v1", 
                                      model=config.GROQ_MODEL)
+    elif config.LLM_PROVIDER == "cerebras":
+        import random
+        api_key = random.choice(config.CEREBRAS_API_KEYS) if config.CEREBRAS_API_KEYS else ""
+        return _openai_compatible_chat(messages, temperature, max_tokens, 
+                                     api_key=api_key, 
+                                     base_url="https://api.cerebras.ai/v1", 
+                                     model=config.CEREBRAS_MODEL)
+    elif config.LLM_PROVIDER == "zhipu":
+        import random
+        api_key = random.choice(config.ZHIPU_API_KEYS) if config.ZHIPU_API_KEYS else ""
+        return _openai_compatible_chat(messages, temperature, max_tokens, 
+                                     api_key=api_key, 
+                                     base_url="https://open.bigmodel.cn/api/paas/v4/", 
+                                     model=config.ZHIPU_MODEL)
     elif config.LLM_PROVIDER == "openrouter":
         return _openai_compatible_chat(messages, temperature, max_tokens, 
                                      api_key=config.OPENROUTER_API_KEY, 
@@ -62,6 +78,8 @@ def chat_completion(messages: list[dict], temperature: float = 0.7, max_tokens: 
 
 def _openai_compatible_chat(messages: list[dict], temperature: float, max_tokens: int, api_key: str, base_url: str, model: str) -> str:
     from openai import OpenAI
+    import logging
+    logging.error(f"DEBUG LLM CLIENT: Calling model={model} at base_url={base_url}")
     client = OpenAI(api_key=api_key, base_url=base_url)
     response = client.chat.completions.create(
         model=model,
@@ -85,7 +103,7 @@ def _openai_chat(messages: list[dict], temperature: float, max_tokens: int) -> s
     return response.choices[0].message.content
 
 
-def _gemini_chat(messages: list[dict], temperature: float, max_tokens: int) -> str:
+def _gemini_chat(messages: list[dict], temperature: float, max_tokens: int, use_google_search: bool = False) -> str:
     from google import genai
     from google.genai import types
 
@@ -107,6 +125,10 @@ def _gemini_chat(messages: list[dict], temperature: float, max_tokens: int) -> s
 
     system_instruction = "\n\n".join(system_parts) if system_parts else None
 
+    tools = []
+    if use_google_search:
+        tools.append(types.Tool(google_search=types.GoogleSearch()))
+
     response = client.models.generate_content(
         model=config.GEMINI_MODEL,
         contents=contents,
@@ -114,6 +136,7 @@ def _gemini_chat(messages: list[dict], temperature: float, max_tokens: int) -> s
             system_instruction=system_instruction,
             temperature=temperature,
             max_output_tokens=max_tokens,
+            tools=tools if tools else None,
         ),
     )
     return response.text

@@ -132,7 +132,7 @@ def render_step_c():
                                     import time
                                     persona_data = {
                                         "email": getattr(st.user, "email", "Guest"),
-                                        "target_job_title": selected_job.get("job_title", "Unknown"),
+                                        "target_job_title": selected_job.get("job_title", "Unknown") if selected_job else "General",
                                         "original_cv_snippet": st.session_state.cv_text[:500],
                                         "generated_ats_cv": result["ats_text"],
                                         "language": lang_choice,
@@ -147,7 +147,8 @@ def render_step_c():
                             else:
                                 st.error("❌ Gagal membuat CV ATS. Coba lagi beberapa saat.")
                         except Exception as e:
-                            st.error(f"❌ Terjadi kesalahan saat membuat CV ATS: {e}")
+                            import traceback
+                            st.error(f"❌ Terjadi kesalahan saat membuat CV ATS: {e}\n\n```python\n{traceback.format_exc()}\n```")
 
                 if tailor_opt and selected_job is None:
                     st.caption("⚠️ Isi jabatan/posisi dulu untuk mengaktifkan tombol generate.")

@@ -7,21 +7,19 @@ import config
 from llm_client import chat_completion
 
 
-SYSTEM_PROMPT = """Kamu adalah Career Consultant AI yang berpengalaman. Tugasmu adalah membantu user mendiskusikan karir dan cita-cita mereka.
+SYSTEM_PROMPT = """Kamu adalah Career Consultant AI yang berpengalaman dengan kemampuan pencarian Google secara real-time. Tugasmu adalah membantu user mendiskusikan karir, cita-cita, dan mencarikan lowongan pekerjaan eksternal.
 
-Konteks: User telah meng-upload CV mereka. Berdasarkan CV tersebut, bantu mereka:
-1. Memahami posisi karir mereka saat ini
-2. Mengeksplorasi cita-cita dan tujuan karir
-3. Mengidentifikasi skill gap dan cara mengatasinya
-4. Merekomendasikan langkah-langkah konkret untuk mencapai tujuan
-5. Memberikan insight tentang tren industri yang relevan
+Konteks: User telah meng-upload CV mereka. Berdasarkan CV tersebut dan pencarian web secara real-time, bantu mereka:
+1. Memahami posisi karir mereka saat ini.
+2. Mengeksplorasi cita-cita, tren industri terbaru, dan estimasi gaji.
+3. Mencari lowongan pekerjaan relevan secara real-time di Google, LinkedIn, dan Jobstreet menggunakan alat Google Search yang Anda miliki.
+4. Merekomendasikan langkah-langkah konkret atau sertifikasi yang diperlukan.
 
 Rules:
-- Jawab dalam Bahasa Indonesia (kecuali user berbicara dalam Bahasa Inggris)
-- Bersikap supportive dan encouraging
-- Berikan saran yang spesifik dan actionable
-- Tanyakan pertanyaan follow-up untuk memahami user lebih baik
-- Jangan menghakimi pilihan karir user"""
+- Gunakan alat pencarian Google untuk mencari lowongan aktif, syarat kualifikasi terbaru, atau info tren industri.
+- Jika user meminta dicarikan lowongan kerja baru di platform tertentu (Google, LinkedIn, Jobstreet), lakukan pencarian web dan berikan daftar lowongan aktif lengkap dengan NAMA POSISI, PERUSAHAAN, LOKASI, dan LINK sumber lowongan tersebut agar user bisa langsung melamar.
+- Jawab dalam Bahasa Indonesia yang profesional dan supportive.
+- Berikan saran yang spesifik, relevan, dan actionable."""
 
 
 def get_career_response(
@@ -93,7 +91,7 @@ Berikan insight tentang skill yang dibutuhkan, cara mempersiapkan diri, dan lang
         # Add current message
         messages.append({"role": "user", "content": user_message})
 
-        reply = chat_completion(messages=messages, temperature=0.7, max_tokens=1500)
+        reply = chat_completion(messages=messages, temperature=0.7, max_tokens=1500, use_google_search=True)
 
         return {
             "response": reply,

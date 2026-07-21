@@ -65,7 +65,16 @@ def render_step_b():
         # Show AI summary if available
         if st.session_state.ai_summary:
             with st.expander("🤖 Analisis AI", expanded=True):
-                st.markdown(st.session_state.ai_summary)
+                if "Error generating AI summary" in st.session_state.ai_summary:
+                    st.error(st.session_state.ai_summary)
+                    if st.button("🔄 Coba Lagi (Regenerate AI Summary)"):
+                        from agents.rag_agent import match_cv_to_jobs
+                        with st.spinner("Mengulangi proses AI..."):
+                            result = match_cv_to_jobs(st.session_state.cv_text, top_k=config.TOP_K_RESULTS)
+                            st.session_state.ai_summary = result.get("ai_summary")
+                            st.rerun()
+                else:
+                    st.markdown(st.session_state.ai_summary)
 
         # Show job matches
         if st.session_state.job_matches:

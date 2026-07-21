@@ -7,7 +7,7 @@ import os
 import re
 import glob
 from typing import Optional
-from sqlalchemy import create_engine, Column, Integer, String, Text, Float
+from sqlalchemy import create_engine, Column, Integer, String, Text, Float, JSON, ForeignKey, DECIMAL, TIMESTAMP, DateTime
 from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy import text as sql_text
 import config
@@ -56,6 +56,79 @@ class UserProfile(Base):
     cv_text = Column(Text)
     cv_filename = Column(String(500))
     uploaded_at = Column(String(100))
+class JobFunction(Base):
+    __tablename__ = "job_functions"
+    function_id = Column(Integer, primary_key=True, autoincrement=True)
+    function_name_id = Column(String(100), nullable=False)
+    function_name_en = Column(String(100), nullable=False)
+    parent_function_id = Column(Integer, ForeignKey("job_functions.function_id"), nullable=True)
+
+class JobLevel(Base):
+    __tablename__ = "job_levels"
+    level_id = Column(Integer, primary_key=True, autoincrement=True)
+    level_name = Column(String(50), nullable=False)
+    level_rank = Column(Integer, nullable=False)
+
+class Skill(Base):
+    __tablename__ = "skills"
+    skill_id = Column(Integer, primary_key=True, autoincrement=True)
+    skill_name_id = Column(String(150), nullable=False)
+    skill_name_en = Column(String(150), nullable=False)
+    skill_type = Column(String(30))
+    function_id = Column(Integer, ForeignKey("job_functions.function_id"))
+    synonyms = Column(JSON)
+    weight_default = Column(DECIMAL(3, 2), default=1.00)
+
+class ActionVerb(Base):
+    __tablename__ = "action_verbs"
+    verb_id = Column(Integer, primary_key=True, autoincrement=True)
+    verb_id_lang = Column(String(50))
+    verb_en_lang = Column(String(50))
+    category = Column(String(30))
+
+class ScoringRubric(Base):
+    __tablename__ = "scoring_rubric"
+    rubric_id = Column(Integer, primary_key=True, autoincrement=True)
+    dimension = Column(String(50))
+    criterion = Column(Text)
+    max_points = Column(DECIMAL(5, 2))
+    weight = Column(DECIMAL(4, 3))
+    rule_type = Column(String(30))
+
+class CvRedFlag(Base):
+    __tablename__ = "cv_red_flags"
+    flag_id = Column(Integer, primary_key=True, autoincrement=True)
+    flag_name_id = Column(String(150))
+    flag_name_en = Column(String(150))
+    description_id = Column(Text)
+    description_en = Column(Text)
+    severity = Column(String(20))
+    fix_suggestion_id = Column(Text)
+    fix_suggestion_en = Column(Text)
+
+class RewriteExample(Base):
+    __tablename__ = "rewrite_examples"
+    example_id = Column(Integer, primary_key=True, autoincrement=True)
+    function_id = Column(Integer, ForeignKey("job_functions.function_id"))
+    before_text_id = Column(Text)
+    after_text_id = Column(Text)
+    before_text_en = Column(Text)
+    after_text_en = Column(Text)
+    principle = Column(Text)
+
+class CvScoringHistory(Base):
+    __tablename__ = "cv_scoring_history"
+    scoring_id = Column(Integer, primary_key=True, autoincrement=True)
+    cv_hash = Column(String(64))
+    target_function_id = Column(Integer, ForeignKey("job_functions.function_id"))
+    score_parseability = Column(DECIMAL(5, 2))
+    score_keyword = Column(DECIMAL(5, 2))
+    score_content = Column(DECIMAL(5, 2))
+    score_structure = Column(DECIMAL(5, 2))
+    score_composite = Column(DECIMAL(5, 2))
+    model_version = Column(Text)
+    created_at = Column(TIMESTAMP)
+
 def parse_salary(salary_str: str) -> tuple[Optional[float], Optional[float]]:
     """
     Parse salary string into min and max values.
@@ -281,23 +354,7 @@ class DatabaseManager:
         finally:
             session.close()
 
-    def execute_raw_sql(self, query_str: str) -> list[dict]:
-        """Execute a raw SQL query and return results as dicts. For SQL Agent."""
-        # SECURITY PENTEST: Prevent destructive operations (Prompt Injection Defense)
-        query_upper = query_str.strip().upper()
-        if not query_upper.startswith("SELECT"):
-            return [{"error": "SECURITY BLOCK: Hanya kueri READ-ONLY (SELECT) yang diizinkan oleh sistem."}]
-            
-        session = self.Session()
-        try:
-            result = session.execute(sql_text(query_str))
-            columns = result.keys()
-            rows = result.fetchall()
-            return [dict(zip(columns, row)) for row in rows]
-        except Exception as e:
-            return [{"error": str(e)}]
-        finally:
-            session.close()
+
 
     def get_job_by_id(self, job_id: int) -> Optional[dict]:
         """Get a single job by ID."""

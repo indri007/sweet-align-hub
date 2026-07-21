@@ -69,6 +69,20 @@ def render_step_a():
                         st.session_state.cv_file_info = file_info
                         st.session_state.cv_bytes = file_bytes
 
+                        # --- CLONED SCORING LOGIC ---
+                        # Automatically analyze CV and extract ATS score
+                        if not st.session_state.get("cv_feedback"):
+                            from agents.cv_analyzer_agent import review_cv
+                            import re
+                            result = review_cv(cv_text)
+                            if result.get("available") and result.get("feedback"):
+                                st.session_state.cv_feedback = result["feedback"]
+                                match = re.search(r"ATS Score:\s*\[?(\d+)\]?", result["feedback"], re.IGNORECASE)
+                                if match:
+                                    st.session_state.ats_score = match.group(1)
+                                else:
+                                    st.session_state.ats_score = "N/A"
+
                         # Save profile to Aiven MySQL
                         user_email = getattr(st.user, "email", None)
                         if user_email:
@@ -116,7 +130,7 @@ def render_step_a():
         st.markdown("### 📋 Preview CV")
 
         info = st.session_state.cv_file_info
-        col_a, col_b, col_c = st.columns(3)
+        col_a, col_b, col_c, col_d = st.columns(4)
         with col_a:
             st.markdown(
                 f"""<div class="stat-card">
@@ -140,6 +154,24 @@ def render_step_a():
                 f"""<div class="stat-card">
                     <div class="stat-number">{pages}</div>
                     <div class="stat-label">{label}</div>
+                </div>""",
+                unsafe_allow_html=True,
+            )
+        with col_d:
+            score = st.session_state.get("ats_score", "N/A")
+            color_style = ""
+            if str(score).isdigit():
+                if int(score) >= 70:
+                    color_style = "color: var(--accent-emerald);"
+                elif int(score) >= 50:
+                    color_style = "color: var(--accent-orange);"
+                else:
+                    color_style = "color: var(--accent-rose);"
+            
+            st.markdown(
+                f"""<div class="stat-card">
+                    <div class="stat-number" style="{color_style} font-weight: bold;">{score}</div>
+                    <div class="stat-label">ATS Score</div>
                 </div>""",
                 unsafe_allow_html=True,
             )
