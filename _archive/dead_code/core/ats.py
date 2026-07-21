@@ -55,18 +55,18 @@ OUTPUT INSTRUCTIONS — provide results EXACTLY in this format (use these exact 
 
 Respond in Bahasa Indonesia. Focus on SPECIFIC, actionable findings only."""
 
-ATS_CV_PROMPT = """Kamu adalah CV Writer Expert. Berdasarkan CV asli user berikut, buat versi CV yang ATS-friendly.
+ATS_CV_PROMPT = """Kamu adalah Perekrut Senior dan Pakar CV ATS (Applicant Tracking System). Tugasmu adalah menulis ulang CV asli user menjadi versi CV ATS-friendly yang setara dengan standar "Harvard Resume Format".
 
-Rules:
-1. Gunakan format yang clean dan terstruktur
-2. Gunakan bullet points
-3. Highlight skills dan achievements
-4. Gunakan keywords yang relevan untuk ATS systems
-5. Format sections: PROFIL, PENGALAMAN KERJA, PENDIDIKAN, SKILLS, SERTIFIKASI (jika ada)
-6. Tulis dalam bahasa yang sama dengan CV asli (Indonesia/Inggris)
+Aturan Mutlak Penulisan (Berdasarkan Knowledge Base HRD):
+1. **Format Single-Column:** Jangan gunakan kolom ganda, tabel rumit, atau elemen grafis. Gunakan pemisah garis lurus jika perlu.
+2. **Standard Headings:** Wajib gunakan urutan section baku: [PROFIL / PROFESSIONAL SUMMARY], [PENGALAMAN KERJA / WORK EXPERIENCE], [PENDIDIKAN / EDUCATION], [SKILLS & TOOLS], [SERTIFIKASI / CERTIFICATIONS].
+3. **Formula Bullet Points (XYZ Method):** Ubah deskripsi pekerjaan user menjadi format "Telah mencapai [X] yang diukur dengan [Y], dengan melakukan [Z]".
+4. **Action Verbs yang Kuat:** Awali setiap bullet point pengalaman kerja dengan kata kerja aktif yang kuat (misal: Mengembangkan, Memimpin, Meningkatkan, Merancang, Mengoptimalkan).
+5. **Kuantifikasi:** Tambahkan metrik/angka fiktif logis JIKA user tidak menuliskannya, namun beri tanda kurung siku (misal: [meningkatkan efisiensi 20%]) agar user tahu mereka harus mengisinya dengan angka asli mereka.
+6. **Optimasi Keyword:** Ekstrak dan tonjolkan Hard Skills yang ada di CV asli ke dalam list yang mudah dipindai oleh bot ATS.
 
-Output HANYA isi CV yang sudah diperbaiki, tanpa penjelasan tambahan.
-Gunakan format plain text dengan heading yang jelas."""
+Output HANYA isi teks CV yang sudah diperbaiki secara menyeluruh, siap di-copy-paste oleh user. JANGAN berikan kalimat pembuka/penutup seperti "Berikut adalah CV Anda".
+Gunakan format Markdown untuk struktur Heading dan Bullet Points."""
 
 @dataclass
 class ATSScoreResult:
@@ -114,11 +114,32 @@ class ATSScorer:
         similarity = dot_product / (norm_a * norm_b)
         return max(0.0, min(100.0, (similarity + 1) / 2 * 100))
 
+    def _fetch_weights(self) -> dict:
+        from database import DatabaseManager
+        from sqlalchemy import text
+        weights = {
+            "keyword_match": 0.4,
+            "format_compliance": 0.2,
+            "semantic_similarity": 0.4,
+        }
+        try:
+            db = DatabaseManager()
+            with db.engine.connect() as conn:
+                result = conn.execute(text("SELECT dimension, weight FROM scoring_rubric"))
+                for row in result:
+                    # SQLAlchemy row[0] = dimension, row[1] = weight
+                    dim = row[0]
+                    if dim in weights:
+                        weights[dim] = float(row[1])
+        except Exception as e:
+            print(f"Warning: Failed to fetch weights from Aiven: {e}")
+        return weights
+
     def compute(self, cv: CandidateProfile, job: JobPosting) -> ATSScoreResult:
+        weights = self._fetch_weights()
         kw_score = self.score_keyword_match(cv, job)
         fmt_score = self.score_format_compliance(cv.raw_cv_text)
         sem_score = self.score_semantic_similarity(cv, job)
-        weights = ATSScoreResult.__dataclass_fields__['weights'].default_factory()
         total = (kw_score * weights['keyword_match']) + (fmt_score * weights['format_compliance']) + (sem_score * weights['semantic_similarity'])
         breakdown = {MatchCategory.SKILL: kw_score, MatchCategory.EXPERIENCE: sem_score, MatchCategory.CULTURE: sem_score * 0.8}
         return ATSScoreResult(

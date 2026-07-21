@@ -91,11 +91,6 @@ if not st.user.is_logged_in:
         st.login("google")
     st.stop()
 
-st.sidebar.write(f"👋 Halo, {st.user.name}")
-st.sidebar.write(f"📧 {st.user.email}")
-if st.sidebar.button("Logout"):
-    st.logout()
-
 # ─── Load CSS ─────────────────────────────────────────────
 from theme import inject_material3_theme
 inject_material3_theme()

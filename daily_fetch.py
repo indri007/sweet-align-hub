@@ -93,9 +93,19 @@ def run():
         try:
             jobs = fetch_jobs(query, country="id", num_pages=1)
         except Exception as e:
-            logger.error("Daily fetch aborted: JSearch call failed", extra={"error": str(e)})
-            record_event("daily_fetch_failure", reason="jsearch_error", query=query)
-            raise
+            logger.warning("RapidAPI JSearch failed, activating fallback to local dataset!", extra={"error": str(e)})
+            import json
+            import random
+            jobs = []
+            try:
+                with open("dataset/jobs.jsonl", "r", encoding="utf-8") as f:
+                    all_jobs = [json.loads(line) for line in f]
+                random.shuffle(all_jobs)
+                jobs = all_jobs[:MAX_JOBS_PER_DAY]
+                logger.info("Fallback activated: Pulled 5 jobs from local dataset")
+            except Exception as ex:
+                logger.error("Fallback also failed", extra={"error": str(ex)})
+                return
 
         if not jobs:
             logger.info("No jobs returned for query", extra={"query": query})

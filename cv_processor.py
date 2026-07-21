@@ -14,11 +14,16 @@ def extract_text_from_pdf(file_bytes: bytes) -> str:
     text_parts = []
     with pdfplumber.open(io.BytesIO(file_bytes)) as pdf:
         for page in pdf.pages:
-            page_text = page.extract_text()
+            # Adjusting tolerances helps with PDF layout rendering bugs
+            page_text = page.extract_text(x_tolerance=2, y_tolerance=3)
             if page_text:
                 text_parts.append(page_text)
 
-    text = "\n\n".join(text_parts).strip()
+    import re
+    raw_text = "\n\n".join(text_parts)
+    # Clean up excessive whitespaces and newlines
+    text = re.sub(r' +', ' ', raw_text)
+    text = re.sub(r'\n{3,}', '\n\n', text).strip()
 
     # OCR Fallback if text is empty or too short (likely scanned PDF)
     if len(text) < 50:

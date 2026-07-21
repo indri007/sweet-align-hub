@@ -28,15 +28,41 @@ OPENAI_MODEL = _cfg("OPENAI_MODEL", "gpt-4o")
 OPENAI_EMBEDDING_MODEL = _cfg("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small")
 
 # ─── Google Gemini ────────────────────────────────────────
-_raw_gemini_keys = _cfg("GEMINI_API_KEYS") or _cfg("GEMINI_API_KEY") or _cfg("GEMINI_API_KEY_1")
-GEMINI_API_KEYS = [k.strip() for k in _raw_gemini_keys.split(",")] if _raw_gemini_keys else []
+GEMINI_API_KEYS = []
+_raw = _cfg("GEMINI_API_KEYS")
+if _raw:
+    GEMINI_API_KEYS = [k.strip() for k in _raw.split(",")]
+else:
+    # Collect all keys matching GEMINI_API_KEY*
+    for k, v in os.environ.items():
+        if k.startswith("GEMINI_API_KEY") and v.strip():
+            if v.strip() not in GEMINI_API_KEYS:
+                GEMINI_API_KEYS.append(v.strip())
+
 GEMINI_API_KEY = GEMINI_API_KEYS[0] if GEMINI_API_KEYS else ""
 GEMINI_MODEL = _cfg("GEMINI_MODEL", "gemini-2.5-flash")
 GEMINI_EMBEDDING_MODEL = _cfg("GEMINI_EMBEDDING_MODEL", "models/gemini-embedding-001")
 
-# ─── Multi-LLM Providers (Groq, OpenRouter, Mistral) ──────
-GROQ_API_KEY = _cfg("GROQ_API_KEY")
-GROQ_MODEL = _cfg("GROQ_MODEL", "llama3-70b-8192")
+# ─── Multi-LLM Providers (Groq, Cerebras, Zhipu, OpenRouter, Mistral) ──────
+def _get_keys(prefix):
+    keys = []
+    for i in range(1, 20):
+        val = _cfg(f"{prefix}_{i}")
+        if val: keys.append(val.strip())
+    # If explicit indexed not found, try the base name
+    if not keys:
+        val = _cfg(prefix)
+        if val: keys.append(val.strip())
+    return keys
+
+GROQ_API_KEYS = _get_keys("GROQ_API_KEY")
+GROQ_MODEL = _cfg("GROQ_MODEL", "llama-3.3-70b-versatile")
+
+CEREBRAS_API_KEYS = _get_keys("CEREBRAS_API_KEY")
+CEREBRAS_MODEL = _cfg("CEREBRAS_MODEL", "gpt-oss-120b")
+
+ZHIPU_API_KEYS = _get_keys("ZHIPU_API_KEY")
+ZHIPU_MODEL = _cfg("ZHIPU_MODEL", "glm-5-turbo")
 
 OPENROUTER_API_KEY = _cfg("OPENROUTER_API_KEY")
 OPENROUTER_MODEL = _cfg("OPENROUTER_MODEL", "meta-llama/llama-3-8b-instruct:free")
@@ -45,16 +71,20 @@ MISTRAL_API_KEY = _cfg("MISTRAL_API_KEY")
 MISTRAL_MODEL = _cfg("MISTRAL_MODEL", "mistral-large-latest")
 
 # ─── LLM Provider ─────────────────────────────────────────
-# "gemini", "openai", "groq", "openrouter", or "mistral". Auto-detected.
+# "gemini", "openai", "groq", "cerebras", "zhipu", "openrouter", or "mistral". Auto-detected.
 _explicit_provider = _cfg("LLM_PROVIDER", "").strip().lower()
-_supported_providers = ("gemini", "openai", "groq", "openrouter", "mistral")
+_supported_providers = ("gemini", "openai", "groq", "cerebras", "zhipu", "openrouter", "mistral")
 
 if _explicit_provider in _supported_providers:
     LLM_PROVIDER = _explicit_provider
 elif GEMINI_API_KEY:
     LLM_PROVIDER = "gemini"
-elif GROQ_API_KEY:
+elif GROQ_API_KEYS:
     LLM_PROVIDER = "groq"
+elif CEREBRAS_API_KEYS:
+    LLM_PROVIDER = "cerebras"
+elif ZHIPU_API_KEYS:
+    LLM_PROVIDER = "zhipu"
 elif OPENROUTER_API_KEY:
     LLM_PROVIDER = "openrouter"
 elif MISTRAL_API_KEY:
@@ -78,8 +108,8 @@ COLLECTION_NAME = "indonesian_jobs_gemini"
 HR_KNOWLEDGE_COLLECTION = "hr_knowledge_base"
 
 # Secondary Cluster (CS Leonardo, Veronica, and Agentic Memory)
-CS_QDRANT_URL = _cfg("CS_QDRANT_URL", "INPUT_QDRANT_URL_HERE")
-CS_QDRANT_API_KEY = _cfg("CS_QDRANT_API_KEY", "INPUT_QDRANT_API_KEY_HERE")
+CS_QDRANT_URL = _cfg("CS_QDRANT_URL", QDRANT_URL)
+CS_QDRANT_API_KEY = _cfg("CS_QDRANT_API_KEY", QDRANT_API_KEY)
 CS_KNOWLEDGE_COLLECTION = "cs_knowledge_base"
 CS_MEMORY_COLLECTION = "cs_memory"
 HR_MEMORY_COLLECTION = "hr_memory"

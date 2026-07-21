@@ -8,22 +8,25 @@ import config
 from llm_client import chat_completion
 
 
-INTERVIEWER_PROMPT = """Kamu adalah Veronica, seorang HR Interviewer profesional dan berpengalaman di perusahaan besar Indonesia. 
-Kamu sedang melakukan sesi "Mock Interview" dengan seorang kandidat.
+INTERVIEWER_PROMPT = """Kamu adalah Leonardo, seorang HR Interviewer profesional dan berpengalaman di perusahaan besar Indonesia. 
+Kamu sedang melakukan sesi "Mock Interview" dengan seorang kandidat menggunakan metode STAR (Situation, Task/Action, Result).
 
 Konteks (Knowledge yang kamu miliki):
 - Teks CV Kandidat lengkap
 - Posisi yang dilamar: {job_title} di {company_name}
 - Deskripsi pekerjaan (Job Description) lengkap dari posisi tersebut
 
-Aturan Wawancara:
-1. Perkenalkan diri kamu dengan nama Veronica secara singkat di awal.
-2. Tanyakan SATU pertanyaan interview pada satu waktu.
-3. Setelah kandidat menjawab, berikan feedback singkat dan apresiasi, lalu lanjut ke pertanyaan berikutnya.
-4. Campurkan pertanyaan behavioral, technical, dan situational yang sangat relevan dengan Job Description.
-5. Bersikap profesional, elegan, namun tetap ramah.
-6. Gunakan Bahasa Indonesia (kecuali kandidat menggunakan Bahasa Inggris atau posisi mengharuskan Bahasa Inggris).
-7. Setelah 5 pertanyaan (atau jika kandidat ingin menyudahi), akhiri interview dan berikan ringkasan evaluasi.
+Aturan Wawancara (Metode STAR):
+1. Perkenalkan diri kamu dengan nama Leonardo secara singkat di awal.
+2. Tanyakan SATU pertanyaan interview pada satu waktu. Fokus pada kompetensi seperti Kerjasama, Inisiatif, Leadership, Negosiasi, atau Komunikasi.
+3. Gunakan alur STAR:
+   - Pembuka: "Harap uraikan contoh kejadian dimana Anda..."
+   - Situation: "Uraikan konteksnya: kapan, siapa yang terlibat, apa tugas Anda?"
+   - Action: "Tindakan detil apa yang Anda lakukan saat itu?"
+   - Result: "Apa hasil akhirnya?"
+4. Setelah kandidat menjawab satu fase, pancing ke fase STAR berikutnya secara elegan.
+5. Bersikap profesional, elegan, namun tetap ramah. Gunakan Bahasa Indonesia (kecuali kandidat memakai Bahasa Inggris).
+6. Setelah 5-7 pertanyaan (atau jika kandidat ingin menyudahi), akhiri interview dan berikan ringkasan evaluasi.
 
 Format jawaban:
 - Jika ini pertanyaan baru: langsung tanyakan pertanyaannya
@@ -98,7 +101,7 @@ Deskripsi Pekerjaan:
 [PANDUAN HR KHUSUS (RAG)]:
 {hr_context}
 
-[KENANGAN WAWANCARA SEBELUMNYA]:
+[PELAJARAN DARI WAWANCARA KANDIDAT SEBELUMNYA]:
 {memory_context}
 
 Mulai interview sekarang. Perkenalkan diri kamu sebagai HR dan mulai dengan pertanyaan pertama.""",
@@ -170,7 +173,7 @@ def continue_interview(
             {"role": "system", "content": system_prompt},
             {
                 "role": "user",
-                "content": f"[KONTEKS]\nCV: {cv_text[:2000]}\nJob: {job_info.get('job_description', '')[:1000]}\n\n[PANDUAN HR KHUSUS (RAG)]:\n{hr_context}\n\n[KENANGAN WAWANCARA SEBELUMNYA]:\n{memory_context}",
+                "content": f"[KONTEKS]\nCV: {cv_text[:2000]}\nJob: {job_info.get('job_description', '')[:1000]}\n\n[PANDUAN HR KHUSUS (RAG)]:\n{hr_context}\n\n[PELAJARAN DARI WAWANCARA KANDIDAT SEBELUMNYA]:\n{memory_context}",
             },
             {
                 "role": "assistant",
@@ -210,20 +213,13 @@ def continue_interview(
         except ImportError:
             pass
 
-        # Fire-and-forget thread to save memory
-        import threading
-        import uuid
-        def _save_memory():
-            try:
-                interaction = f"Posisi: {job_info.get('job_title', 'Unknown')}\nKandidat menjawab: {user_answer}\nVeronica HR merespons: {reply}"
-                hr_memory.add_documents(
-                    documents=[interaction],
-                    metadatas=[{"source": "hr_interview_history"}],
-                    ids=[str(uuid.uuid4())]
-                )
-            except Exception as e:
-                print(f"[Memory] Gagal menyimpan kenangan Veronica: {e}")
-        threading.Thread(target=_save_memory, daemon=True).start()
+        # Hermes Memory: Trigger reflection if interview is ending
+        if user_count >= 5:
+            full_history = interview_history + [
+                {"role": "user", "content": user_answer}, 
+                {"role": "assistant", "content": reply}
+            ]
+            _reflect_and_save_memory(job_info, full_history, hr_memory)
 
         return {
             "response": reply,
@@ -233,19 +229,109 @@ def continue_interview(
         return {"response": f"Error: {str(e)}", "available": True}
 
 
+def _reflect_and_save_memory(job_info: dict, interview_history: list[dict], hr_memory):
+    """
+    Hermes Agentic Memory: Distills the interview into semantic insights and saves to Qdrant.
+    """
+    import threading
+    import uuid
+    from llm_client import chat_completion
+    
+    def _run_reflection():
+        try:
+            job_title = job_info.get('job_title', 'Unknown')
+            company_name = job_info.get('company_name', 'Unknown')
+            
+            transcript = ""
+            for msg in interview_history:
+                role = "Leonardo" if msg["role"] == "assistant" else "Kandidat"
+                transcript += f"{role}: {msg['content']}\n\n"
+            
+            prompt = f"""Kamu adalah agen Refleksi HR (Hermes Memory).
+Tugasmu adalah menganalisis transkrip wawancara berikut dan mengekstrak wawasan (insight) penting yang bisa digunakan Leonardo untuk wawancara kandidat berikutnya pada posisi yang sama.
+Jangan merangkum isi percakapan. Fokus pada: 
+1. Apa kelemahan umum atau titik buta (blind spot) kandidat ini yang mungkin dimiliki kandidat lain?
+2. Strategi bertanya apa yang terbukti efektif di wawancara ini?
+3. Rekomendasi 1-2 kalimat untuk Leonardo di masa depan.
+
+Posisi: {job_title} di {company_name}
+Transkrip Wawancara:
+{transcript[:5000]}
+
+Output harus singkat, padat, dan langsung menjadi instruksi bagi Leonardo."""
+            
+            reflection = chat_completion(
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.4,
+                max_tokens=300
+            )
+            
+            hr_memory.add_documents(
+                documents=[f"Posisi: {job_title}\nInsight Refleksi: {reflection}"],
+                metadatas=[{"source": "hermes_reflection", "job_title": job_title}],
+                ids=[str(uuid.uuid4())]
+            )
+        except Exception as e:
+            print(f"[Hermes Memory] Gagal melakukan refleksi: {e}")
+            
+    threading.Thread(target=_run_reflection, daemon=True).start()
+
+
 def transcribe_audio(audio_bytes: bytes) -> str:
     """
-    Voice transcription is disabled in this deployment (requires OpenAI Whisper,
-    not part of the Gemini setup). Kept as a stub so app.py doesn't break if it
-    still references this function.
+    Transcribe audio bytes to text using OpenAI Whisper.
     """
-    return "[Fitur transkripsi suara dinonaktifkan]"
+    import config
+    if not config.is_openai_configured():
+        return "[Fitur suara dinonaktifkan karena OPENAI_API_KEY tidak dikonfigurasi.]"
+    
+    from openai import OpenAI
+    import tempfile
+    import os
+
+    client = OpenAI(api_key=config.OPENAI_API_KEY)
+    
+    # OpenAI whisper SDK requires a file-like object with a filename ending in a supported format
+    # Because audio_bytes comes from the browser, we'll write it to a temp file
+    try:
+        with tempfile.NamedTemporaryFile(suffix=".webm", delete=False) as tmp:
+            tmp.write(audio_bytes)
+            tmp_path = tmp.name
+        
+        with open(tmp_path, "rb") as audio_file:
+            transcription = client.audio.transcriptions.create(
+                model="whisper-1",
+                file=audio_file
+            )
+        return transcription.text
+    except Exception as e:
+        return f"[Gagal mentranskripsi suara: {str(e)}]"
+    finally:
+        if 'tmp_path' in locals() and os.path.exists(tmp_path):
+            os.remove(tmp_path)
 
 
 def text_to_speech(text: str) -> bytes:
     """
-    Voice output (TTS) is disabled in this deployment (requires OpenAI TTS,
-    not part of the Gemini setup). Kept as a stub so app.py doesn't break if it
-    still references this function.
+    Convert text to speech audio bytes using OpenAI TTS-1 with Nova voice.
     """
-    return b""
+    import config
+    if not config.is_openai_configured():
+        return b""
+        
+    from openai import OpenAI
+    client = OpenAI(api_key=config.OPENAI_API_KEY)
+    
+    # Remove markdown formatting for cleaner speech
+    clean_text = text.replace("#", "").replace("*", "").strip()
+    
+    try:
+        response = client.audio.speech.create(
+            model="tts-1",
+            voice="onyx",
+            input=clean_text
+        )
+        return response.content
+    except Exception as e:
+        print(f"[TTS Error] {str(e)}")
+        return b""
