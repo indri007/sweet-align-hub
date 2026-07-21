@@ -107,7 +107,7 @@ def render_step_a():
 
                     except Exception as e:
                         record_event("cv_upload_failure", reason=type(e).__name__)
-                        logger.error("CV processing failed", extra={"error": str(e), "uploaded_filename": uploaded_file.name})
+                        logger.error("CV processing failed", extra={"err_msg": str(e), "cv_filename": uploaded_file.name})
                         sentry_sdk.capture_exception(e)
                         st.error(f"❌ Gagal membaca CV: {str(e)}")
 
