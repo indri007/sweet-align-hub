@@ -22,8 +22,11 @@ _local_embedder = None
 
 
 def _embed_local(texts: list[str]) -> list[list[float]]:
-    """Local embedding has been disabled to completely remove HuggingFace dependency."""
-    raise NotImplementedError("Local embedding is disabled. Please use Gemini for embeddings.")
+    global _local_embedder
+    if _local_embedder is None:
+        from fastembed import TextEmbedding
+        _local_embedder = TextEmbedding(model_name="BAAI/bge-small-en-v1.5", cache_dir="./model_cache")
+    return list(_local_embedder.embed(texts))
 
 
 def _embed_openai(texts: list[str]) -> list[list[float]]:
