@@ -19,7 +19,9 @@
 
 ## 🧩 Kenapa Project Ini Dibuat
 
-Pencari kerja di Indonesia menghadapi hambatan yang berulang — dan sistem HR tradisional jarang membantu menyelesaikannya:
+Pasar kerja di Indonesia saat ini sangat kompetitif. Banyak talenta berbakat yang gagal ke tahap wawancara hanya karena resume mereka tidak teroptimasi untuk sistem pelacakan pelamar (ATS), atau mereka kesulitan mencari lowongan yang benar-benar relevan dengan keahlian mereka.
+
+JobMatch AI hadir untuk menjembatani kesenjangan tersebut. Kami memanfaatkan teknologi Generative AI terbaru untuk memberikan evaluasi objektif dan bimbingan yang terpersonalisasi. Mulai dari analisis kelayakan CV secara otomatis hingga simulasi wawancara mendalam, platform ini dirancang untuk bertindak sebagai konsultan karier pribadi 24/7 bagi setiap pencari kerja.
 
 | ❌ Masalah | ✅ Solusi JobMatch AI |
 |---|---|
@@ -103,30 +105,11 @@ Rubrik penilaian awalnya membuka opsi N8N sebagai orchestrator. Setelah pengemba
 
 ## 🔄 Cara Kerja (End-to-End Workflow)
 
-```mermaid
-sequenceDiagram
-    participant U as 👤 Pengguna
-    participant S as Streamlit App
-    participant A as AI Agents
-    participant Q as Qdrant
-    participant DB as Aiven MySQL
-
-    U->>S: Upload CV
-    S->>A: Parse & analisis
-    A->>Q: Cari lowongan relevan (semantic)
-    Q-->>A: Top-K hasil pencarian
-    A->>DB: Cache skor ATS
-    A-->>U: Skor ATS + rekomendasi lowongan
-
-    U->>S: Mulai Mock Interview
-    loop Setiap giliran tanya-jawab
-        A->>A: Cek kecukupan & relevansi jawaban
-        A-->>U: Pertanyaan lanjutan / lanjut STAR berikutnya
-    end
-    A->>A: Evaluasi akhir sesi (Kurang/Cukup/Baik)
-    A->>DB: Simpan transkrip lengkap
-    A-->>U: Ringkasan umpan balik
-```
+1. 📄 **Upload CV**: Pengguna mengunggah resume mereka ke platform. AI Agent akan langsung mengurai (*parsing*) informasi dan memberikan skor kelayakan (ATS Score).
+2. 🔍 **Pencarian Lowongan**: Berdasarkan profil CV, sistem secara otomatis mencari lowongan pekerjaan paling relevan di *vector database* (Qdrant) menggunakan teknologi *semantic search*.
+3. 💬 **Konsultasi Karier**: Pengguna berinteraksi dengan AI Career Consultant untuk mendapatkan saran perbaikan CV dan strategi melamar kerja.
+4. 🎙️ **Simulasi Wawancara (Mock Interview)**: Pengguna memasuki mode wawancara interaktif. AI bertindak sebagai HRD profesional dan mengajukan pertanyaan wawancara berbasis metode STAR (Situation, Task, Action, Result).
+5. 📊 **Evaluasi & Transkrip**: Setelah sesi wawancara selesai, AI mengevaluasi kualitas jawaban (Kurang/Cukup/Baik) dan menyimpan seluruh transkrip percakapan ke *database* MySQL (Aiven) untuk dapat ditinjau kembali di kemudian hari.
 
 ---
 
@@ -177,7 +160,12 @@ streamlit run app.py
 
 <div align="center">
 
-### 👥 Dikembangkan sebagai Final Project — JCAI (Job Connector AI Engineering), Purwadhika
+### 👥 Kontributor & Tim
+
+Proyek ini dikembangkan sebagai bagian dari **Final Project — JCAI (Job Connector AI Engineering), Purwadhika**.
+
+- 👩‍💻 **Indri Kartika** (@indri007) — *AI & Backend Engineering, Streamlit UI*
+- 🤝 *(Teman Satu Tim)* — *Data Preparation & QA*
 
 *Dibangun dengan 🐍 Python, ☕ waktu begadang, dan proses debugging yang cukup panjang.*
 
