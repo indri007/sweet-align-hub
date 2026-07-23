@@ -139,11 +139,8 @@ Script: `scripts/build_interview_kb.py`
 ```
 
 #### Dampak Efisiensi Token
-| Aksi | Sebelum | Sesudah |
-|---|---|---|
-| Generate 6 pertanyaan | ~1200 token LLM | **0 token** (Qdrant) |
-| Evaluasi 1 jawaban | ~1200 token | ~600 token |
-| Total per sesi | ~8.000 token | **~3.000 token (hemat 62%)** |
+
+Pendekatan ini secara signifikan **mengurangi panggilan LLM untuk generate soal, karena diambil langsung dari Qdrant**. LLM hanya dipanggil untuk tugas penalaran tingkat tinggi (evaluasi jawaban kandidat), sehingga sangat menghemat penggunaan token LLM dan menurunkan risiko terkena *rate-limit*.
 
 ---
 
@@ -153,6 +150,7 @@ Hasil AI disimpan permanen ke tabel `cv_analysis_results` di Aiven:
 
 | Kolom | Isi |
 |---|---|
+| `cv_content_hash` | **[FIX]** SHA-256 dari teks CV ter-parse — kunci cache utama. Tanpa ini, re-upload CV yang sudah diperbarui untuk posisi yang sama akan salah mengembalikan hasil analisis versi lama. |
 | `email` | Identitas user |
 | `language` | `id` / `en` (simpan versi terpisah, tidak saling timpa) |
 | `job_title`, `job_description` | Loker target |
@@ -162,11 +160,32 @@ Hasil AI disimpan permanen ke tabel `cv_analysis_results` di Aiven:
 | `ats_cv_text` | Teks CV versi ATS-friendly |
 | `created_at` | Timestamp |
 
-**Alur runtime:**
-1. Cek Aiven → jika ada → tampilkan langsung (**0 token**)
-2. Jika belum ada → panggil LLM → simpan ke Aiven → tampilkan
+**Unique key**: `(cv_content_hash, job_id, language)` — bukan `(email, job_title, job_description)`.
+Alasan: dua field terakhir bisa berubah redaksinya (typo job_title, deskripsi loker
+diedit) tanpa isi CV berubah, dan sebaliknya isi CV bisa berubah tanpa job_title
+berubah. Hash konten CV adalah satu-satunya sinyal yang benar-benar menandakan
+"perlu dianalisis ulang atau tidak".
+
+**Alur runtime (diperbaiki):**
+1. Hitung `cv_content_hash = sha256(parsed_cv_text)`.
+2. Cek Aiven dengan `(cv_content_hash, job_id, language)` → jika ada → tampilkan langsung (**0 token**).
+3. Jika belum ada → panggil LLM → simpan ke Aiven dengan hash tersebut → tampilkan.
+
+```python
+import hashlib
+
+def get_or_analyze_cv(parsed_cv_text: str, job_id: str, language: str):
+    cv_content_hash = hashlib.sha256(parsed_cv_text.encode("utf-8")).hexdigest()
+    cached = query_cv_analysis_results(cv_content_hash, job_id, language)
+    if cached:
+        return cached  # 0 token
+    result = call_llm_for_cv_analysis(parsed_cv_text, job_id, language)
+    save_cv_analysis_results(cv_content_hash, job_id, language, result)
+    return result
+```
 
 ---
+
 
 ## 7. Optimasi Token (Best Practices Terimplementasi)
 
@@ -223,6 +242,28 @@ Hasil AI disimpan permanen ke tabel `cv_analysis_results` di Aiven:
 | 🟡 | Common_Mistakes 6 poin + CV_Examples few-shot ke prompt | Belum |
 | 🟡 | Token optimization: potong CV input 2000 char | Belum |
 | 🟢 | Aktifkan `USE_N8N=true` + uji webhook end-to-end | Standby |
+
+---
+
+## 11. Konflik Arsitektur & Keputusan Terbuka
+
+Ditemukan lewat perbandingan silang antara dokumen ini, `PRD_JobMatch_AI_v2`
+(disusun bersama Claude), dan `Dokumentasi_Scope_Batasan_Pengujian_Chatbot_CS_HRD.md`
+(dokumen scope resmi). Belum diputuskan sepihak — perlu keputusan produk sebelum
+dokumen ini dianggap sumber kebenaran tunggal.
+
+| # | Topik | Dokumen ini bilang | Scope resmi / PRD v2 bilang | Perlu diputuskan |
+|---|---|---|---|---|
+| 1 | Voice (TTS/STT) | gTTS + Whisper STT sudah diimplementasikan, ada di checklist validasi | Eksplisit **out-of-scope**: "sistem murni berbasis teks" (Dok. Scope §3.4) | Cabut fitur voice, atau revisi scope resmi untuk memasukkannya |
+| 2 | Status N8N | `USE_N8N=false` default, arsitektur live Python langsung ke Groq/Gemini/Qdrant/Aiven | n8n sebagai orkestrator **wajib** (Dok. Scope §2.4); seluruh strategi pengujian integrasi mengetes webhook n8n | Migrasikan ke n8n, atau revisi scope resmi jadi opsional |
+| 3 | LLM provider | Groq (llama-3.3-70b) utama, Gemini Flash fallback | Gemini Chat Model sebagai satu-satunya LLM (JobMatch AI V3.json) | Pilih satu provider resmi, dokumentasikan rate-limit/cost masing-masing |
+| 4 | Nama collection Qdrant untuk lowongan | `indonesian_jobs_gemini` (473 vektor) | `indonesian_jobs_n8n` | Cek Qdrant dashboard: satu collection yang di-rename, atau dua collection duplikat (boros storage + risiko out-of-sync) |
+| 5 | Jumlah soal interview | "41 pertanyaan, 10 kompetensi STAR" | 40 soal (10 kompetensi × 4 tahap STAR) di `Interview_Questions.json` yang ter-upsert | Cek `Interview_Questions.xlsx` sumber: ada 1 soal ekstra yang belum ter-cover `build_interview_kb.py`? |
+
+**Catatan:** baris "Dampak Efisiensi Token" pada Bagian 5 dokumen ini sebelumnya
+mengklaim angka penghematan token spesifik tanpa sumber/benchmark. Klaim tersebut
+telah diganti dengan pernyataan kualitatif sampai ada pengukuran token
+before/after yang nyata untuk didokumentasikan di sini.
 
 ---
 

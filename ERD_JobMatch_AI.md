@@ -4,6 +4,8 @@ Berikut diagram ERD utama yang menggambarkan tabel‑tabel inti dalam database M
 
 ```mermaid
 erDiagram
+  USERS ||--o{ CV_ANALYSIS_RESULTS : requests
+  JOBS ||--o{ CV_ANALYSIS_RESULTS : analyzed_against
     JOBS {
         int id PK "Job ID"
         varchar title "Judul"
@@ -36,4 +38,16 @@ erDiagram
     JOBS ||--o{ APPLICATIONS : "receives"
     USERS ||--o{ CVS : "uploads"
     CVS ||--o{ APPLICATIONS : "references"
+
+  CV_ANALYSIS_RESULTS {
+    string cv_content_hash PK "SHA-256 dari teks CV ter-parse"
+    string user_id FK
+    string job_id FK
+    string language
+    text hr_knowledge_context
+    float ats_score
+    text cv_feedback
+    text ats_cv_text
+    datetime created_at
+  }
 ```
