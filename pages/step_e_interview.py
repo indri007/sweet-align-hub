@@ -84,49 +84,48 @@ def render_step_e():
 
             # Start interview if not started
             if not st.session_state.interview_started:
-                st.info("💡 Karena API Key Gemini saat ini terkena limit (429), Anda bisa menekan tombol Preview di bawah untuk melihat simulasi tampilannya.")
-                if st.button("👁️ Preview Tampilan UI (Tanpa Kuota API)", type="secondary"):
-                    st.session_state.interview_history = [
-                        {"role": "assistant", "content": "Halo, saya Leonardo, HR Manager di sini. Saya telah membaca CV Anda dengan teliti. Mari kita mulai wawancara ini. Coba ceritakan satu tantangan teknis paling rumit yang pernah Anda selesaikan."},
-                        {"role": "user", "content": "Tantangan terbesar saya adalah ketika server utama mengalami *downtime* tak terduga selama 3 jam. Saya harus berkoordinasi dengan tim jaringan sambil melakukan mitigasi data."},
-                        {"role": "assistant", "content": "Langkah mitigasi yang sangat responsif! Dalam situasi panik seperti itu, bagaimana cara Anda mengkomunikasikan masalahnya kepada klien yang terdampak?"}
-                    ]
-                    st.session_state.interview_started = True
-                    st.rerun()
-                
                 if st.button("🎬 Mulai Interview Sekarang", type="primary"):
-                    with st.spinner("👨‍💼 Leonardo sedang mempersiapkan interview..."):
+                    with st.spinner("🤖 HR sedang mempersiapkan interview..."):
+                        from agents.interview_agent import start_interview, get_active_question
                         try:
-                            from agents.interview_agent import start_interview
-                            result = start_interview(st.session_state.cv_text, job)
-                            if result["available"] and result["response"]:
-                                st.session_state.interview_history = [
-                                    {"role": "assistant", "content": result["response"]}
-                                ]
-                                st.session_state.interview_started = True
-                                st.rerun()
-                            else:
-                                st.error("❌ Gagal memulai interview. Silakan coba lagi.")
+                            # Start session (FR-15) via wrapper
+                            session = start_interview(st.session_state.cv_text, job)
+                            st.session_state.interview_session = session
+                            
+                            first_q = get_active_question(session)
+                            
+                            st.session_state.interview_history = [
+                                {"role": "assistant", "content": first_q}
+                            ]
+                            st.session_state.interview_started = True
+                            st.session_state.transcript_saved = False
+                            st.rerun()
                         except Exception as e:
-                            st.error(f"❌ Terjadi kesalahan saat memulai interview: {e}")
+                            st.error(f"Gagal memulai interview: {e}")
             else:
                 # Display interview conversation
                 for msg in st.session_state.interview_history:
                     if msg["role"] == "assistant":
-                        with st.chat_message("Leonardo", avatar="assets/leonardo.jpg"):
-                            st.write(msg["content"])
-                            # TTS for voice mode
-                            if mode == "🎙️ Voice" and msg == st.session_state.interview_history[-1]:
-                                try:
-                                    from agents.interview_agent import text_to_speech
-                                    audio_bytes = text_to_speech(msg["content"])
-                                    if audio_bytes:
-                                        st.audio(audio_bytes, format="audio/mp3")
-                                except Exception as e:
-                                    st.error(f"Gagal memutar audio: {e}")
+                        st.markdown(
+                            f'<div class="chat-ai">🤵 HR: {msg["content"]}</div>',
+                            unsafe_allow_html=True,
+                        )
+
+                        # TTS for voice mode
+                        if mode == "🎙️ Voice" and msg == st.session_state.interview_history[-1]:
+                            try:
+                                from agents.interview_agent import text_to_speech
+                                audio_bytes = text_to_speech(msg["content"])
+                                if audio_bytes:
+                                    st.audio(audio_bytes, format="audio/mp3")
+                            except Exception:
+                                pass
+
                     else:
-                        with st.chat_message("Anda", avatar="🧑"):
-                            st.write(msg["content"])
+                        st.markdown(
+                            f'<div class="chat-user">🧑 Kamu: {msg["content"]}</div>',
+                            unsafe_allow_html=True,
+                        )
 
                 # Input area
                 if mode == "💬 Text":
@@ -135,23 +134,56 @@ def render_step_e():
                         st.session_state.interview_history.append(
                             {"role": "user", "content": answer}
                         )
-                        with st.spinner("👨‍💼 Leonardo sedang mengevaluasi jawaban..."):
-                            try:
-                                from agents.interview_agent import continue_interview
-                                result = continue_interview(
-                                    st.session_state.cv_text,
-                                    job,
-                                    st.session_state.interview_history[:-1],
-                                    answer,
-                                )
-                                if result["available"] and result["response"]:
-                                    st.session_state.interview_history.append(
-                                        {"role": "assistant", "content": result["response"]}
+                        with st.spinner("🤵 HR sedang mengevaluasi jawaban..."):
+                            from agents.interview_agent import handle_candidate_answer
+                            
+                            session = st.session_state.get("interview_session")
+                            if session:
+                                try:
+                                    next_q = handle_candidate_answer(
+                                        session,
+                                        jawaban_user=answer,
                                     )
-                                else:
-                                    st.error("❌ Gagal mendapatkan respon HR.")
-                            except Exception as e:
-                                st.error(f"❌ Terjadi kesalahan saat mengevaluasi jawaban: {e}")
+                                    
+                                    if next_q:
+                                        st.session_state.interview_history.append(
+                                            {"role": "assistant", "content": next_q}
+                                        )
+                                    elif not st.session_state.get("transcript_saved", False):
+                                        st.session_state.interview_history.append(
+                                            {"role": "assistant", "content": "🎉 Wawancara selesai! Sedang menyusun laporan evaluasi..."}
+                                        )
+                                        try:
+                                            from agents.interview_agent import evaluate_interview
+                                            from database import DatabaseManager
+                                            import dataclasses
+                                            
+                                            eval_res = evaluate_interview(session)
+                                            
+                                            # Simpan transkrip ke database FR-17
+                                            try:
+                                                db = DatabaseManager()
+                                                email = getattr(st.user, "email", "unknown@example.com")
+                                                session_dict = dataclasses.asdict(session)
+                                                db.save_hrd_transcript(session_dict, email)
+                                                st.session_state.transcript_saved = True
+                                            except Exception as db_err:
+                                                st.error(f"⚠️ Gagal menyimpan riwayat wawancara ke database: {db_err}")
+
+                                            eval_text = "### 📊 Hasil Evaluasi Interview\n\n"
+                                            for ev in eval_res.get("evaluasi", []):
+                                                eval_text += f"**{ev.get('kompetensi', 'Kompetensi')}** (Label: {ev.get('label', '-')})\n"
+                                                eval_text += f"> {ev.get('feedback', '')}\n\n"
+                                            eval_text += f"**Kesimpulan Umum:**\n{eval_res.get('kesimpulan_umum', '')}"
+                                            st.session_state.interview_history.append(
+                                                {"role": "assistant", "content": eval_text}
+                                            )
+                                        except Exception as e:
+                                            st.session_state.interview_history.append(
+                                                {"role": "assistant", "content": f"⚠️ Gagal memuat evaluasi: {e}"}
+                                            )
+                                except Exception as e:
+                                    st.error(f"Terjadi kesalahan: {e}")
                         st.rerun()
 
                 else:  # Voice mode
@@ -168,32 +200,64 @@ def render_step_e():
                             st.audio(audio_bytes, format="audio/wav")
                             if st.button("📤 Kirim Jawaban", type="primary"):
                                 with st.spinner("🎧 Transcribing audio..."):
-                                    try:
-                                        from agents.interview_agent import (
-                                            transcribe_audio,
-                                            continue_interview,
-                                        )
-                                        transcribed = transcribe_audio(audio_bytes)
-                                        st.info(f"📝 Transcribed: {transcribed}")
+                                    from agents.interview_agent import (
+                                        transcribe_audio,
+                                        handle_candidate_answer,
+                                    )
+                                    
+                                    transcribed = transcribe_audio(audio_bytes)
+                                    st.info(f"📝 Transcribed: {transcribed}")
 
-                                        st.session_state.interview_history.append(
-                                            {"role": "user", "content": transcribed}
-                                        )
+                                    st.session_state.interview_history.append(
+                                        {"role": "user", "content": transcribed}
+                                    )
 
-                                        result = continue_interview(
-                                            st.session_state.cv_text,
-                                            job,
-                                            st.session_state.interview_history[:-1],
-                                            transcribed,
-                                        )
-                                        if result["available"] and result["response"]:
-                                            st.session_state.interview_history.append(
-                                                {"role": "assistant", "content": result["response"]}
+                                    session = st.session_state.get("interview_session")
+                                    if session:
+                                        try:
+                                            next_q = handle_candidate_answer(
+                                                session,
+                                                jawaban_user=transcribed,
                                             )
-                                        else:
-                                            st.error("❌ Gagal mendapatkan respon HR.")
-                                    except Exception as e:
-                                        st.error(f"❌ Terjadi kesalahan saat memproses audio: {e}")
+                                            if next_q:
+                                                st.session_state.interview_history.append(
+                                                    {"role": "assistant", "content": next_q}
+                                                )
+                                            elif not st.session_state.get("transcript_saved", False):
+                                                st.session_state.interview_history.append(
+                                                    {"role": "assistant", "content": "🎉 Wawancara selesai! Sedang menyusun laporan evaluasi..."}
+                                                )
+                                                try:
+                                                    from agents.interview_agent import evaluate_interview
+                                                    from database import DatabaseManager
+                                                    import dataclasses
+                                                    
+                                                    eval_res = evaluate_interview(session)
+                                                    
+                                                    # Simpan transkrip ke database FR-17
+                                                    try:
+                                                        db = DatabaseManager()
+                                                        email = getattr(st.user, "email", "unknown@example.com")
+                                                        session_dict = dataclasses.asdict(session)
+                                                        db.save_hrd_transcript(session_dict, email)
+                                                        st.session_state.transcript_saved = True
+                                                    except Exception as db_err:
+                                                        st.error(f"⚠️ Gagal menyimpan riwayat wawancara ke database: {db_err}")
+
+                                                    eval_text = "### 📊 Hasil Evaluasi Interview\n\n"
+                                                    for ev in eval_res.get("evaluasi", []):
+                                                        eval_text += f"**{ev.get('kompetensi', 'Kompetensi')}** (Label: {ev.get('label', '-')})\n"
+                                                        eval_text += f"> {ev.get('feedback', '')}\n\n"
+                                                    eval_text += f"**Kesimpulan Umum:**\n{eval_res.get('kesimpulan_umum', '')}"
+                                                    st.session_state.interview_history.append(
+                                                        {"role": "assistant", "content": eval_text}
+                                                    )
+                                                except Exception as e:
+                                                    st.session_state.interview_history.append(
+                                                        {"role": "assistant", "content": f"⚠️ Gagal memuat evaluasi: {e}"}
+                                                    )
+                                        except Exception as e:
+                                            st.error(f"Terjadi kesalahan: {e}")
                                     st.rerun()
                     except ImportError:
                         st.warning("📦 Package `audio-recorder-streamlit` belum terinstall.")
@@ -205,13 +269,17 @@ def render_step_e():
             with col1:
                 if st.button("🔄 Reset Interview"):
                     st.session_state.interview_started = False
+                    st.session_state.transcript_saved = False
                     st.session_state.interview_history = []
+                    st.session_state.interview_session = None
                     st.rerun()
             with col2:
                 if st.button("🔄 Ganti Posisi"):
                     st.session_state.interview_job = None
                     st.session_state.interview_started = False
+                    st.session_state.transcript_saved = False
                     st.session_state.interview_history = []
+                    st.session_state.interview_session = None
                     st.rerun()
 
     # Navigation

@@ -1,0 +1,19 @@
+Fitur:
+
+A. INPUT CV
+1. User bisa masukin CV dalam bentuk word & pdf
+2. User bisa masukin CV dengan size file 100mb
+
+B. FEEDBACK LOWONGAN PEKERJAAN
+3. User bisa masukin CV ke aplikasi dan AI akan memberikan feedback rekomendasi lowongan pekerjaan di dataset
+4. User bisa masukin CV ke aplikasi dan AI akan memberikan feedback rekomendasi lowongan pekerjaan di google/linkedin/jobstreet
+
+C. SARAN dari cv yang sekarang
+5. AI bisa memberikan feedback berupa saran isi dari CV
+6. AI bisa memberikan feedback berupa output file word & pdf CV ATS
+
+D. Consultasi cita-cita
+7. AI dan user bisa berbicara secara text tentang cita cita yang diinginkan dengan CV saat ini
+
+E. Mock Test Interview
+8. AI dan user bisa berbicara secara voice tentan cara interview seolah olah seperti HR

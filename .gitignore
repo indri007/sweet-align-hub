@@ -30,6 +30,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
 # Python Cache
 __pycache__/
 *.pyc
@@ -39,7 +40,6 @@ __pycache__/
 
 # Local Secrets / Environments
 .env
-.env.*
 env
 .streamlit/secrets.toml
 
@@ -50,24 +50,14 @@ Tracker HR/
 *.zip
 *.docx
 
-# Environments & AI Agents
-venv/
+# Python Environments
 .venv/
-.agents/
-scratch/
-test_cvs/
+venv/
 
-# File sensitif — jangan pernah di-commit (berisi token/API key)
-set_github_secrets.py
-wipe_qdrant.py
-test_*.py
-list_models.py
-reingest_qdrant_gemini.py
-n8n_mcp_config.json
-generate_n8n_*.py
-tidy_n8n.py
-verify_qdrant.py
-check_*.py
-update_*.py
-fix_*.py
-qdrant_*.py
+# Other projects
+daily-job-assistant/
+*.jsonl
+
+# IDE / OS / Agent
+.DS_Store
+.antigravity/

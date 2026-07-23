@@ -3,31 +3,15 @@ Database module — SQLite/MySQL query manager using SQLAlchemy.
 Handles structured job data queries (filters, stats, etc.)
 """
 
-import os
 import re
-import glob
 from typing import Optional
-from sqlalchemy import create_engine, Column, Integer, String, Text, Float, JSON, ForeignKey, DECIMAL, TIMESTAMP, DateTime
+from datetime import datetime
+from sqlalchemy import create_engine, Column, Integer, String, Text, Float, JSON, Boolean, DateTime, Index
 from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy import text as sql_text
 import config
 
 Base = declarative_base()
-
-
-def _find_aiven_ca_cert():
-    """Cari file ca.pem untuk SSL Aiven MySQL — cek folder root project & subfolder aiven/."""
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    candidates = [
-        os.path.join(base_dir, "ca.pem"),
-        os.path.join(base_dir, "aiven", "ca.pem"),
-    ]
-    for path in candidates:
-        if os.path.isfile(path):
-            return path
-    # fallback: cari di mana saja dalam project (maks 2 level)
-    matches = glob.glob(os.path.join(base_dir, "**", "ca.pem"), recursive=True)
-    return matches[0] if matches else None
 
 
 class Job(Base):
@@ -46,88 +30,23 @@ class Job(Base):
     scrape_timestamp = Column(String(100))
 
 
-class UserProfile(Base):
-    """User Profile model for storing uploaded CVs and metadata."""
-    __tablename__ = "user_profiles"
+class HrdTranscript(Base):
+    """Interview transcript model for FR-17."""
+    __tablename__ = "hrd_transcripts"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    email = Column(String(255), unique=True, nullable=False)
-    name = Column(String(255))
-    cv_text = Column(Text)
-    cv_filename = Column(String(500))
-    uploaded_at = Column(String(100))
-class JobFunction(Base):
-    __tablename__ = "job_functions"
-    function_id = Column(Integer, primary_key=True, autoincrement=True)
-    function_name_id = Column(String(100), nullable=False)
-    function_name_en = Column(String(100), nullable=False)
-    parent_function_id = Column(Integer, ForeignKey("job_functions.function_id"), nullable=True)
+    session_id = Column(String(36), nullable=False, unique=True)
+    email = Column(String(255), nullable=False)
+    posisi = Column(String(255))
+    transcript_json = Column(JSON)
+    evaluation_result = Column(JSON)
+    completed = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
 
-class JobLevel(Base):
-    __tablename__ = "job_levels"
-    level_id = Column(Integer, primary_key=True, autoincrement=True)
-    level_name = Column(String(50), nullable=False)
-    level_rank = Column(Integer, nullable=False)
+    __table_args__ = (
+        Index('idx_email', 'email'),
+    )
 
-class Skill(Base):
-    __tablename__ = "skills"
-    skill_id = Column(Integer, primary_key=True, autoincrement=True)
-    skill_name_id = Column(String(150), nullable=False)
-    skill_name_en = Column(String(150), nullable=False)
-    skill_type = Column(String(30))
-    function_id = Column(Integer, ForeignKey("job_functions.function_id"))
-    synonyms = Column(JSON)
-    weight_default = Column(DECIMAL(3, 2), default=1.00)
-
-class ActionVerb(Base):
-    __tablename__ = "action_verbs"
-    verb_id = Column(Integer, primary_key=True, autoincrement=True)
-    verb_id_lang = Column(String(50))
-    verb_en_lang = Column(String(50))
-    category = Column(String(30))
-
-class ScoringRubric(Base):
-    __tablename__ = "scoring_rubric"
-    rubric_id = Column(Integer, primary_key=True, autoincrement=True)
-    dimension = Column(String(50))
-    criterion = Column(Text)
-    max_points = Column(DECIMAL(5, 2))
-    weight = Column(DECIMAL(4, 3))
-    rule_type = Column(String(30))
-
-class CvRedFlag(Base):
-    __tablename__ = "cv_red_flags"
-    flag_id = Column(Integer, primary_key=True, autoincrement=True)
-    flag_name_id = Column(String(150))
-    flag_name_en = Column(String(150))
-    description_id = Column(Text)
-    description_en = Column(Text)
-    severity = Column(String(20))
-    fix_suggestion_id = Column(Text)
-    fix_suggestion_en = Column(Text)
-
-class RewriteExample(Base):
-    __tablename__ = "rewrite_examples"
-    example_id = Column(Integer, primary_key=True, autoincrement=True)
-    function_id = Column(Integer, ForeignKey("job_functions.function_id"))
-    before_text_id = Column(Text)
-    after_text_id = Column(Text)
-    before_text_en = Column(Text)
-    after_text_en = Column(Text)
-    principle = Column(Text)
-
-class CvScoringHistory(Base):
-    __tablename__ = "cv_scoring_history"
-    scoring_id = Column(Integer, primary_key=True, autoincrement=True)
-    cv_hash = Column(String(64))
-    target_function_id = Column(Integer, ForeignKey("job_functions.function_id"))
-    score_parseability = Column(DECIMAL(5, 2))
-    score_keyword = Column(DECIMAL(5, 2))
-    score_content = Column(DECIMAL(5, 2))
-    score_structure = Column(DECIMAL(5, 2))
-    score_composite = Column(DECIMAL(5, 2))
-    model_version = Column(Text)
-    created_at = Column(TIMESTAMP)
 
 def parse_salary(salary_str: str) -> tuple[Optional[float], Optional[float]]:
     """
@@ -167,23 +86,10 @@ class DatabaseManager:
     def __init__(self, db_url: Optional[str] = None):
         self.db_url = db_url or config.DATABASE_URL
         connect_args = {}
-        if self.db_url and "mysql" in self.db_url.lower():
-            # Bypass SSL verification completely (Aiven requires SSL, but we ignore the cert check 
-            # because the ca.pem in the repo might be from an old project)
+        if self.db_url.startswith("mysql"):
             import ssl
-            ctx = ssl.create_default_context()
-            ctx.check_hostname = False
-            ctx.verify_mode = ssl.CERT_NONE
-            connect_args = {"ssl": ctx}
-        engine_kwargs = {"echo": False, "connect_args": connect_args}
-        if self.db_url and ("mysql" in self.db_url.lower() or "postgresql" in self.db_url.lower()):
-            engine_kwargs.update({
-                "pool_size": 10,
-                "max_overflow": 20,
-                "pool_recycle": 3600,
-                "pool_pre_ping": True  # Cek koneksi mati sebelum dipakai
-            })
-        self.engine = create_engine(self.db_url, **engine_kwargs)
+            connect_args = {"ssl": {"check_hostname": False, "verify_mode": ssl.CERT_NONE}}
+        self.engine = create_engine(self.db_url, echo=False, connect_args=connect_args)
         self.Session = sessionmaker(bind=self.engine)
 
     def create_tables(self):
@@ -215,48 +121,28 @@ class DatabaseManager:
         finally:
             session.close()
 
-    def save_user_profile(self, email: str, name: str, cv_text: str, cv_filename: str):
-        """Insert or update a user's CV profile."""
-        from datetime import datetime
+    def save_hrd_transcript(self, session_data: dict, email: str):
+        """Save an HRD interview transcript (FR-17)."""
         session = self.Session()
         try:
-            profile = session.query(UserProfile).filter(UserProfile.email == email).first()
-            if profile:
-                profile.name = name
-                profile.cv_text = cv_text
-                profile.cv_filename = cv_filename
-                profile.uploaded_at = datetime.now().isoformat()
-            else:
-                profile = UserProfile(
+            # Check if exists (for updating a session)
+            record = session.query(HrdTranscript).filter(HrdTranscript.session_id == session_data["session_id"]).first()
+            if not record:
+                record = HrdTranscript(
+                    session_id=session_data["session_id"],
                     email=email,
-                    name=name,
-                    cv_text=cv_text,
-                    cv_filename=cv_filename,
-                    uploaded_at=datetime.now().isoformat()
                 )
-                session.add(profile)
+                session.add(record)
+            
+            record.posisi = session_data.get("posisi", "")
+            record.transcript_json = session_data.get("turns", [])
+            record.evaluation_result = session_data.get("evaluation_result")
+            record.completed = session_data.get("completed", False)
+            
             session.commit()
         except Exception as e:
             session.rollback()
             raise e
-        finally:
-            session.close()
-
-    def get_user_profile(self, email: str) -> Optional[dict]:
-        """Retrieve a user's CV profile."""
-        session = self.Session()
-        try:
-            profile = session.query(UserProfile).filter(UserProfile.email == email).first()
-            if not profile:
-                return None
-            return {
-                "id": profile.id,
-                "email": profile.email,
-                "name": profile.name,
-                "cv_text": profile.cv_text,
-                "cv_filename": profile.cv_filename,
-                "uploaded_at": profile.uploaded_at
-            }
         finally:
             session.close()
 
@@ -354,7 +240,18 @@ class DatabaseManager:
         finally:
             session.close()
 
-
+    def execute_raw_sql(self, query_str: str) -> list[dict]:
+        """Execute a raw SQL query and return results as dicts. For SQL Agent."""
+        session = self.Session()
+        try:
+            result = session.execute(sql_text(query_str))
+            columns = result.keys()
+            rows = result.fetchall()
+            return [dict(zip(columns, row)) for row in rows]
+        except Exception as e:
+            return [{"error": str(e)}]
+        finally:
+            session.close()
 
     def get_job_by_id(self, job_id: int) -> Optional[dict]:
         """Get a single job by ID."""

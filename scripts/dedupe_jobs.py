@@ -1,36 +1,52 @@
 import json
 import os
 
-def dedupe_jobs():
-    input_file = "dataset/jobs.jsonl"
+input_file = "dataset/jobs.jsonl"
+output_file = "dataset/jobs_deduped.jsonl"
+
+def dedupe():
     if not os.path.exists(input_file):
-        print(f"File {input_file} not found.")
+        print(f"Error: {input_file} tidak ditemukan.")
         return
 
     seen = set()
     unique_jobs = []
-    
+    duplicates = []
+
     with open(input_file, 'r', encoding='utf-8') as f:
-        for line in f:
+        for line_num, line in enumerate(f, 1):
             if not line.strip():
                 continue
-            job = json.loads(line)
-            # Use job_title + company_name + location as a unique key
-            key = f"{job.get('job_title', '')}|{job.get('company_name', '')}|{job.get('location', '')}".lower()
-            if key not in seen:
-                seen.add(key)
-                unique_jobs.append(line)
-            else:
-                print(f"Found duplicate: {job.get('job_title')} at {job.get('company_name')}")
+            try:
+                job = json.loads(line)
+                # Kunci unik: gabungan job_title, company_name, dan location
+                title = job.get('job_title', '').strip().lower()
+                company = job.get('company_name', '').strip().lower()
+                location = job.get('location', '').strip().lower()
+                
+                key = f"{title}|{company}|{location}"
+                
+                if key in seen:
+                    duplicates.append(job)
+                else:
+                    seen.add(key)
+                    unique_jobs.append(job)
+            except json.JSONDecodeError:
+                print(f"Warning: Baris {line_num} bukan JSON valid, dilewati.")
+                continue
 
-    print(f"Total jobs before: {len(seen) + (len(unique_jobs) - len(seen))}") # Wait, this is wrong print logic.
-    
-    # Just rewrite file
-    with open(input_file, 'w', encoding='utf-8') as f:
-        for line in unique_jobs:
-            f.write(line)
-            
-    print(f"Deduplication complete. Kept {len(unique_jobs)} unique jobs.")
+    print(f"Total baris asli: {len(unique_jobs) + len(duplicates)}")
+    print(f"Total baris unik: {len(unique_jobs)}")
+    print(f"Total duplikat dihapus: {len(duplicates)}")
+
+    if len(duplicates) > 0:
+        # Tulis ulang file dengan data unik
+        with open(input_file, 'w', encoding='utf-8') as f:
+            for job in unique_jobs:
+                f.write(json.dumps(job, ensure_ascii=False) + '\n')
+        print(f"Berhasil menimpa {input_file} dengan data yang sudah dibersihkan.")
+    else:
+        print("Tidak ada duplikat yang ditemukan, file tidak diubah.")
 
 if __name__ == "__main__":
-    dedupe_jobs()
+    dedupe()

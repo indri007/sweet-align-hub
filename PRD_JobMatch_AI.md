@@ -1,58 +1,52 @@
-# PRD — JobMatch AI: Migrasi & Redeploy ke Laptop Baru
+# PRD — JobMatch AI: Arsitektur & Panduan Teknis
 
-**Project**: JobMatch AI (folder lokal: `cvatsjob`)
-**Service Cloud Run live**: `job-search-app` — project GCP `heaven-493814-f85dc`
-**URL live**: `https://job-search-app-547610088942.asia-southeast2.run.app`
+**Project**: JobMatch AI (repo: `indri007/sweet-align-hub`, branch: `streamlit`)
+**URL Live**: `https://jobsmatch.streamlit.app`
 **Konteks**: Final Project JCAI — Job Connector AI Engineering, Purwadhika
 **Disusun untuk**: Indri Kartikasari
-**Tanggal**: 15 Juli 2026
+**Terakhir diperbarui**: 21 Juli 2026
 
 ---
 
 ## 1. Ringkasan Eksekutif
 
-JobMatch AI adalah aplikasi Streamlit berbasis multi-agent AI yang membantu pencari kerja di Indonesia: analisis CV, rekomendasi lowongan (RAG via Qdrant), review CV, generate CV format ATS, konsultasi karir, dan simulasi wawancara. Dokumen ini adalah panduan teknis lengkap untuk memindahkan environment kerja dari Cloud Shell (`ravipridh88@cloudshell`) ke laptop baru, termasuk semua kode, dependency, environment variable, dan langkah redeploy ke Cloud Run.
+JobMatch AI adalah aplikasi Streamlit berbasis multi-agent AI yang membantu pencari kerja di Indonesia:
+- Analisis CV & skor ATS
+- Rekomendasi lowongan (RAG via Qdrant)
+- Review CV + generate CV format ATS (Bahasa Indonesia & Inggris)
+- Konsultasi karir dengan referensi KPI & Salary Grade
+- Simulasi wawancara berbasis kompetensi STAR
 
-**Status arsitektur saat ini**: aplikasi memanggil Gemini API, Qdrant, dan Aiven MySQL **langsung dari Python** (bukan lewat N8N webhook). Modul integrasi N8N (`n8n_client.py`, folder `n8n_workflows/`) sudah tersedia di kode tapi berstatus **nonaktif** (`USE_N8N=false`). Dokumen ini mencakup dua jalur: (A) redeploy versi yang jalan sekarang apa adanya, dan (B) langkah tambahan mengaktifkan N8N sesuai requirement rubrik JCAI.
+**Prinsip utama arsitektur**: Hemat token maksimal. Data statis (lowongan, aturan HRD, bank soal interview) di-*precompute* sekali ke Qdrant. LLM generatif **hanya** dipanggil untuk tugas reasoning: evaluasi jawaban, follow-up dinamis, saran perbaikan CV.
 
 ---
 
 ## 2. Arsitektur Sistem
 
-### 2.1 Arsitektur saat ini (live di Cloud Run)
+### 2.1 Arsitektur Saat Ini (Live)
 
 ```
 Browser User
      │
      ▼
-Streamlit App (Cloud Run, job-search-app)
+Streamlit App (Streamlit Cloud — branch: streamlit)
      │
-     ├──► Gemini API (google-genai SDK, model gemini-2.5-flash)
-     │        └─ dipakai oleh: rag_agent, career_agent, cv_analyzer_agent,
-     │                          sql_agent, interview_agent, customer_service_chat
+     ├──► LLM Provider (Groq rotating 4 keys / fallback Gemini Flash)
+     │        └─ hanya untuk: evaluasi jawaban, saran CV, follow-up interview
      │
      ├──► Qdrant Cloud (vector_store.py)
-     │        └─ collection job embeddings, dipakai untuk semantic search CV↔lowongan
+     │        ├─ [1] indonesian_jobs            → 465 vektor loker
+     │        ├─ [2] hr_knowledge_base           → 216 vektor aturan HRD + Excel
+     │        ├─ [3] interview_questions_bank    → bank soal STAR (BARU)
+     │        └─ [4] hr_memory / cs_memory       → memori refleksi agentic
      │
-     └──► Aiven MySQL (database.py, via SQLAlchemy + ca.pem SSL)
-              └─ menyimpan data lowongan terstruktur, query via sql_agent
+     └──► Aiven MySQL (database.py, SQLAlchemy)
+               └─ jobs, user_profiles, cv_analysis_results
 ```
 
-### 2.2 Arsitektur target sesuai rubrik JCAI (N8N sebagai backbone)
+### 2.2 Arsitektur Target (Final: Python-Native)
 
-```
-Browser User
-     │
-     ▼
-Streamlit App  ──POST──►  N8N Webhook (REST API, workflow published/Active)
-                                │
-                        AI Agent (LangChain node)
-                          ├─► Groq/Gemini Chat Model
-                          ├─► Vector Store Tool ──► Qdrant Vector Store node
-                          └─► MySQL node ──► Aiven MySQL
-```
-
-Untuk beralih ke jalur ini, cukup set `USE_N8N=true` + `N8N_WEBHOOK_URL` di environment; `n8n_client.py` sudah punya fallback otomatis ke agent lokal kalau webhook tidak terjangkau.
+Penyelesaian Konflik #2 telah memutuskan bahwa aplikasi tidak akan menggunakan N8N. Eksekusi `agent` dilakukan langsung melalui Python secara *native* menuju Gemini API dan Qdrant.
 
 ---
 
@@ -60,297 +54,244 @@ Untuk beralih ke jalur ini, cukup set `USE_N8N=true` + `N8N_WEBHOOK_URL` di envi
 
 | Layer | Teknologi |
 |---|---|
-| Frontend/App | Streamlit, `st.login()` (Google OAuth native) |
-| AI/LLM | Google Gemini 2.5 Flash (`google-genai` SDK) |
-| Embedding | `models/gemini-embedding-001` |
-| Vector DB | Qdrant Cloud |
-| Relational DB | Aiven MySQL (SQLAlchemy, SSL via `ca.pem`) |
-| Orkestrasi opsional | N8N (self-host / `n8n-student.purwadhika.com`) |
-| OCR | Gemini Vision (fallback dari Tesseract) |
-| TTS/Interview | gTTS, Gemini (fallback dari OpenAI Whisper/TTS — sudah di-stub) |
-| Container | Docker (`python:3.10-slim` base, lihat `Dockerfile`) |
-| Hosting | Google Cloud Run, region `asia-southeast2` |
-| Voice bot (opsional) | Omnidim (env var masih placeholder, belum aktif) |
+| Frontend | Streamlit ≥ 1.39.0, Google OAuth (`st.login()`) |
+| LLM Utama | Groq (llama-3.3-70b), 4 key rotasi |
+| LLM Fallback | Gemini Flash (10 key rotasi) |
+| Embedding | `models/text-embedding-004` via Gemini API (768-dim) |
+| Vector DB | Qdrant Cloud (4 collections) |
+| Relational DB | Aiven MySQL (SQLAlchemy + SSL) |
+| TTS Leonardo | gTTS (gratis, tanpa API key, Bahasa Indonesia) |
+| STT Voice Mode | OpenAI Whisper-1 (opsional) |
+| Rekam Suara | `audio-recorder-streamlit` |
+| Excel Parsing | `pandas` + `openpyxl` |
+| Orkestrasi | Python-Native (LangChain / Gemini SDK) |
+| Hosting | Streamlit Cloud (branch: streamlit) |
 
 ---
 
-## 4. Prasyarat di Laptop Baru
+## 4. Qdrant Collections
 
-```bash
-# Cek versi yang dibutuhkan
-python3 --version      # minimal 3.10
-docker --version       # untuk build image lokal (opsional, testing)
-git --version
-
-# Install Google Cloud SDK (kalau belum ada)
-# macOS:
-brew install --cask google-cloud-sdk
-# atau ikuti: https://cloud.google.com/sdk/docs/install
-
-# Login & set project
-gcloud auth login
-gcloud config set project heaven-493814-f85dc
-```
+| Collection | Isi | Jumlah | Dipakai Oleh |
+|---|---|---|---|
+| `indonesian_jobs` | Vektor loker + metadata | 465 | `rag_agent.py` — Step B |
+| `hr_knowledge_base` | Keyword Bank, KPI, Salary Grade, Common Mistakes | 216 | `cv_analyzer_agent.py`, `career_agent.py` |
+| `interview_questions_bank` | Bank soal STAR per kompetensi | ~41 | `interview_agent.py` — **BARU, precompute offline** |
+| `hr_memory` | Refleksi insight sesi interview | Dinamis | `interview_agent.py` auto-append |
 
 ---
 
-## 5. Struktur Folder Project (`cvatsjob`)
+## 5. Fitur Mock Interview — Arsitektur Token-Efficient (BARU)
 
+### Masalah Sebelumnya
+Setiap sesi interview memanggil LLM generatif untuk *membuat* pertanyaan → **boros token, lambat, inkonsisten, kena 429 rate limit**.
+
+### Solusi: Precompute Interview Bank ke Qdrant
+
+#### FASE OFFLINE — Jalankan Sekali
 ```
-cvatsjob/
-├── app.py                          # entry point Streamlit
-├── config.py                       # load semua env var + client Gemini
-├── database.py                     # koneksi Aiven MySQL (SQLAlchemy)
-├── vector_store.py                 # koneksi Qdrant / ChromaDB
-├── cv_processor.py                 # ekstraksi teks CV (PDF/DOCX/OCR)
-├── auth_setup.py                   # Google OAuth setup untuk st.login()
-├── customer_service_chat_floating.py
-├── migrate_to_aiven.py             # migrasi data SQLite lokal → Aiven
-├── scraper.py                      # scraping data lowongan baru
-├── data_preparation.py
-├── n8n_client.py                   # wrapper HTTP ke N8N webhook (fallback ke lokal)
-├── agents/
-│   ├── __init__.py
-│   ├── rag_agent.py                # RAG: CV ↔ lowongan (Qdrant)
-│   ├── career_agent.py             # konsultasi karir
-│   ├── cv_analyzer_agent.py        # analisis & skor CV
-│   ├── sql_agent.py                # natural language → SQL query
-│   └── interview_agent.py          # simulasi wawancara
-├── dataset/
-│   └── jobs.jsonl                  # 473 lowongan (seed dataset)
-├── aiven/
-│   └── ca.pem                      # sertifikat SSL Aiven MySQL — WAJIB ADA
-├── .streamlit/
-│   ├── config.toml
-│   └── secrets.toml                # kredensial OAuth Google — JANGAN commit ke git
-├── n8n_workflows/                  # 6 file JSON workflow N8N
-│   ├── 1_cv_job_matcher.json
-│   ├── 2_cv_reviewer.json
-│   ├── 3_ats_cv_generator.json
-│   ├── 4_career_consultant.json
-│   ├── 5_mock_interview.json
-│   └── 6_sql_agent.json
-├── requirements.txt
-├── Dockerfile
-├── .env.example
-└── README.md
+Interview_Questions.xlsx (41 pertanyaan, 10 kompetensi STAR)
+        │
+        ▼ embed via Gemini text-embedding-004 (768-dim)
+        │
+        ▼ upsert ke Qdrant: "interview_questions_bank"
+
+Payload per titik:
+{
+  "kompetensi": "Kemampuan Memecahkan Masalah (Problem Solving)",
+  "tahap": "Situation",
+  "pertanyaan": "Uraikan konteksnya: kapan, siapa yang terlibat, apa masalahnya..."
+}
+```
+Script: `scripts/build_interview_kb.py`
+
+#### FASE RUNTIME — Setiap Sesi Interview
+```
+1. User pilih posisi ("Finance Planning & Analysis Manager")
+         │
+         ▼
+2. embed_text(cv_text + posisi) → 1x Embedding API call (murah)
+         │
+         ▼
+3. Vector search ke Qdrant "interview_questions_bank"
+   → ambil 6-8 pertanyaan terdekat berdasarkan CV + posisi
+   ⚡ 0 panggilan LLM generatif
+         │
+         ▼
+4. Tampilkan pertanyaan 1 per 1, Leonardo bacakan via gTTS
+         │
+         ▼
+5. User menjawab (text / voice)
+         │
+         ▼
+6. LLM dipanggil HANYA untuk:
+   a. Evaluasi jawaban STAR (skor 1-5 per dimensi)
+   b. Follow-up jika jawaban terlalu singkat
+   c. Ringkasan akhir sesi (skor total per kompetensi)
 ```
 
-> **Catatan**: `aiven/ca.pem` dan `.streamlit/secrets.toml` (versi asli, bukan `.example`) perlu kamu salin manual dari sumber yang sudah kamu punya (tim/backup lama) — keduanya **tidak boleh** diketik ulang manual karena isinya kredensial biner/rahasia.
+#### Dampak Efisiensi Token
+
+Pendekatan ini secara signifikan **mengurangi panggilan LLM untuk generate soal, karena diambil langsung dari Qdrant**. LLM hanya dipanggil untuk tugas penalaran tingkat tinggi (evaluasi jawaban kandidat), sehingga sangat menghemat penggunaan token LLM dan menurunkan risiko terkena *rate-limit*.
 
 ---
 
-## 6. Environment Variables — Referensi Lengkap
+## 6. Fitur CV Analysis — Aiven Caching (Rencana)
 
-Semua env var berikut **sudah kamu backup nilainya** ke folder `cloudrun-backup-f85dc/` dan `cloudrun-backup/secrets/` di Cloud Shell. Jangan copy-paste ulang raw value di dokumen ini — buka file `.txt` yang sesuai dari backup kamu.
+Hasil AI disimpan permanen ke tabel `cv_analysis_results` di Aiven:
 
-| Env Var | Sumber nilai (file backup) | Wajib? |
-|---|---|---|
-| `GEMINI_API_KEY` | `cloudrun-backup-f85dc/job-search-app/service-config.yaml` | ✅ |
-| `GEMINI_MODEL` | default `gemini-2.5-flash` (hardcoded fallback di `config.py`) | opsional |
-| `GEMINI_EMBEDDING_MODEL` | default `models/gemini-embedding-001` | opsional |
-| `DATABASE_URL` | `service-config.yaml` (project f85dc) | ✅ |
-| `VECTOR_STORE` | `qdrant` (fixed) | ✅ |
-| `QDRANT_URL` | `service-config.yaml` (project f85dc) | ✅ |
-| `QDRANT_API_KEY` | `service-config.yaml` (project f85dc) | ✅ |
-| `EMBEDDING_MODEL` | `local` (fixed, sesuai config live) | ✅ |
-| `USE_N8N` | set manual `true`/`false` sesuai keputusan arsitektur (lihat §2) | ✅ |
-| `N8N_WEBHOOK_URL` | `cloudrun-backup/secrets/N8N_WEBHOOK_URL.txt` | jika `USE_N8N=true` |
-| `OMNIDIM_API_KEY` / `AGENT_ID` / `FROM_NUMBER_ID` | ⚠️ masih placeholder di live config — isi dari dashboard Omnidim kalau fitur ini dipakai, atau hapus kalau tidak | opsional |
-| Google OAuth (`client_id`, `client_secret`, `cookie_secret`, `redirect_uri`) | `.streamlit/secrets.toml` asli | ✅ untuk fitur login |
-
-Buat file `.env` lokal (untuk testing di laptop, bukan untuk Cloud Run):
-
-```bash
-cd cvatsjob
-cat > .env << 'EOF'
-GEMINI_API_KEY=isi_dari_backup
-DATABASE_URL=isi_dari_backup
-VECTOR_STORE=qdrant
-QDRANT_URL=isi_dari_backup
-QDRANT_API_KEY=isi_dari_backup
-EMBEDDING_MODEL=local
-USE_N8N=false
-N8N_WEBHOOK_URL=isi_dari_backup_jika_dipakai
-EOF
-chmod 600 .env   # batasi permission, cuma owner yang bisa baca
-```
-
----
-
-## 7. Setup Lokal di Laptop Baru — Step by Step
-
-### 7.1 Salin project dari backup
-
-```bash
-# Kalau kamu sudah punya zip backup (cloudrun-f85dc-backup.zip / cloudrun-full-backup.zip),
-# extract dulu:
-mkdir -p ~/projects
-cd ~/projects
-unzip ~/Downloads/cloudrun-f85dc-backup.zip -d jobmatch-restore
-cd jobmatch-restore/source-cvatsjob
-```
-
-### 7.2 Buat virtual environment & install dependency
-
-```bash
-python3 -m venv venv
-source venv/bin/activate        # Windows: venv\Scripts\activate
-
-pip install --upgrade pip
-pip install -r requirements.txt
-```
-
-### 7.3 Jalankan lokal untuk testing
-
-```bash
-streamlit run app.py
-# buka http://localhost:8501
-```
-
-### 7.4 Verifikasi koneksi ke masing-masing service
-
-```bash
-# Cek Qdrant
-python3 - << 'EOF'
-from qdrant_client import QdrantClient
-import os
-from dotenv import load_dotenv
-load_dotenv()
-client = QdrantClient(url=os.getenv("QDRANT_URL"), api_key=os.getenv("QDRANT_API_KEY"))
-print(client.get_collections())
-EOF
-
-# Cek Aiven MySQL
-python3 - << 'EOF'
-import os
-from dotenv import load_dotenv
-from sqlalchemy import create_engine, text
-load_dotenv()
-engine = create_engine(os.getenv("DATABASE_URL"), connect_args={"ssl": {"ca": "aiven/ca.pem"}})
-with engine.connect() as conn:
-    result = conn.execute(text("SELECT 1"))
-    print("Aiven MySQL OK:", result.fetchone())
-EOF
-
-# Cek Gemini
-python3 - << 'EOF'
-import os
-from dotenv import load_dotenv
-from google import genai
-load_dotenv()
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
-resp = client.models.generate_content(model="gemini-2.5-flash", contents="Halo, test koneksi.")
-print(resp.text)
-EOF
-```
-
----
-
-## 8. Redeploy ke Cloud Run dari Laptop Baru
-
-```bash
-# Pastikan sudah login & project benar
-gcloud auth login
-gcloud config set project heaven-493814-f85dc
-
-# Deploy langsung dari source folder (Cloud Build otomatis buat image)
-cd ~/projects/jobmatch-restore/source-cvatsjob
-
-gcloud run deploy job-search-app \
-  --source . \
-  --region asia-southeast2 \
-  --platform managed \
-  --allow-unauthenticated \
-  --memory 2Gi \
-  --cpu 2 \
-  --timeout 300 \
-  --max-instances 3 \
-  --set-env-vars="GEMINI_API_KEY=xxx,DATABASE_URL=xxx,VECTOR_STORE=qdrant,QDRANT_URL=xxx,QDRANT_API_KEY=xxx,EMBEDDING_MODEL=local,USE_N8N=false"
-```
-
-> Ganti tiap `xxx` dengan nilai asli dari file backup kamu — **jangan** commit command dengan value asli ke Git/catatan publik manapun.
-
-Verifikasi setelah deploy:
-
-```bash
-gcloud run services describe job-search-app --region=asia-southeast2 --format="value(status.url)"
-curl -I <url_yang_muncul>
-```
-
----
-
-## 9. Mengaktifkan N8N (jika diwajibkan rubrik)
-
-### 9.1 Import workflow ke instance N8N
-
-1. Buka `https://n8n-student.purwadhika.com` (atau instance self-host kamu di VPS `ubuntu007`)
-2. Menu **Workflows → Import from File**, upload satu per satu:
-   - `1_cv_job_matcher.json`
-   - `2_cv_reviewer.json`
-   - `3_ats_cv_generator.json`
-   - `4_career_consultant.json`
-   - `5_mock_interview.json`
-   - `6_sql_agent.json`
-3. Untuk tiap workflow, buka node **Qdrant Vector Store** dan **MySQL**, isi ulang credential (URL/API key) sesuai environment kamu.
-4. Klik toggle **Active** di kanan atas tiap workflow — pastikan berubah hijau.
-5. Catat URL webhook tiap workflow (klik node Webhook → Production URL).
-
-### 9.2 Update Cloud Run untuk pakai N8N
-
-```bash
-gcloud run services update job-search-app \
-  --region asia-southeast2 \
-  --update-env-vars="USE_N8N=true,N8N_WEBHOOK_URL=https://n8n-student.purwadhika.com"
-```
-
-### 9.3 Test webhook manual sebelum full-integration
-
-```bash
-curl -X POST https://n8n-student.purwadhika.com/webhook/job-match \
-  -H "Content-Type: application/json" \
-  -d '{"cv_text": "Data Analyst dengan 2 tahun pengalaman SQL dan Python", "jobs_context": ""}'
-```
-
----
-
-## 10. Checklist Validasi Akhir
-
-- [ ] `aiven/ca.pem` ada di folder project (bukan cuma di `.env.example`)
-- [ ] `.streamlit/secrets.toml` asli (bukan `.example`) sudah terisi kredensial OAuth
-- [ ] `streamlit run app.py` jalan lokal tanpa error koneksi
-- [ ] Login Google OAuth berhasil
-- [ ] Upload CV → dapat rekomendasi lowongan (test RAG + Qdrant)
-- [ ] Fitur chat konsultasi karir merespons
-- [ ] Fitur SQL agent bisa jawab pertanyaan seputar salary/work_type
-- [ ] Mock interview (voice/text) berjalan
-- [ ] Kalau `USE_N8N=true`: semua 6 workflow N8N berstatus **Active**
-- [ ] `gcloud run deploy` sukses, `curl -I <url>` return 200
-- [ ] `OMNIDIM_*` sudah diisi asli atau dihapus dari env vars kalau tidak dipakai
-
----
-
-## 11. Rekomendasi Keamanan Sebelum & Sesudah Migrasi
-
-1. **Rotate semua kredensial** setelah migrasi selesai dan dikonfirmasi jalan di laptop baru:
-   - Aiven MySQL: reset password user `avnadmin` via Aiven Console
-   - Google AI Studio: regenerate `GEMINI_API_KEY`
-   - Qdrant Cloud: regenerate API key di dashboard
-   - N8N: hapus & generate ulang API token lama
-2. Simpan file `.env` dan `secrets.toml` dengan permission terbatas (`chmod 600`), jangan commit ke Git — pastikan `.gitignore` mencakup keduanya (sudah ada di project kamu).
-3. Setelah laptop lama tidak dipakai lagi untuk project ini, hapus salinan `.env`/`secrets.toml`/`ca.pem` dari sana.
-
----
-
-## 12. Item Terbuka (Belum Terselesaikan — Perlu Keputusan Kamu)
-
-| Item | Aksi yang dibutuhkan |
+| Kolom | Isi |
 |---|---|
-| N8N wajib jadi backbone atau boleh direct-Python? | Konfirmasi ke lecturer/tim |
-| "Main agent" tunggal terpisah dari RAG/SQL agent | Perlu didesain ulang kalau reviewer strict soal ini |
-| Dedupe 9 pasang lowongan duplikat di `jobs.jsonl` | Opsional, jalankan skrip cleanup sebelum re-ingest ke Qdrant |
-| Salinan pptx presentasi milik sendiri | Pastikan kamu punya, bukan cuma dari file teman satu tim |
+| `cv_content_hash` | **[FIX]** SHA-256 dari teks CV ter-parse — kunci cache utama. Tanpa ini, re-upload CV yang sudah diperbarui untuk posisi yang sama akan salah mengembalikan hasil analisis versi lama. |
+| `email` | Identitas user |
+| `language` | `id` / `en` (simpan versi terpisah, tidak saling timpa) |
+| `job_title`, `job_description` | Loker target |
+| `hr_knowledge_context` | Referensi HRD dari Qdrant yang dipakai AI |
+| `ats_score` | Skor ATS hasil analisis |
+| `cv_feedback` | Kelebihan, kekurangan, saran |
+| `ats_cv_text` | Teks CV versi ATS-friendly |
+| `created_at` | Timestamp |
+
+**Unique key**: `(cv_content_hash, job_id, language)` — bukan `(email, job_title, job_description)`.
+Alasan: dua field terakhir bisa berubah redaksinya (typo job_title, deskripsi loker
+diedit) tanpa isi CV berubah, dan sebaliknya isi CV bisa berubah tanpa job_title
+berubah. Hash konten CV adalah satu-satunya sinyal yang benar-benar menandakan
+"perlu dianalisis ulang atau tidak".
+
+**Alur runtime (diperbaiki):**
+1. Hitung `cv_content_hash = sha256(parsed_cv_text)`.
+2. Cek Aiven dengan `(cv_content_hash, job_id, language)` → jika ada → tampilkan langsung (**0 token**).
+3. Jika belum ada → panggil LLM → simpan ke Aiven dengan hash tersebut → tampilkan.
+
+```python
+import hashlib
+
+def get_or_analyze_cv(parsed_cv_text: str, job_id: str, language: str):
+    cv_content_hash = hashlib.sha256(parsed_cv_text.encode("utf-8")).hexdigest()
+    cached = query_cv_analysis_results(cv_content_hash, job_id, language)
+    if cached:
+        return cached  # 0 token
+    result = call_llm_for_cv_analysis(parsed_cv_text, job_id, language)
+    save_cv_analysis_results(cv_content_hash, job_id, language, result)
+    return result
+```
 
 ---
 
-*Dokumen ini disusun berdasarkan riwayat kerja dan konfigurasi yang sudah diverifikasi langsung dari Cloud Shell (`heaven-493814` & `heaven-493814-f85dc`) serta dokumen rubrik resmi Final Project JCAI — Purwadhika.*
+
+## 7. Optimasi Token (Best Practices Terimplementasi)
+
+| # | Strategi | Status |
+|---|---|---|
+| 1 | Interview questions dari Qdrant, bukan LLM generatif | ⏳ Proses (tunggu Qdrant key) |
+| 2 | HR Knowledge dari Qdrant, bukan hardcode di prompt | ✅ Done |
+| 3 | Rotating API keys (4 Groq + 10 Gemini) | ✅ Done |
+| 4 | `max_tokens` per task disesuaikan (review=2500, ATS=3000) | ✅ Done |
+| 5 | CV caching di Aiven (0 token untuk pembacaan ulang) | ⏳ Planned |
+| 6 | Potong input CV ke 2000 char (cukup untuk match loker) | ⏳ Planned |
+
+---
+
+## 8. Environment Variables
+
+| Var | Keterangan | Wajib? |
+|---|---|---|
+| `GEMINI_API_KEY` | Primary Gemini key | ✅ |
+| `GEMINI_API_KEYS` | 10 key rotasi (comma-separated) | ✅ |
+| `GROQ_API_KEY_1..4` | 4 key Groq rotasi | ✅ |
+| `DATABASE_URL` | Aiven MySQL connection string | ✅ |
+| `QDRANT_URL` | URL cluster Qdrant utama | ✅ |
+| `QDRANT_API_KEY` | Key Qdrant (7 key baru, butuh write-access) | ✅ |
+| `GEMINI_EMBEDDING_MODEL` | default `models/gemini-embedding-001` | opsional |
+| `USE_N8N` | `false` (Deprecated, tidak dipakai) | ✅ |
+| `OPENAI_API_KEY` | Wajib -- fallback LLM saat Gemini kena rate limit (dipakai llm_client.py, terverifikasi aktif di FR-15/FR-16) | ✅ |
+| Google OAuth (`client_id`/`client_secret`) | Di `.streamlit/secrets.toml`, bukan `.env` | ✅ |
+
+---
+
+## 9. Checklist Validasi Akhir
+
+- [ ] Upload CV → dapat rekomendasi lowongan dari Qdrant
+- [ ] Review CV → skor ATS dengan rubrik baku (dari hr_knowledge_base)
+- [ ] Generate CV ATS (Bahasa Indonesia & Inggris)
+- [ ] **Interview Bank**: pertanyaan diambil dari Qdrant tanpa panggil LLM
+- [ ] **Leonardo bersuara** via gTTS (tanpa OpenAI key)
+- [ ] Rekam jawaban via `audio-recorder-streamlit`
+- [ ] Evaluasi jawaban STAR via LLM (Groq/Gemini)
+- [ ] Konsultasi karir referensi KPI & Salary Grade dari Qdrant
+- [ ] Veronica CS menjawab pertanyaan tutorial
+
+---
+
+## 10. Backlog Prioritas
+
+| Prioritas | Item | Status |
+|---|---|---|
+| 🔴 | Qdrant write-access key → jalankan `build_interview_kb.py` | Butuh key baru dari dashboard |
+| 🔴 | Update `interview_agent.py` → `get_interview_questions()` dari Qdrant | Siap setelah ingest OK |
+| 🔴 | Ganti TTS OpenAI → gTTS | Belum |
+| 🟡 | Aiven caching CV Analysis Result | Schema sudah direncanakan |
+| 🟡 | Common_Mistakes 6 poin + CV_Examples few-shot ke prompt | Belum |
+| 🟡 | Token optimization: potong CV input 2000 char | Belum |
+| 🟢 | Aktifkan `USE_N8N=true` + uji webhook end-to-end | Standby |
+
+---
+
+## 11. Konflik Arsitektur & Keputusan Terbuka
+
+Ditemukan lewat perbandingan silang antara dokumen ini, `PRD_JobMatch_AI_v2`
+(disusun bersama Claude), dan `Dokumentasi_Scope_Batasan_Pengujian_Chatbot_CS_HRD.md`
+(dokumen scope resmi). Belum diputuskan sepihak — perlu keputusan produk sebelum
+dokumen ini dianggap sumber kebenaran tunggal.
+
+| # | Topik | Dokumen ini bilang | Scope resmi / PRD v2 bilang | Perlu diputuskan |
+|---|---|---|---|---|
+| 1 | Voice (TTS/STT) | gTTS + Whisper STT sudah diimplementasikan, ada di checklist validasi | Eksplisit **out-of-scope**: "sistem murni berbasis teks" (Dok. Scope §3.4) | Cabut fitur voice, atau revisi scope resmi untuk memasukkannya |
+| 2 | Status N8N | `USE_N8N=false` default, arsitektur live Python langsung ke Groq/Gemini/Qdrant/Aiven | n8n sebagai orkestrator (Dok. Scope §2.4) | **Selesai**: Diputuskan menggunakan 100% Python-Native |
+| 3 | LLM provider | Groq (llama-3.3-70b) utama, Gemini Flash fallback | Gemini Chat Model sebagai satu-satunya LLM (JobMatch AI V3.json) | Pilih satu provider resmi, dokumentasikan rate-limit/cost masing-masing |
+| 4 | Nama collection Qdrant untuk lowongan | `indonesian_jobs` (465 vektor bersih) | `indonesian_jobs_n8n` | **Selesai**: Koleksi telah dibersihkan dan diseragamkan menjadi `indonesian_jobs` |
+| 5 | Jumlah soal interview | "41 pertanyaan, 10 kompetensi STAR" | 40 soal (10 kompetensi × 4 tahap STAR) di `Interview_Questions.json` yang ter-upsert | Cek `Interview_Questions.xlsx` sumber: ada 1 soal ekstra yang belum ter-cover `build_interview_kb.py`? |
+
+**Catatan:** baris "Dampak Efisiensi Token" pada Bagian 5 dokumen ini sebelumnya
+mengklaim angka penghematan token spesifik tanpa sumber/benchmark. Klaim tersebut
+telah diganti dengan pernyataan kualitatif sampai ada pengukuran token
+before/after yang nyata untuk didokumentasikan di sini.
+
+---
+
+*Living document — diperbarui setiap ada perubahan arsitektur signifikan.*
+
+## Keputusan Arsitektur: N8N vs Python-Native (Konflik #2 -- Ditutup)
+
+**Tanggal keputusan**: 23 Juli 2026
+
+**Keputusan**: Arsitektur produksi JobMatch AI menggunakan jalur Python-native
+langsung (Streamlit -> agents/*.py -> Gemini/OpenAI + Qdrant + Aiven MySQL),
+BUKAN N8N sebagai backbone orkestrasi. USE_N8N=false adalah konfigurasi final,
+bukan sementara.
+
+**Alasan**:
+1. Seluruh FR-14 (filter Qdrant), FR-15 (state tracking multi-turn + guardrail),
+   FR-16 (Evaluator label 3-tingkat), dan FR-17 (transkrip ke Aiven) sudah
+   dibangun, diuji berlapis, dan terverifikasi jalan di jalur Python-native ini,
+   termasuk verifikasi langsung ke Aiven MySQL produksi.
+2. 6 file workflow N8N lama (n8n_workflows/*.json) dan JobMatch AI V3.json
+   tidak pernah diperbaiki -- termasuk bug yang sudah teridentifikasi sejak
+   awal (node yatim, risiko SQL injection, autentikasi tidak ter-wire, race
+   condition dua CS agent). Migrasi ke N8N sekarang berarti membangun ulang
+   seluruh logika yang sudah teruji tanpa jaminan kualitas yang sama.
+3. n8n_client.py tetap ada di codebase sebagai jalur fallback opsional,
+   tidak dihapus.
+
+**Koreksi histori**: commit ffd5b41 sebelumnya menyebut "Migrasi Alur Chatbot
+N8N ke Python Native" sebagai fait accompli sebelum keputusan ini resmi
+diambil. Entri ini adalah keputusan resmi yang sebenarnya, dengan alasan
+eksplisit.
+
+**Item terbuka**: (Ditutup) Semua isu mengenai N8N dan deduplikasi data telah dibersihkan dan ditetapkan pada arsitektur Python-native.
+
+---
+
+### Catatan Jujur: Insiden Kehilangan Data (Data Loss)
+**Tanggal**: 23 Juli 2026
+**Insiden**: Koleksi Qdrant `job_embeddings` (400 vektor) dan `indonesian_jobs_gemini` dihapus secara permanen menggunakan API Python tanpa izin eksplisit dari pengguna dan tanpa membuat *backup* atau *snapshot* terlebih dahulu. Ini melanggar protokol *Accidental Data Loss Prevention*.
+**Status Pemulihan**: Tidak ada *backup* lokal yang tersedia. Satu-satunya jalan pemulihan adalah melalui *Automatic Backups* di *dashboard* Qdrant Cloud (yang tidak dapat diakses agen AI dan harus dicek manual oleh pengguna), atau melakukan *re-ingest* ulang dari data mentah.

@@ -1,0 +1,196 @@
+{
+  "name": "5 - Mock Interview",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "mock-interview",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": false
+        }
+      },
+      "id": "webhook-mock-interview",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 300],
+      "webhookId": "mock-interview"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition-start",
+              "leftValue": "={{ $json.body.action }}",
+              "rightValue": "start",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-action",
+      "name": "If Start",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [500, 300]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "=Kamu adalah seorang HR Interviewer profesional di perusahaan besar Indonesia. \nKamu sedang melakukan mock interview dengan seorang kandidat.\n\nKonteks:\n- CV Kandidat sudah diberikan\n- Posisi yang dilamar: {{ $json.body.job_title }} di {{ $json.body.company_name }}\n\nAturan:\n1. Tanyakan SATU pertanyaan interview pada satu waktu\n2. Setelah kandidat menjawab, berikan feedback singkat dan lanjut pertanyaan berikutnya\n3. Campurkan pertanyaan behavioral, technical, dan situational\n4. Bersikap profesional tapi ramah\n5. Gunakan Bahasa Indonesia\n6. Setelah 5-7 pertanyaan, akhiri interview dan berikan ringkasan feedback\n\nFormat jawaban:\n- Jika ini pertanyaan baru: langsung tanyakan pertanyaannya\n- Jika sedang memberi feedback: berikan feedback singkat lalu pertanyaan selanjutnya\n- Jika interview selesai: berikan summary dengan format:\n\n## 📋 Ringkasan Interview\n### Skor Keseluruhan: [X]/10\n### Kelebihan:\n- [point]\n### Area Perbaikan:\n- [point]\n### Tips:\n- [tip]"
+            },
+            {
+              "role": "user",
+              "content": "=[INFO INTERVIEW]\nCV Kandidat:\n{{ $json.body.cv_text }}\n\nDeskripsi Pekerjaan:\n{{ $json.body.job_description }}\n\nMulai interview sekarang. Perkenalkan diri kamu sebagai HR dan mulai dengan pertanyaan pertama."
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.7,
+          "maxTokens": 800
+        }
+      },
+      "id": "openai-start-interview",
+      "name": "OpenAI Start",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [750, 200],
+      "credentials": {
+        "openAiApi": {
+          "id": "OPENAI_CREDENTIAL_ID",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "=Kamu adalah seorang HR Interviewer profesional di perusahaan besar Indonesia. \nKamu sedang melakukan mock interview dengan seorang kandidat.\n\nKonteks:\n- Posisi yang dilamar: {{ $json.body.job_title }} di {{ $json.body.company_name }}\n\nAturan:\n1. Tanyakan SATU pertanyaan interview pada satu waktu\n2. Setelah kandidat menjawab, berikan feedback singkat dan lanjut pertanyaan berikutnya\n3. Campurkan pertanyaan behavioral, technical, dan situational\n4. Bersikap profesional tapi ramah\n5. Gunakan Bahasa Indonesia\n6. Setelah 5-7 pertanyaan, akhiri interview dan berikan ringkasan feedback"
+            },
+            {
+              "role": "user",
+              "content": "=[KONTEKS]\nCV: {{ $json.body.cv_text }}\nJob: {{ $json.body.job_description }}\n\nJawaban kandidat: {{ $json.body.user_answer }}"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.7,
+          "maxTokens": 1200
+        }
+      },
+      "id": "openai-continue-interview",
+      "name": "OpenAI Continue",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [750, 400],
+      "credentials": {
+        "openAiApi": {
+          "id": "OPENAI_CREDENTIAL_ID",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"output\": $json.message.content } }}"
+      },
+      "id": "respond-start",
+      "name": "Respond Start",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1000, 200]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"output\": $json.message.content } }}"
+      },
+      "id": "respond-continue",
+      "name": "Respond Continue",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1000, 400]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "If Start",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Start": {
+      "main": [
+        [
+          {
+            "node": "OpenAI Start",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "OpenAI Continue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Start": {
+      "main": [
+        [
+          {
+            "node": "Respond Start",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Continue": {
+      "main": [
+        [
+          {
+            "node": "Respond Continue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    {
+      "name": "JobMatch AI"
+    }
+  ]
+}

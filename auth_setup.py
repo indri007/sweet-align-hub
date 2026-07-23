@@ -21,28 +21,44 @@ def _get_secret(key: str) -> str:
     return os.environ.get(key, "")
 
 
-def require_google_login():
-    # Streamlit Cloud's internal OAuth router strictly requires [auth] and [auth.google]
-    # to be defined directly in secrets.toml (it doesn't read flat variables).
-    try:
-        auth_ok = "auth" in st.secrets and "google" in st.secrets["auth"]
-    except Exception:
-        auth_ok = False
+def _inject_auth_secrets():
+    redirect_uri = _get_secret("AUTH_REDIRECT_URI")
+    cookie_secret = _get_secret("AUTH_COOKIE_SECRET")
+    client_id = _get_secret("GOOGLE_CLIENT_ID")
+    client_secret = _get_secret("GOOGLE_CLIENT_SECRET")
+    missing = [
+        name
+        for name, val in [
+            ("AUTH_REDIRECT_URI", redirect_uri),
+            ("AUTH_COOKIE_SECRET", cookie_secret),
+            ("GOOGLE_CLIENT_ID", client_id),
+            ("GOOGLE_CLIENT_SECRET", client_secret),
+        ]
+        if not val
+    ]
+    if missing:
+        return False, missing
+    secrets_singleton._secrets = {
+        "auth": {
+            "redirect_uri": redirect_uri,
+            "cookie_secret": cookie_secret,
+            "google": {
+                "client_id": client_id,
+                "client_secret": client_secret,
+                "server_metadata_url": _GOOGLE_METADATA_URL,
+            }
+        }
+    }
+    return True, []
 
-    if not auth_ok:
+
+def require_google_login():
+    ok, missing = _inject_auth_secrets()
+
+    if not ok:
         st.error(
-            "⚠️ Konfigurasi Google Login belum lengkap di Streamlit Cloud Secrets Anda!\n\n"
-            "Pastikan format *Secrets* Anda memiliki blok `[auth]` dan `[auth.google]` persis seperti ini:\n\n"
-            "```toml\n"
-            "[auth]\n"
-            'redirect_uri = "https://jobsmatch.streamlit.app/oauth2callback"\n'
-            'cookie_secret = "bikin-password-acak-yang-panjang-bebas"\n\n'
-            "[auth.google]\n"
-            'client_id = "ISI_CLIENT_ID_ANDA_DISINI"\n'
-            'client_secret = "ISI_CLIENT_SECRET_ANDA_DISINI"\n'
-            'server_metadata_url = "https://accounts.google.com/.well-known/openid-configuration"\n'
-            "```\n\n"
-            "**JANGAN gunakan variabel flat seperti `GOOGLE_CLIENT_ID = ...`**"
+            "⚠️ Konfigurasi Google Login belum lengkap. "
+            f"Environment variable berikut belum diisi: {', '.join(missing)}"
         )
         st.stop()
 
