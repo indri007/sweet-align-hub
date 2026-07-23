@@ -29,7 +29,7 @@ OPENAI_EMBEDDING_MODEL = _cfg("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small"
 
 # ─── Google Gemini ────────────────────────────────────────
 GEMINI_API_KEY = _cfg("GEMINI_API_KEY") or _cfg("GEMINI_API_KEY_1")
-GEMINI_MODEL = _cfg("GEMINI_MODEL", "gemini-pro")
+GEMINI_MODEL = _cfg("GEMINI_MODEL", "gemini-flash-latest")
 GEMINI_EMBEDDING_MODEL = _cfg("GEMINI_EMBEDDING_MODEL", "models/gemini-embedding-001")
 
 # ─── LLM Provider ─────────────────────────────────────────
