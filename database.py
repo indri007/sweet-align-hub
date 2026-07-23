@@ -5,7 +5,8 @@ Handles structured job data queries (filters, stats, etc.)
 
 import re
 from typing import Optional
-from sqlalchemy import create_engine, Column, Integer, String, Text, Float
+from datetime import datetime
+from sqlalchemy import create_engine, Column, Integer, String, Text, Float, JSON, Boolean, DateTime, Index
 from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy import text as sql_text
 import config
@@ -27,6 +28,24 @@ class Job(Base):
     salary_max = Column(Float, nullable=True)
     job_description = Column(Text)
     scrape_timestamp = Column(String(100))
+
+
+class HrdTranscript(Base):
+    """Interview transcript model for FR-17."""
+    __tablename__ = "hrd_transcripts"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    session_id = Column(String(36), nullable=False, unique=True)
+    email = Column(String(255), nullable=False)
+    posisi = Column(String(255))
+    transcript_json = Column(JSON)
+    evaluation_result = Column(JSON)
+    completed = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    __table_args__ = (
+        Index('idx_email', 'email'),
+    )
 
 
 def parse_salary(salary_str: str) -> tuple[Optional[float], Optional[float]]:
@@ -95,6 +114,31 @@ class DatabaseManager:
                     scrape_timestamp=job.get("_scrape_timestamp", ""),
                 )
                 session.add(record)
+            session.commit()
+        except Exception as e:
+            session.rollback()
+            raise e
+        finally:
+            session.close()
+
+    def save_hrd_transcript(self, session_data: dict, email: str):
+        """Save an HRD interview transcript (FR-17)."""
+        session = self.Session()
+        try:
+            # Check if exists (for updating a session)
+            record = session.query(HrdTranscript).filter(HrdTranscript.session_id == session_data["session_id"]).first()
+            if not record:
+                record = HrdTranscript(
+                    session_id=session_data["session_id"],
+                    email=email,
+                )
+                session.add(record)
+            
+            record.posisi = session_data.get("posisi", "")
+            record.transcript_json = session_data.get("turns", [])
+            record.evaluation_result = session_data.get("evaluation_result")
+            record.completed = session_data.get("completed", False)
+            
             session.commit()
         except Exception as e:
             session.rollback()

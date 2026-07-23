@@ -98,6 +98,7 @@ def render_step_e():
                                 {"role": "assistant", "content": first_q}
                             ]
                             st.session_state.interview_started = True
+                            st.session_state.transcript_saved = False
                             st.rerun()
                         except Exception as e:
                             st.error(f"Gagal memulai interview: {e}")
@@ -148,16 +149,30 @@ def render_step_e():
                                         st.session_state.interview_history.append(
                                             {"role": "assistant", "content": next_q}
                                         )
-                                    else:
+                                    elif not st.session_state.get("transcript_saved", False):
                                         st.session_state.interview_history.append(
                                             {"role": "assistant", "content": "🎉 Wawancara selesai! Sedang menyusun laporan evaluasi..."}
                                         )
                                         try:
                                             from agents.interview_agent import evaluate_interview
+                                            from database import DatabaseManager
+                                            import dataclasses
+                                            
                                             eval_res = evaluate_interview(session)
+                                            
+                                            # Simpan transkrip ke database FR-17
+                                            try:
+                                                db = DatabaseManager()
+                                                email = getattr(st.user, "email", "unknown@example.com")
+                                                session_dict = dataclasses.asdict(session)
+                                                db.save_hrd_transcript(session_dict, email)
+                                                st.session_state.transcript_saved = True
+                                            except Exception as db_err:
+                                                st.error(f"⚠️ Gagal menyimpan riwayat wawancara ke database: {db_err}")
+
                                             eval_text = "### 📊 Hasil Evaluasi Interview\n\n"
                                             for ev in eval_res.get("evaluasi", []):
-                                                eval_text += f"**{ev.get('kompetensi', 'Kompetensi')}** (Skor: {ev.get('skor', '-')}/5)\n"
+                                                eval_text += f"**{ev.get('kompetensi', 'Kompetensi')}** (Label: {ev.get('label', '-')})\n"
                                                 eval_text += f"> {ev.get('feedback', '')}\n\n"
                                             eval_text += f"**Kesimpulan Umum:**\n{eval_res.get('kesimpulan_umum', '')}"
                                             st.session_state.interview_history.append(
@@ -208,16 +223,30 @@ def render_step_e():
                                                 st.session_state.interview_history.append(
                                                     {"role": "assistant", "content": next_q}
                                                 )
-                                            else:
+                                            elif not st.session_state.get("transcript_saved", False):
                                                 st.session_state.interview_history.append(
                                                     {"role": "assistant", "content": "🎉 Wawancara selesai! Sedang menyusun laporan evaluasi..."}
                                                 )
                                                 try:
                                                     from agents.interview_agent import evaluate_interview
+                                                    from database import DatabaseManager
+                                                    import dataclasses
+                                                    
                                                     eval_res = evaluate_interview(session)
+                                                    
+                                                    # Simpan transkrip ke database FR-17
+                                                    try:
+                                                        db = DatabaseManager()
+                                                        email = getattr(st.user, "email", "unknown@example.com")
+                                                        session_dict = dataclasses.asdict(session)
+                                                        db.save_hrd_transcript(session_dict, email)
+                                                        st.session_state.transcript_saved = True
+                                                    except Exception as db_err:
+                                                        st.error(f"⚠️ Gagal menyimpan riwayat wawancara ke database: {db_err}")
+
                                                     eval_text = "### 📊 Hasil Evaluasi Interview\n\n"
                                                     for ev in eval_res.get("evaluasi", []):
-                                                        eval_text += f"**{ev.get('kompetensi', 'Kompetensi')}** (Skor: {ev.get('skor', '-')}/5)\n"
+                                                        eval_text += f"**{ev.get('kompetensi', 'Kompetensi')}** (Label: {ev.get('label', '-')})\n"
                                                         eval_text += f"> {ev.get('feedback', '')}\n\n"
                                                     eval_text += f"**Kesimpulan Umum:**\n{eval_res.get('kesimpulan_umum', '')}"
                                                     st.session_state.interview_history.append(
@@ -240,6 +269,7 @@ def render_step_e():
             with col1:
                 if st.button("🔄 Reset Interview"):
                     st.session_state.interview_started = False
+                    st.session_state.transcript_saved = False
                     st.session_state.interview_history = []
                     st.session_state.interview_session = None
                     st.rerun()
@@ -247,6 +277,7 @@ def render_step_e():
                 if st.button("🔄 Ganti Posisi"):
                     st.session_state.interview_job = None
                     st.session_state.interview_started = False
+                    st.session_state.transcript_saved = False
                     st.session_state.interview_history = []
                     st.session_state.interview_session = None
                     st.rerun()
