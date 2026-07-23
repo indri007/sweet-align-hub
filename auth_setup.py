@@ -78,7 +78,7 @@ def require_google_login():
             #MainMenu {{ visibility: hidden; }}
             footer {{ visibility: hidden; }}
             header {{ visibility: hidden; }}
-            .stApp {{ background: #ffffff !important; }}
+            .stApp {{ background: var(--m3-bg-base) !important; }}
             {styles_content}
             </style>
             """,
@@ -91,10 +91,10 @@ def require_google_login():
             st.markdown(
                 """
                 <div style="display:flex;align-items:center;gap:10px;padding:12px 0 8px 0;font-family:'Inter',sans-serif;">
-                    <div style="display:grid;height:36px;width:36px;place-items:center;border-radius:10px;background:#4285F4;box-shadow:0 2px 8px rgba(66,133,244,0.3);">
+                    <div style="display:grid;height:36px;width:36px;place-items:center;border-radius:10px;background:var(--m3-primary);box-shadow:0 2px 8px rgba(66,133,244,0.3);">
                         <span style="color:white;font-size:1.1rem;font-weight:900;">⚡</span>
                     </div>
-                    <span style="font-size:1.25rem;font-weight:800;color:#0f172a;letter-spacing:-0.02em;">JobMatch<span style="color:#4285F4;">AI</span></span>
+                    <span style="font-size:1.25rem;font-weight:800;color:var(--m3-on-bg);letter-spacing:-0.02em;">JobMatch<span style="color:var(--m3-primary);">AI</span></span>
                 </div>
                 """,
                 unsafe_allow_html=True,
@@ -112,14 +112,14 @@ def require_google_login():
             st.markdown(
                 """
                 <div style="padding:20px 0 32px 0;font-family:'Inter',sans-serif;">
-                    <div style="display:inline-flex;align-items:center;gap:8px;border-radius:100px;background:rgba(66,133,244,0.08);border:1px solid rgba(66,133,244,0.15);padding:7px 16px;margin-bottom:22px;">
+                    <div style="display:inline-flex;align-items:center;gap:8px;border-radius:100px;background:rgba(66,133,244,0.15);border:1px solid rgba(66,133,244,0.3);padding:7px 16px;margin-bottom:22px;">
                         <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#4285F4;animation:pulse 2s infinite;"></span>
-                        <span style="font-size:0.72rem;font-weight:700;color:#1557b0;text-transform:uppercase;letter-spacing:0.06em;">AI-Powered · Made in Indonesia 🇮🇩</span>
+                        <span style="font-size:0.72rem;font-weight:700;color:#93c5fd;text-transform:uppercase;letter-spacing:0.06em;">AI-Powered · Made in Indonesia 🇮🇩</span>
                     </div>
-                    <h1 style="font-size:3.2rem;line-height:1.1;font-weight:800;color:#0f172a;margin:0 0 20px 0;letter-spacing:-0.03em;">
-                        Your CV Ditolak Robot Sebelum Sampai ke <span style="color:#4285F4;">HRD.</span>
+                    <h1 style="font-size:3.2rem;line-height:1.1;font-weight:800;color:var(--m3-on-bg);margin:0 0 20px 0;letter-spacing:-0.03em;">
+                        Your CV Ditolak Robot Sebelum Sampai ke <span style="color:var(--m3-primary);">HRD.</span>
                     </h1>
-                    <p style="font-size:1.1rem;line-height:1.65;color:#475569;margin:0 0 28px 0;max-width:520px;">
+                    <p style="font-size:1.1rem;line-height:1.65;color:var(--m3-on-surface-variant);margin:0 0 28px 0;max-width:520px;">
                         JobMatch AI scan CV kamu persis kayak sistem ATS yang dipakai perusahaan — instant scoring, actionable insights, plus AI mock interview. Try it, gratis.
                     </p>
                 </div>
@@ -138,8 +138,8 @@ def require_google_login():
             st.markdown(
                 """
                 <div style="display:flex;flex-wrap:wrap;gap:20px;margin-top:24px;font-family:'Inter',sans-serif;">
-                    <span style="display:inline-flex;align-items:center;gap:6px;font-size:0.88rem;font-weight:600;color:#1b5e32;">✓ No credit card</span>
-                    <span style="display:inline-flex;align-items:center;gap:6px;font-size:0.88rem;font-weight:600;color:#1b5e32;">✓ Results in 2 minutes</span>
+                    <span style="display:inline-flex;align-items:center;gap:6px;font-size:0.88rem;font-weight:600;color:var(--m3-success);">✓ No credit card</span>
+                    <span style="display:inline-flex;align-items:center;gap:6px;font-size:0.88rem;font-weight:600;color:var(--m3-success);">✓ Results in 2 minutes</span>
                 </div>
                 """,
                 unsafe_allow_html=True,
@@ -162,13 +162,13 @@ def require_google_login():
                             <div style="padding:22px;">
                                 <div style="font-size:0.68rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">ATS SCORE</div>
                                 <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:12px;">
-                                    <span style="font-size:3rem;font-weight:800;color:#0f172a;line-height:1;">87</span>
+                                    <span style="font-size:3rem;font-weight:800;color:var(--m3-on-bg);line-height:1;">87</span>
                                     <span style="font-size:1rem;color:#94a3b8;">/100</span>
                                 </div>
                                 <div style="height:8px;width:100%;background:#f1f5f9;border-radius:100px;overflow:hidden;margin-bottom:16px;">
                                     <div style="height:100%;width:87%;background:#4285F4;border-radius:100px;"></div>
                                 </div>
-                                <div style="font-size:0.85rem;font-weight:600;color:#0f172a;margin-bottom:16px;">
+                                <div style="font-size:0.85rem;font-weight:600;color:var(--m3-on-bg);margin-bottom:16px;">
                                     <span style="color:#34A853;">✓</span> CV Optimized — Product Manager Role
                                 </div>
                                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;">
@@ -193,10 +193,10 @@ def require_google_login():
         # ─── Problem Statement ───
         st.markdown(
             """
-            <div style="background:#f8fafc;border-top:1px solid #f1f5f9;border-bottom:1px solid #f1f5f9;padding:60px 20px;margin-top:60px;text-align:center;font-family:'Inter',sans-serif;">
+            <div style="background:var(--m3-surface);border-top:var(--m3-glass-border);border-bottom:var(--m3-glass-border);padding:60px 20px;margin-top:60px;text-align:center;font-family:'Inter',sans-serif;">
                 <span style="display:inline-block;border-radius:100px;background:rgba(234,67,53,0.08);padding:6px 16px;font-size:0.72rem;font-weight:700;color:#EA4335;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:16px;">Real Talk</span>
-                <h2 style="font-size:2.2rem;font-weight:800;color:#0f172a;margin:0 0 18px 0;">75% CV Tidak Pernah Dibaca Manusia</h2>
-                <p style="font-size:1.05rem;color:#64748b;max-width:760px;margin:0 auto;line-height:1.65;">
+                <h2 style="font-size:2.2rem;font-weight:800;color:var(--m3-on-bg);margin:0 0 18px 0;">75% CV Tidak Pernah Dibaca Manusia</h2>
+                <p style="font-size:1.05rem;color:var(--m3-on-surface-variant);max-width:760px;margin:0 auto;line-height:1.65;">
                     Mayoritas perusahaan menggunakan Applicant Tracking System (ATS) untuk menyaring CV secara otomatis sebelum HRD melihatnya. Format salah, keyword hilang, atau struktur berantakan bisa bikin CV kamu <strong style="color:#EA4335;">auto-rejected</strong> — padahal kualifikasinya cocok.
                 </p>
             </div>
