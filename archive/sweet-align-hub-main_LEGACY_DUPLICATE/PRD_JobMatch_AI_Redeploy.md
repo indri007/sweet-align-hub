@@ -324,7 +324,6 @@ curl -X POST https://n8n-student.purwadhika.com/webhook/job-match \
 - [ ] Fitur chat konsultasi karir merespons
 - [ ] Fitur SQL agent bisa jawab pertanyaan seputar salary/work_type
 - [ ] Mock interview (voice/text) berjalan
-- [ ] Kalau `USE_N8N=true`: semua 6 workflow N8N berstatus **Active**
 - [ ] `gcloud run deploy` sukses, `curl -I <url>` return 200
 - [ ] `OMNIDIM_*` sudah diisi asli atau dihapus dari env vars kalau tidak dipakai
 
@@ -346,10 +345,10 @@ curl -X POST https://n8n-student.purwadhika.com/webhook/job-match \
 
 | Item | Aksi yang dibutuhkan |
 |---|---|
-| N8N wajib jadi backbone atau boleh direct-Python? | Konfirmasi ke lecturer/tim |
 | "Main agent" tunggal terpisah dari RAG/SQL agent | Perlu didesain ulang kalau reviewer strict soal ini |
-| Dedupe 9 pasang lowongan duplikat di `jobs.jsonl` | Opsional, jalankan skrip cleanup sebelum re-ingest ke Qdrant |
 | Salinan pptx presentasi milik sendiri | Pastikan kamu punya, bukan cuma dari file teman satu tim |
+
+*Catatan: Isu Konflik #2 (Arsitektur N8N vs Python-native) telah FINAL diputuskan menggunakan 100% Python-native. Isu deduplikasi data `jobs.jsonl` juga telah dibersihkan.*
 
 ---
 
