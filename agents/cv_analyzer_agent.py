@@ -13,39 +13,31 @@ import config
 from llm_client import chat_completion
 
 
-REVIEW_PROMPT = """You are a professional ATS (Applicant Tracking System) consultant with over 40 years of experience in recruitment and HR tech. Your task is to analyze the following CV and provide an objective assessment of its ATS-compatibility, based on these criteria:
+REVIEW_PROMPT = """You are a professional ATS (Applicant Tracking System) consultant and Senior HR Recruiter. Your task is to analyze the following CV and provide an objective assessment based on these criteria:
 
-1. FORMAT & STRUCTURE (weight 25%)
-   - Does it use a single-column layout (not multi-column)?
-   - Is it free of text boxes, complex tables, or graphic elements that disrupt parsing?
-   - Do section headings use standard terminology (Work Experience, Education, Skills)?
-   - Is the font machine-readable (Arial, Calibri, Helvetica, Georgia)?
+A. ATS Parsing (weight 35%)
+   - File format & structure compatibility.
+   - Keyword relevance and keyword density.
+   - Standard headings usage (Work Experience, Education, Skills).
+   - Date format consistency and chronology.
 
-2. KEYWORDS & RELEVANCE (weight 30%)
-   - Does the CV contain keywords relevant to the target position?
-   - Are technical terms/skills written using industry-standard terminology (not uncommon abbreviations)?
+B. Konten/HRD (weight 60%)
+   - Relevance of work experience and career progression.
+   - Quantified achievements and measurable metrics.
+   - Skill match and education background.
+   - CV length, grammar, and absence of red flags.
 
-3. QUANTIFIED RESULTS (weight 20%)
-   - Is work experience accompanied by measurable metrics (percentages, figures, counts)?
-   - Does it use active verbs (led, developed, increased) rather than passive voice?
-
-4. COMPLETENESS & CONSISTENCY (weight 15%)
-   - Is date formatting consistent throughout the document?
-   - Is contact information (email, phone, city, LinkedIn) complete and easy to locate?
-
-5. PROFESSIONAL VISUAL IMPRESSION (weight 10%)
-   - Are there visual elements (horizontal divider lines, spacing) that make the CV easy for human eyes to scan, without compromising ATS parsing?
+C. Match Scoring (weight 5%)
+   - Match between mandatory required skills (from target job) vs skills in CV.
 
 OUTPUT INSTRUCTIONS — provide results EXACTLY in this format (use these exact headings):
 
-## 📊 ATS Score: [score]/100
+## 📊 ATS & HRD Score: [score]/100
 
 ## 📋 Skor Per Kategori
-- Format & Struktur: [x]/25
-- Kata Kunci & Relevansi: [x]/30
-- Kuantifikasi Hasil: [x]/20
-- Kelengkapan & Konsistensi: [x]/15
-- Kesan Profesional Visual: [x]/10
+- ATS Parsing: [x]/35
+- Konten/HRD: [x]/60
+- Match Scoring: [x]/5
 
 ## ✅ Kekuatan Utama (3-5 poin)
 - [specific finding, NOT generic praise]
