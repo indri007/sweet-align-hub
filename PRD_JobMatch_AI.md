@@ -44,18 +44,9 @@ Streamlit App (Streamlit Cloud — branch: streamlit)
                └─ jobs, user_profiles, cv_analysis_results
 ```
 
-### 2.2 Arsitektur Target (N8N Backbone — Standby)
+### 2.2 Arsitektur Target (Final: Python-Native)
 
-```
-Streamlit App ──POST──► N8N Webhook (n8n.kelasantai.online)
-                              │
-                    Orchestrator Agent
-                      ├─► Groq/Gemini Chat
-                      ├─► Qdrant Vector Store Tool
-                      └─► Aiven MySQL Tool
-```
-
-Aktifkan dengan `USE_N8N=true` di Streamlit Cloud Secrets.
+Penyelesaian Konflik #2 telah memutuskan bahwa aplikasi tidak akan menggunakan N8N. Eksekusi `agent` dilakukan langsung melalui Python secara *native* menuju Gemini API dan Qdrant.
 
 ---
 
@@ -73,7 +64,7 @@ Aktifkan dengan `USE_N8N=true` di Streamlit Cloud Secrets.
 | STT Voice Mode | OpenAI Whisper-1 (opsional) |
 | Rekam Suara | `audio-recorder-streamlit` |
 | Excel Parsing | `pandas` + `openpyxl` |
-| Orkestrasi | N8N self-host (`n8n.kelasantai.online`) — standby |
+| Orkestrasi | Python-Native (LangChain / Gemini SDK) |
 | Hosting | Streamlit Cloud (branch: streamlit) |
 
 ---
@@ -210,10 +201,10 @@ def get_or_analyze_cv(parsed_cv_text: str, job_id: str, language: str):
 | `DATABASE_URL` | Aiven MySQL connection string | ✅ |
 | `QDRANT_URL` | URL cluster Qdrant utama | ✅ |
 | `QDRANT_API_KEY` | Key Qdrant (7 key baru, butuh write-access) | ✅ |
-| `GOOGLE_CLIENT_ID/SECRET` | OAuth Google Login | ✅ |
-| `N8N_WEBHOOK_URL` | `https://n8n.kelasantai.online` | jika `USE_N8N=true` |
-| `USE_N8N` | `false` default | ✅ |
-| `OPENAI_API_KEY` | Opsional, untuk Whisper STT | opsional |
+| `GEMINI_EMBEDDING_MODEL` | default `models/gemini-embedding-001` | opsional |
+| `USE_N8N` | `false` (Deprecated, tidak dipakai) | ✅ |
+| `OPENAI_API_KEY` | Wajib -- fallback LLM saat Gemini kena rate limit (dipakai llm_client.py, terverifikasi aktif di FR-15/FR-16) | ✅ |
+| Google OAuth (`client_id`/`client_secret`) | Di `.streamlit/secrets.toml`, bukan `.env` | ✅ |
 
 ---
 
