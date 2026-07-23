@@ -31,3 +31,13 @@ try:
     print("Gemini Response:", resp.text.strip())
 except Exception as e:
     print("Gemini Error:", e)
+
+print("\n--- Testing OpenAI ---")
+try:
+    from openai import OpenAI
+    client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+    resp = client.embeddings.create(model="text-embedding-3-small", input=["Tes OpenAI"])
+    print(f"OpenAI OK. Vector dimension: {len(resp.data[0].embedding)}")
+except Exception as e:
+    print("OpenAI Error:", e)
+
