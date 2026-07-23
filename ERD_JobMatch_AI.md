@@ -38,6 +38,18 @@ erDiagram
     JOBS ||--o{ APPLICATIONS : "receives"
     USERS ||--o{ CVS : "uploads"
     CVS ||--o{ APPLICATIONS : "references"
+    USERS ||--o{ HRD_TRANSCRIPTS : "undergoes"
+
+    HRD_TRANSCRIPTS {
+        int id PK
+        varchar session_id UK "UUID Sesi Wawancara"
+        varchar email FK "Menyambung ke Users/Email"
+        varchar posisi "Posisi yang dilamar"
+        json transcript_json "Log percakapan QA"
+        json evaluation_result "Skor/Feedback final"
+        boolean completed "Status Selesai"
+        datetime created_at
+    }
 
   CV_ANALYSIS_RESULTS {
     string cv_content_hash PK "SHA-256 dari teks CV ter-parse"
