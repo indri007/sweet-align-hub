@@ -268,3 +268,34 @@ before/after yang nyata untuk didokumentasikan di sini.
 ---
 
 *Living document — diperbarui setiap ada perubahan arsitektur signifikan.*
+
+## Keputusan Arsitektur: N8N vs Python-Native (Konflik #2 -- Ditutup)
+
+**Tanggal keputusan**: 23 Juli 2026
+
+**Keputusan**: Arsitektur produksi JobMatch AI menggunakan jalur Python-native
+langsung (Streamlit -> agents/*.py -> Gemini/OpenAI + Qdrant + Aiven MySQL),
+BUKAN N8N sebagai backbone orkestrasi. USE_N8N=false adalah konfigurasi final,
+bukan sementara.
+
+**Alasan**:
+1. Seluruh FR-14 (filter Qdrant), FR-15 (state tracking multi-turn + guardrail),
+   FR-16 (Evaluator label 3-tingkat), dan FR-17 (transkrip ke Aiven) sudah
+   dibangun, diuji berlapis, dan terverifikasi jalan di jalur Python-native ini,
+   termasuk verifikasi langsung ke Aiven MySQL produksi.
+2. 6 file workflow N8N lama (n8n_workflows/*.json) dan JobMatch AI V3.json
+   tidak pernah diperbaiki -- termasuk bug yang sudah teridentifikasi sejak
+   awal (node yatim, risiko SQL injection, autentikasi tidak ter-wire, race
+   condition dua CS agent). Migrasi ke N8N sekarang berarti membangun ulang
+   seluruh logika yang sudah teruji tanpa jaminan kualitas yang sama.
+3. n8n_client.py tetap ada di codebase sebagai jalur fallback opsional,
+   tidak dihapus.
+
+**Koreksi histori**: commit ffd5b41 sebelumnya menyebut "Migrasi Alur Chatbot
+N8N ke Python Native" sebagai fait accompli sebelum keputusan ini resmi
+diambil. Entri ini adalah keputusan resmi yang sebenarnya, dengan alasan
+eksplisit.
+
+**Item terbuka**: perlu dicek apakah rubrik penilaian JCAI mewajibkan N8N
+sebagai kriteria formal. Jika ya, keputusan ini perlu dikonfirmasi ulang ke
+pengajar/pembimbing sebelum submission final.
