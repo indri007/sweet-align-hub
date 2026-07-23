@@ -35,7 +35,7 @@ COLLECTION_NAME = os.getenv("GEMINI_COLLECTION_NAME", "indonesian_jobs_gemini")
 EMBEDDING_MODEL = os.getenv("GEMINI_EMBEDDING_MODEL", "models/gemini-embedding-001")
 OUTPUT_DIM = int(os.getenv("GEMINI_EMBEDDING_DIM", "768"))  # 768/1536/3072 didukung model ini
 BATCH_SIZE = 20  # jumlah dokumen per batch call ke Gemini + per upsert ke Qdrant
-SLEEP_BETWEEN_BATCHES = 1.0  # detik, jaga2 rate limit
+SLEEP_BETWEEN_BATCHES = 5.0  # detik, jaga2 rate limit
 
 
 def fail(msg: str):

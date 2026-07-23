@@ -27,7 +27,7 @@ print("\n--- Testing Gemini ---")
 try:
     from google import genai
     client = genai.Client(api_key=os.getenv('GEMINI_API_KEY'))
-    resp = client.models.generate_content(model="gemini-2.5-flash", contents="Halo, respond with 'Koneksi Gemini Sukses!'")
+    resp = client.models.generate_content(model="gemini-pro", contents="Halo, respond with 'Koneksi Gemini Sukses!'")
     print("Gemini Response:", resp.text.strip())
 except Exception as e:
     print("Gemini Error:", e)
