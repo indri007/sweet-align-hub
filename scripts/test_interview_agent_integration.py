@@ -72,7 +72,7 @@ followup_texts = []
 
 def mock_chat_completion_insufficient_then_followup(messages, temperature, max_tokens):
     content = messages[0]["content"]
-    if "menilai" in content:
+    if "JSON" in content:
         return '{"relevan": true, "lengkap": false, "alasan": "kurang detail"}'
     else:
         followup_texts.append(content)
