@@ -34,4 +34,4 @@ Evaluation JSON Object valid? True
 
 ## 🚀 Next Steps
 Untuk melanjutkan, Anda bisa melakukan *commit* hasil kerja FR-17 ini.
-Jika sudah siap, kita dapat beralih ke penyelesaian fitur lain atau langsung masuk ke fase **PRD_JobMatch_AI_Redeploy.md** (seperti migrasi N8N ke Python Native).
+Jika sudah siap, kita dapat beralih ke penyelesaian fitur lain atau langsung masuk ke fase **PRD_JobMatch_AI_Redeploy.md** (migrasi N8N ke Python Native sudah selesai -- lihat PRD_JobMatch_AI.md).
