@@ -1,0 +1,51 @@
+[
+  { "kompetensi": "Orientasi pada Kualitas Kerja Prima", "tahap": "Situation", "pertanyaan": "Harap uraikan satu atau dua kejadian dimana Anda terlibat dalam proses penyelesaian sebuah tugas/pekerjaan." },
+  { "kompetensi": "Orientasi pada Kualitas Kerja Prima", "tahap": "Task", "pertanyaan": "Uraikan konteksnya : kapan kejadian itu, siapa saja yang terlibat, tugas dan peran apa yang Anda lakukan, dan apa target atau instruksi yang diberikan kepada Anda." },
+  { "kompetensi": "Orientasi pada Kualitas Kerja Prima", "tahap": "Action", "pertanyaan": "Uraiakan secara detil apa yang Anda lakukan saat itu. Apa saja yang Anda kerjakan?" },
+  { "kompetensi": "Orientasi pada Kualitas Kerja Prima", "tahap": "Result", "pertanyaan": "Apa hasil dari tindakan Anda itu? Uraikan secara detil." },
+  
+  { "kompetensi": "Kemampuan Memecahkan Masalah (Problem Solving)", "tahap": "Situation", "pertanyaan": "Harap uraikan satu atau dua kejadian dimana Anda terlibat dalam proses pemecahan masalah/problem." },
+  { "kompetensi": "Kemampuan Memecahkan Masalah (Problem Solving)", "tahap": "Task", "pertanyaan": "Uraikan konteksnya : kapan kejadian itu, siapa saja yang terlibat, apa masalahnya, tugas dan peran apa yang Anda lakukan, dan apa target atau instruksi yang diberikan kepada Anda." },
+  { "kompetensi": "Kemampuan Memecahkan Masalah (Problem Solving)", "tahap": "Action", "pertanyaan": "Uraiakan secara detil apa yang Anda lakukan saat itu. Apa saja yang Anda kerjakan? Bagaimana cara Anda melakukan pemecahan masalah? Bagaimana prosesnya?" },
+  { "kompetensi": "Kemampuan Memecahkan Masalah (Problem Solving)", "tahap": "Result", "pertanyaan": "Apa hasil dari tindakan Anda itu? Uraikan secara detil." },
+  
+  { "kompetensi": "Perencanaan Kerja (Planning)", "tahap": "Situation", "pertanyaan": "Harap uraikan satu atau dua kejadian dimana Anda terlibat dalam proses penyusunan rencana kerja; atau pembuatan rencana program." },
+  { "kompetensi": "Perencanaan Kerja (Planning)", "tahap": "Task", "pertanyaan": "Uraikan konteksnya : kapan kejadian itu, siapa saja yang terlibat, tugas dan peran apa yang Anda lakukan, dan rencana seperti apa yang Anda susun." },
+  { "kompetensi": "Perencanaan Kerja (Planning)", "tahap": "Action", "pertanyaan": "Uraiakan secara detil apa yang Anda lakukan saat itu. Apa saja yang Anda lakukan untuk menyusun rencana kerja tersebut? Bagaimana proses implementasinya? Bagaimana monitoringnya?" },
+  { "kompetensi": "Perencanaan Kerja (Planning)", "tahap": "Result", "pertanyaan": "Apa hasil dari tindakan Anda itu? Uraikan secara detil." },
+  
+  { "kompetensi": "Kerjasama (Teamwork)", "tahap": "Situation", "pertanyaan": "Harap uraikan satu atau dua contoh kejadian dimana Anda terlibat dalam proses kerjasama untuk mengerjakan sesuatu." },
+  { "kompetensi": "Kerjasama (Teamwork)", "tahap": "Task", "pertanyaan": "Uraikan konteksnya : kapan kejadian itu, siapa saja yang terlibat, apa tugas tim saat itu, tugas dan peran apa yang Anda lakukan, dan apa target atau instruksi yang diberikan kepada Anda atau tim." },
+  { "kompetensi": "Kerjasama (Teamwork)", "tahap": "Action", "pertanyaan": "Uraiakan secara detil apa yang Anda lakukan saat itu. Tindakan apa saja yang Anda lakukan dalam tim atau proses kerjasama tersebut?" },
+  { "kompetensi": "Kerjasama (Teamwork)", "tahap": "Result", "pertanyaan": "Apa hasil dari tindakan Anda itu? Uraikan secara detil." },
+  
+  { "kompetensi": "Inisiatif", "tahap": "Situation", "pertanyaan": "Harap uraikan satu atau dua contoh kejadian dimana Anda terlibat dalam sebuah inisiatif kerja." },
+  { "kompetensi": "Inisiatif", "tahap": "Task", "pertanyaan": "Uraikan konteksnya : kapan kejadian itu, siapa saja yang terlibat, inisiatif seperti apa yang Anda lakukan?" },
+  { "kompetensi": "Inisiatif", "tahap": "Action", "pertanyaan": "Uraiakan secara detil apa yang Anda lakukan saat itu. Tindakan apa saja yang Anda lakukan dalam tim atau proses inisiatif kerja tersebut?" },
+  { "kompetensi": "Inisiatif", "tahap": "Result", "pertanyaan": "Apa hasil dari tindakan Anda itu? Uraikan secara detil." },
+  
+  { "kompetensi": "Leadership", "tahap": "Situation", "pertanyaan": "Harap uraikan satu atau dua contoh kejadian dimana Anda terlibat sebagai koordinator/ketua tim atau kepala unit." },
+  { "kompetensi": "Leadership", "tahap": "Task", "pertanyaan": "Uraikan konteksnya : dalam tim apa Anda bertindak sebagai kepala/koordinator? Siapa saja yang terlibat? Berapa jumlah anak buah? Apa tugas tim Anda tersebut?" },
+  { "kompetensi": "Leadership", "tahap": "Action", "pertanyaan": "Uraiakan secara detil apa yang Anda lakukan saat itu sebagai seorang kepala (leader). Tindakan apa saja yang Anda lakukan dalam mengelola kerja tim tersebut?" },
+  { "kompetensi": "Leadership", "tahap": "Result", "pertanyaan": "Apa hasil dari tindakan Anda itu? Uraikan secara detil." },
+  
+  { "kompetensi": "Negosiasi (Negotiation Skills)", "tahap": "Situation", "pertanyaan": "Harap uraikan satu atau dua contoh kejadian dimana Anda terlibat dalam sebuah proses negosiasi dengan mitra kerja atau pihak lain." },
+  { "kompetensi": "Negosiasi (Negotiation Skills)", "tahap": "Task", "pertanyaan": "Uraikan konteksnya : kapan kejadian itu, siapa saja yang terlibat, topik apa yang menjadu bahan negosiasi? Peran dan tugas apa yang Anda jalankan?" },
+  { "kompetensi": "Negosiasi (Negotiation Skills)", "tahap": "Action", "pertanyaan": "Uraiakan secara detil apa yang Anda lakukan saat itu. Tindakan dan tahapan apa saja yang Anda lakukan dalam proses negosiasi tersebut?" },
+  { "kompetensi": "Negosiasi (Negotiation Skills)", "tahap": "Result", "pertanyaan": "Apa hasil dari tindakan Anda itu? Uraikan secara detil." },
+  
+  { "kompetensi": "Learning Skills", "tahap": "Situation", "pertanyaan": "Harap uraikan satu atau dua contoh kejadian dimana Anda terlibat dalam sebuah inisiatif pembelajaran dan pelatihan atau pengembangan diri." },
+  { "kompetensi": "Learning Skills", "tahap": "Task", "pertanyaan": "Uraikan konteksnya : kapan kejadian itu, siapa saja yang terlibat, proses pembelajaran apa yang Anda ikuti? Peran apa yang Anda jalankan didalamnya." },
+  { "kompetensi": "Learning Skills", "tahap": "Action", "pertanyaan": "Uraiakan secara detil apa yang Anda lakukan saat itu. Tindakan apa saja yang Anda lakukan dalam proses pembelajaran tersebut. Langkah-langkah atau aktivitas apa yang Anda jalankan selama proses pembelajaran tersebut." },
+  { "kompetensi": "Learning Skills", "tahap": "Result", "pertanyaan": "Apa hasil dari tindakan Anda itu? Uraikan secara detil." },
+  
+  { "kompetensi": "Mentoring (Mentor)", "tahap": "Situation", "pertanyaan": "Harap uraikan satu atau dua contoh kejadian dimana Anda terlibat menjadi mentor bagi pegawai lain; atau melakukan kegiatan transfer pengetahuan/ketrampilan kepada rekan kerja yang lain." },
+  { "kompetensi": "Mentoring (Mentor)", "tahap": "Task", "pertanyaan": "Uraikan konteksnya : kapan kejadian itu, siapa saja yang terlibat, peran dan tugas apa yang Anda jalankan dalam kejadian tersebut." },
+  { "kompetensi": "Mentoring (Mentor)", "tahap": "Action", "pertanyaan": "Uraiakan secara detil apa yang Anda lakukan saat itu. Tindakan apa saja yang Anda lakukan dalam proses mentoring tersebut. Langkah dan tahapan apa saja yang Anda lakukan dalam menjalankan kegiatan tersebut." },
+  { "kompetensi": "Mentoring (Mentor)", "tahap": "Result", "pertanyaan": "Apa hasil dari tindakan Anda itu? Uraikan secara detil." },
+  
+  { "kompetensi": "Communication Skills", "tahap": "Situation", "pertanyaan": "Harap uraikan satu atau dua contoh kejadian dimana Anda melakukan proses komunikasi harian." },
+  { "kompetensi": "Communication Skills", "tahap": "Task", "pertanyaan": "Uraikan konteksnya : kapan kejadi tersebut, siapa saja yang terlibat sebagai mitra komunikasi, apa yang Anda komunikasikan (isi, konten, substansi pembicaraan yang dikomunikasikan)" },
+  { "kompetensi": "Communication Skills", "tahap": "Action", "pertanyaan": "Uraiakan secara detil apa yang Anda lakukan saat itu. Tindakan apa saja yang Anda lakukan dalam proses komunikasi tersebut." },
+  { "kompetensi": "Communication Skills", "tahap": "Result", "pertanyaan": "Apa hasil dari tindakan Anda itu? Uraikan secara detil." }
+]

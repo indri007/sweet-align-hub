@@ -30,19 +30,6 @@ def render_step_c():
             icon="🔑",
         )
     else:
-        st.markdown("#### 🌐 Pilih Bahasa Output (Review & ATS CV)")
-        lang_choice = st.radio(
-            "Bahasa Output:",
-            options=["auto", "id", "en"],
-            format_func=lambda x: {
-                "auto": "Otomatis (Auto)",
-                "id": "Bahasa Indonesia",
-                "en": "English",
-            }[x],
-            horizontal=True,
-            label_visibility="collapsed",
-        )
-
         tab1, tab2 = st.tabs(["📊 Feedback & Saran", "📝 Generate CV ATS"])
 
         # ── Tab 1: CV Feedback ──
@@ -52,7 +39,7 @@ def render_step_c():
                     with st.spinner("🤖 AI sedang menganalisis CV kamu..."):
                         try:
                             from agents.cv_analyzer_agent import review_cv
-                            result = review_cv(st.session_state.cv_text, language=lang_choice)
+                            result = review_cv(st.session_state.cv_text)
                             if result["available"] and result["feedback"]:
                                 st.session_state.cv_feedback = result["feedback"]
                                 st.rerun()
@@ -111,6 +98,19 @@ def render_step_c():
                                 "job_description": man_desc or "N/A"
                             }
 
+                st.markdown("#### 🌐 Pilih Bahasa CV ATS")
+                lang_choice = st.radio(
+                    "Bahasa output CV ATS:",
+                    options=["auto", "id", "en"],
+                    format_func=lambda x: {
+                        "auto": "🔄 Otomatis (ikuti bahasa CV asli)",
+                        "id": "🇮🇩 Bahasa Indonesia",
+                        "en": "🇬🇧 English",
+                    }[x],
+                    horizontal=True,
+                    label_visibility="collapsed",
+                )
+
                 if st.button(
                     "✨ Generate CV ATS",
                     type="primary",
@@ -125,24 +125,6 @@ def render_step_c():
                                 st.session_state.ats_cv_text = result["ats_text"]
                                 st.session_state.ats_docx_bytes = None
                                 st.session_state.ats_pdf_bytes = None
-                                
-                                # Kafka Pilar 4: Rekam Persona Kandidat
-                                try:
-                                    from kafka_producer import send_kafka_message
-                                    import time
-                                    persona_data = {
-                                        "email": getattr(st.user, "email", "Guest"),
-                                        "target_job_title": selected_job.get("job_title", "Unknown") if selected_job else "General",
-                                        "original_cv_snippet": st.session_state.cv_text[:500],
-                                        "generated_ats_cv": result["ats_text"],
-                                        "language": lang_choice,
-                                        "timestamp": int(time.time())
-                                    }
-                                    # Kamar baru khusus ATS Persona (terpisah dari Veronica & Leonardo)
-                                    send_kafka_message("user_personas", persona_data)
-                                except ImportError:
-                                    pass
-
                                 st.rerun()
                             else:
                                 st.error("❌ Gagal membuat CV ATS. Coba lagi beberapa saat.")

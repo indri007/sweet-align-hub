@@ -37,57 +37,22 @@ def chat_completion(messages: list[dict], temperature: float = 0.7, max_tokens: 
     Raises an Exception on failure -- callers should catch and handle.
     """
     if config.LLM_PROVIDER == "gemini":
-        return _gemini_chat(messages, temperature, max_tokens, use_google_search)
+        try:
+            return _gemini_chat(messages, temperature, max_tokens)
+        except Exception as e:
+            err_str = str(e)
+            if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str:
+                if getattr(config, "OPENAI_API_KEY", None):
+                    print(f"[INFO] Gemini 429 Rate Limit. Falling back to OpenAI...")
+                    return _openai_chat(messages, temperature, max_tokens)
+            # If not 429 or no fallback, re-raise
+            raise
     elif config.LLM_PROVIDER == "openai":
         return _openai_chat(messages, temperature, max_tokens)
-    elif config.LLM_PROVIDER == "groq":
-        import random
-        api_key = random.choice(config.GROQ_API_KEYS) if config.GROQ_API_KEYS else ""
-        return _openai_compatible_chat(messages, temperature, max_tokens, 
-                                     api_key=api_key, 
-                                     base_url="https://api.groq.com/openai/v1", 
-                                     model=config.GROQ_MODEL)
-    elif config.LLM_PROVIDER == "cerebras":
-        import random
-        api_key = random.choice(config.CEREBRAS_API_KEYS) if config.CEREBRAS_API_KEYS else ""
-        return _openai_compatible_chat(messages, temperature, max_tokens, 
-                                     api_key=api_key, 
-                                     base_url="https://api.cerebras.ai/v1", 
-                                     model=config.CEREBRAS_MODEL)
-    elif config.LLM_PROVIDER == "zhipu":
-        import random
-        api_key = random.choice(config.ZHIPU_API_KEYS) if config.ZHIPU_API_KEYS else ""
-        return _openai_compatible_chat(messages, temperature, max_tokens, 
-                                     api_key=api_key, 
-                                     base_url="https://open.bigmodel.cn/api/paas/v4/", 
-                                     model=config.ZHIPU_MODEL)
-    elif config.LLM_PROVIDER == "openrouter":
-        return _openai_compatible_chat(messages, temperature, max_tokens, 
-                                     api_key=config.OPENROUTER_API_KEY, 
-                                     base_url="https://openrouter.ai/api/v1", 
-                                     model=config.OPENROUTER_MODEL)
-    elif config.LLM_PROVIDER == "mistral":
-        return _openai_compatible_chat(messages, temperature, max_tokens, 
-                                     api_key=config.MISTRAL_API_KEY, 
-                                     base_url="https://api.mistral.ai/v1", 
-                                     model=config.MISTRAL_MODEL)
     else:
         raise RuntimeError(
-            f"Provider LLM tidak dikonfigurasi atau tidak didukung: {config.LLM_PROVIDER}"
+            "Tidak ada LLM yang dikonfigurasi. Set GEMINI_API_KEY atau OPENAI_API_KEY di .env"
         )
-
-def _openai_compatible_chat(messages: list[dict], temperature: float, max_tokens: int, api_key: str, base_url: str, model: str) -> str:
-    from openai import OpenAI
-    import logging
-    logging.error(f"DEBUG LLM CLIENT: Calling model={model} at base_url={base_url}")
-    client = OpenAI(api_key=api_key, base_url=base_url)
-    response = client.chat.completions.create(
-        model=model,
-        messages=messages,
-        temperature=temperature,
-        max_tokens=max_tokens,
-    )
-    return response.choices[0].message.content
 
 
 def _openai_chat(messages: list[dict], temperature: float, max_tokens: int) -> str:
@@ -103,11 +68,15 @@ def _openai_chat(messages: list[dict], temperature: float, max_tokens: int) -> s
     return response.choices[0].message.content
 
 
-def _gemini_chat(messages: list[dict], temperature: float, max_tokens: int, use_google_search: bool = False) -> str:
+def _gemini_chat(messages: list[dict], temperature: float, max_tokens: int) -> str:
+    import os
+    if os.environ.get("MOCK_GEMINI_429") == "1":
+        raise RuntimeError("429 RESOURCE_EXHAUSTED. Fake rate limit for testing fallback.")
+
     from google import genai
     from google.genai import types
 
-    client = config.get_gemini_client()
+    client = genai.Client(api_key=config.GEMINI_API_KEY)
 
     # Gemini keeps system instructions separate from the conversation turns,
     # and uses role "model" instead of "assistant".

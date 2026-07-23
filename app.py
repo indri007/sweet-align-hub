@@ -14,31 +14,13 @@ monolithic app.py.
 """
 import os
 import sentry_sdk
-from sentry_sdk.integrations.threading import ThreadingIntegration
 import streamlit as st
 
-@st.cache_resource
-def init_sentry():
-    dsn = os.environ.get("SENTRY_DSN", "")
-    if dsn:
-        sentry_sdk.init(
-            dsn=dsn,
-            traces_sample_rate=0.2,
-            environment=os.environ.get("ENVIRONMENT", "production"),
-            disabled_integrations=[ThreadingIntegration()],
-        )
-
-init_sentry()
-
-# ─── Page Config ──────────────────────────────────────────
-# Set page config at the very top. Dynamically collapse sidebar if not logged in
-# to prevent the native sidebar from flashing before CSS injection takes effect.
-is_logged_in = getattr(st.user, "is_logged_in", False)
-st.set_page_config(
-    page_title="JobMatch AI — Lolos ATS, Dapetin Kerja Impian",
-    page_icon="⚡",
-    layout="wide",
-    initial_sidebar_state="expanded" if is_logged_in else "collapsed",
+sentry_sdk.init(
+    dsn=os.environ.get("SENTRY_DSN", ""),
+    traces_sample_rate=0.2,       # 20% transaksi buat performance tracing
+    environment=os.environ.get("ENVIRONMENT", "production"),
+    send_default_pii=False,       # jangan kirim data pribadi user ke Sentry
 )
 
 # Google Search Console Verification
@@ -77,7 +59,13 @@ from pages.step_c_review import render_step_c
 from pages.step_d_consultation import render_step_d
 from pages.step_e_interview import render_step_e
 
-# (Page config has been moved to the top of the file)
+# ─── Page Config ──────────────────────────────────────────
+st.set_page_config(
+    page_title="JobMatch AI — CV Review & Job Recommendations",
+    page_icon="🎯",
+    layout="wide",
+    initial_sidebar_state="expanded",
+)
 
 # ─── Google Auth Check ─────────────────────────────────────
 # NOTE: kept exactly as in the original app.py. This duplicates
@@ -92,8 +80,9 @@ if not st.user.is_logged_in:
     st.stop()
 
 # ─── Load CSS ─────────────────────────────────────────────
-from theme import inject_material3_theme
-inject_material3_theme()
+css_path = Path(__file__).parent / "styles.css"
+if css_path.exists():
+    st.markdown(f"<style>{css_path.read_text(encoding='utf-8')}</style>", unsafe_allow_html=True)
 
 # ─── Session State Initialization ─────────────────────────
 nav.init_session_state()

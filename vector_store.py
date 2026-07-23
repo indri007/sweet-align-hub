@@ -22,13 +22,11 @@ _local_embedder = None
 
 
 def _embed_local(texts: list[str]) -> list[list[float]]:
-    """Embed texts locally using sentence-transformers (all-MiniLM-L6-v2, 384-dim)."""
     global _local_embedder
     if _local_embedder is None:
-        from sentence_transformers import SentenceTransformer
-        _local_embedder = SentenceTransformer("all-MiniLM-L6-v2")
-    embeddings = _local_embedder.encode(list(texts))
-    return [e.tolist() for e in embeddings]
+        from fastembed import TextEmbedding
+        _local_embedder = TextEmbedding(model_name="BAAI/bge-small-en-v1.5", cache_dir="./model_cache")
+    return list(_local_embedder.embed(texts))
 
 
 def _embed_openai(texts: list[str]) -> list[list[float]]:
@@ -41,7 +39,7 @@ def _embed_openai(texts: list[str]) -> list[list[float]]:
 def _embed_gemini(texts: list[str]) -> list[list[float]]:
     from google import genai
     from google.genai import types
-    client = config.get_gemini_client()
+    client = genai.Client(api_key=config.GEMINI_API_KEY)
     dim = embedding_dimension()
     cfg = types.EmbedContentConfig(output_dimensionality=dim)
     result = client.models.embed_content(
@@ -80,10 +78,10 @@ def _stable_point_id(raw_id: str) -> str:
 class ChromaVectorStore:
     """Manages a local ChromaDB vector store for semantic job search."""
 
-    def __init__(self, persist_dir: Optional[str] = None, collection_name: Optional[str] = None):
+    def __init__(self, persist_dir: Optional[str] = None):
         import chromadb
         self.persist_dir = persist_dir or config.CHROMA_PERSIST_DIR
-        self.collection_name = collection_name or config.COLLECTION_NAME
+        self.collection_name = config.COLLECTION_NAME
         self.client = chromadb.PersistentClient(path=self.persist_dir)
         self._collection = None
 
@@ -146,23 +144,11 @@ class ChromaVectorStore:
 class QdrantVectorStore:
     """Manages a Qdrant Cloud vector store for semantic job search."""
 
-    def __init__(self, collection_name: Optional[str] = None):
-        from qdrant_client import models
+    def __init__(self):
+        from qdrant_client import QdrantClient, models
         self._models = models
-        self.collection_name = collection_name or config.COLLECTION_NAME
-        
-        # Route to secondary cluster if CS/HR Knowledge or Memory, otherwise primary
-        secondary_collections = (
-            config.CS_KNOWLEDGE_COLLECTION, 
-            config.HR_KNOWLEDGE_COLLECTION,
-            config.CS_MEMORY_COLLECTION,
-            config.HR_MEMORY_COLLECTION
-        )
-        if self.collection_name in secondary_collections:
-            self.client = config.get_cs_qdrant_client()
-        else:
-            self.client = config.get_qdrant_client()
-            
+        self.collection_name = config.COLLECTION_NAME
+        self.client = QdrantClient(url=config.QDRANT_URL, api_key=config.QDRANT_API_KEY)
         self._ensure_collection()
 
     def _ensure_collection(self):
@@ -242,12 +228,12 @@ class QdrantVectorStore:
 
 # ─── Factory ──────────────────────────────────────────────────────────────────
 
-def VectorStoreManager(collection_name: Optional[str] = None, *args, **kwargs):
+def VectorStoreManager(*args, **kwargs):
     """
     Factory function returning the configured vector store backend.
     Kept as a callable named like a class for backward compatibility with
     existing call sites (`VectorStoreManager()`).
     """
     if config.VECTOR_STORE == "qdrant":
-        return QdrantVectorStore(collection_name=collection_name)
-    return ChromaVectorStore(collection_name=collection_name, *args, **kwargs)
+        return QdrantVectorStore()
+    return ChromaVectorStore(*args, **kwargs)

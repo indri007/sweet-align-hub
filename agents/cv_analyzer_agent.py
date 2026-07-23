@@ -13,28 +13,31 @@ import config
 from llm_client import chat_completion
 
 
-REVIEW_PROMPT = """Kamu adalah CV Review Expert dengan pengalaman 10+ tahun di bidang HR dan recruitment. 
-Tugasmu adalah menganalisis CV user dan memberikan feedback komprehensif berdasarkan "ATS Scoring Rubric" dan "Common Mistakes" berikut:
+REVIEW_PROMPT = """You are a professional ATS (Applicant Tracking System) consultant and Senior HR Recruiter. Your task is to analyze the following CV and provide an objective assessment based on these criteria:
 
-### ATS SCORING RUBRIC (Max: 100)
-- **A. ATS Parsing (25%)**: Format file teks, layout kolom tunggal, font standar, heading standar (Experience, Education, Skills), keyword tersebar natural, format tanggal MM/YYYY konsisten.
-- **B. Konten/HRD (70%)**: Relevansi pengalaman (12%), Achievement terukur dengan angka/hasil (12%), Progresi karir jelas (6%), Skill match dengan bukti (10%), Pendidikan/Sertifikasi relevan (5%), Panjang/keringkasan 1-2 halaman (5%), Bebas typo & tata bahasa konsisten (5%), Penjelasan gap/job hopping (5%), Kontak di posisi standar dengan LinkedIn (5%).
-- **C. Match Scoring (5%)**: Kecocokan dengan posisi.
+A. ATS Parsing (weight 35%)
+   - File format & structure compatibility.
+   - Keyword relevance and keyword density.
+   - Standard headings usage (Work Experience, Education, Skills).
+   - Date format consistency and chronology.
 
-### COMMON MISTAKES UNTUK DIHINDARI:
-1. **Achievement tidak terukur**: Bullet pengalaman kerja berupa deskripsi tugas tanpa angka/hasil. Saran: Gunakan format [aksi] + [angka/hasil] + [dampak].
-2. **Skill didaftar tanpa bukti**: Daftar kata tanpa konteks kalimat pendukung. Saran: Kaitkan skill utama dengan penerapannya di pengalaman kerja.
-3. **Heading/Bahasa tidak konsisten**: Campur bahasa di heading. Saran: Gunakan satu bahasa yang konsisten.
-4. **Kontak tidak standar**: Info diletakkan setelah profil. Saran: Letakkan langsung di bawah nama.
+B. Konten/HRD (weight 60%)
+   - Relevance of work experience and career progression.
+   - Quantified achievements and measurable metrics.
+   - Skill match and education background.
+   - CV length, grammar, and absence of red flags.
 
-Berikan output dalam format berikut (gunakan heading yang sama persis):
+C. Match Scoring (weight 5%)
+   - Match between mandatory required skills (from target job) vs skills in CV.
 
-## 📊 ATS Score: [score]/100
+OUTPUT INSTRUCTIONS — provide results EXACTLY in this format (use these exact headings):
 
-## ✅ Kelebihan CV
-- [point 1]
-- [point 2]
-...
+## 📊 ATS & HRD Score: [score]/100
+
+## 📋 Skor Per Kategori
+- ATS Parsing: [x]/35
+- Konten/HRD: [x]/60
+- Match Scoring: [x]/5
 
 ## ⚠️ Area yang Perlu Diperbaiki
 - [point 1]
@@ -52,7 +55,7 @@ Berikan output dalam format berikut (gunakan heading yang sama persis):
 ## 📝 Ringkasan Profil
 [ringkasan singkat profil kandidat berdasarkan CV]
 
-Jawab dalam Bahasa Indonesia. Berikan feedback yang spesifik dan actionable sesuai panduan di atas."""
+Respond in Bahasa Indonesia. Focus on SPECIFIC, actionable findings only."""
 
 
 ATS_CV_PROMPT = """Kamu adalah CV Writer Expert profesional dan spesialis optimasi ATS (Applicant Tracking System).
@@ -97,32 +100,7 @@ Jika ada sertifikasi atau projek penting di CV asli, format sebagai berikut:
 3. HANYA keluarkan teks CV hasil optimasi saja dari baris pertama hingga terakhir. JANGAN berikan kalimat pembuka ("Berikut adalah...", "Tentu, ini CV...", dll.) atau kalimat penutup."""
 
 
-def detect_cv_language(cv_text: str) -> str:
-    """Deteksi otomatis bahasa CV: 'id' atau 'en'."""
-    text_lower = cv_text.lower()
-    indonesian_markers = [
-        "pengalaman", "pendidikan", "keterampilan", "keahlian",
-        "riwayat", "pekerjaan", "universitas", "sekolah",
-        "tanggung jawab", "prestasi", "kemampuan",
-    ]
-    english_markers = [
-        "experience", "education", "skills", "employment",
-        "responsibilities", "achievements", "university",
-        "objective", "summary", "certifications",
-    ]
-    id_score = sum(text_lower.count(w) for w in indonesian_markers)
-    en_score = sum(text_lower.count(w) for w in english_markers)
-    return "id" if id_score >= en_score else "en"
-
-
-def resolve_output_language(cv_text: str, output_language: str = "auto") -> str:
-    """Tentukan bahasa output akhir: 'auto', 'id', atau 'en'."""
-    if output_language in ("id", "en"):
-        return output_language
-    return detect_cv_language(cv_text)
-
-
-def review_cv(cv_text: str, target_job: dict = None, language: str = "auto") -> dict:
+def review_cv(cv_text: str, target_job: dict = None) -> dict:
     """
     Analyze CV and return structured feedback.
 
@@ -147,13 +125,7 @@ def review_cv(cv_text: str, target_job: dict = None, language: str = "auto") -> 
         }
 
     try:
-        resolved_lang = resolve_output_language(cv_text, language)
         system_prompt = REVIEW_PROMPT
-        
-        if resolved_lang == "id":
-            system_prompt += "\n\nRespond in Bahasa Indonesia."
-        else:
-            system_prompt += "\n\nRespond in English. Translate all output headings to English as well (e.g. '## ATS Score' instead of '## Skor ATS')."
         target_context = ""
         if target_job:
             target_context = f"\n\nPosisi Target:\n- Jabatan: {target_job.get('job_title', 'N/A')}\n- Perusahaan: {target_job.get('company_name', 'N/A')}\n- Deskripsi Pekerjaan: {target_job.get('job_description', 'N/A')}"

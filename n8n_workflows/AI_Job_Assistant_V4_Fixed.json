@@ -170,7 +170,7 @@
     },
     {
       "parameters": {
-        "modelName": "gemini-2.5-flash",
+        "modelName": "gemini-pro",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",

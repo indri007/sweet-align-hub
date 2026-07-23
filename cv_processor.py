@@ -1,5 +1,5 @@
 """
-CV Processor — Extract text from PDF, DOCX, and DOC files.
+CV Processor — Extract text from PDF and DOCX files.
 """
 
 import io
@@ -18,13 +18,9 @@ def extract_text_from_pdf(file_bytes: bytes) -> str:
             page_text = page.extract_text(x_tolerance=2, y_tolerance=3)
             if page_text:
                 text_parts.append(page_text)
-
-    import re
-    raw_text = "\n\n".join(text_parts)
-    # Clean up excessive whitespaces and newlines
-    text = re.sub(r' +', ' ', raw_text)
-    text = re.sub(r'\n{3,}', '\n\n', text).strip()
-
+    
+    text = "\n\n".join(text_parts).strip()
+    
     # OCR Fallback if text is empty or too short (likely scanned PDF)
     if len(text) < 50:
         # Fallback 1: Use Gemini's native multimodal capabilities to read scanned PDF directly
@@ -32,7 +28,7 @@ def extract_text_from_pdf(file_bytes: bytes) -> str:
             try:
                 from google import genai
                 from google.genai import types
-                client = config.get_gemini_client()
+                client = genai.Client(api_key=config.GEMINI_API_KEY)
                 response = client.models.generate_content(
                     model=config.GEMINI_MODEL,
                     contents=[
@@ -81,34 +77,10 @@ def extract_text_from_docx(file_bytes: bytes) -> str:
     return "\n".join(text_parts)
 
 
-def extract_text_from_doc(file_bytes: bytes, filename: str) -> str:
-    """
-    Extract text content from a legacy .doc file.
-    Uses doc_reader.py (LibreOffice convert -> docx, with antiword fallback).
-    Writes to a temp file first since doc_reader works on file paths, not bytes.
-    """
-    import tempfile
-    from doc_reader import read_word_document, DocReadError
-
-    with tempfile.NamedTemporaryFile(suffix=".doc", delete=False) as tmp:
-        tmp.write(file_bytes)
-        tmp_path = tmp.name
-
-    try:
-        return read_word_document(tmp_path)
-    except DocReadError as e:
-        raise ValueError(
-            f"Gagal membaca file .doc '{filename}'. "
-            f"Coba simpan ulang sebagai .docx. Detail: {e}"
-        )
-    finally:
-        Path(tmp_path).unlink(missing_ok=True)
-
-
 def extract_cv_text(file_bytes: bytes, filename: str) -> str:
     """
     Extract text from a CV file based on its extension.
-    Supports PDF, DOCX, and legacy DOC formats.
+    Supports PDF and DOCX formats.
     """
     ext = Path(filename).suffix.lower()
     if ext == ".pdf":
@@ -116,9 +88,12 @@ def extract_cv_text(file_bytes: bytes, filename: str) -> str:
     elif ext == ".docx":
         return extract_text_from_docx(file_bytes)
     elif ext == ".doc":
-        return extract_text_from_doc(file_bytes, filename)
+        raise ValueError(
+            "Format .doc (Word lama/binary) tidak didukung. "
+            "Silakan simpan ulang CV kamu sebagai .docx atau PDF, lalu upload lagi."
+        )
     else:
-        raise ValueError(f"Unsupported file format: {ext}. Use PDF, DOCX, or DOC.")
+        raise ValueError(f"Unsupported file format: {ext}. Use PDF or DOCX.")
 
 
 def get_file_info(file_bytes: bytes, filename: str) -> dict:
@@ -144,8 +119,6 @@ def get_file_info(file_bytes: bytes, filename: str) -> dict:
             info["paragraphs"] = len([p for p in doc.paragraphs if p.text.strip()])
         except Exception:
             info["paragraphs"] = "Unknown"
-    elif ext == ".doc":
-        info["note"] = "Legacy Word format (dikonversi otomatis via LibreOffice)"
     return info
 
 
@@ -155,8 +128,10 @@ def validate_cv_file(file_bytes: bytes, filename: str, max_size_mb: int = 100) -
     Returns (is_valid, error_message).
     """
     ext = Path(filename).suffix.lower()
-    if ext not in (".pdf", ".docx", ".doc"):
-        return False, f"Format {ext} tidak didukung. Gunakan PDF, DOCX, atau DOC."
+    if ext == ".doc":
+        return False, "Format .doc (Word lama) tidak didukung. Simpan ulang sebagai .docx atau PDF."
+    if ext not in (".pdf", ".docx"):
+        return False, f"Format {ext} tidak didukung. Gunakan PDF atau DOCX."
 
     size_mb = len(file_bytes) / (1024 * 1024)
     if size_mb > max_size_mb:
