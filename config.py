@@ -55,7 +55,7 @@ QDRANT_API_KEY = _cfg("QDRANT_API_KEY")
 COLLECTION_NAME = "indonesian_jobs"
 
 # ─── Embedding ────────────────────────────────────────────
-EMBEDDING_MODEL = _cfg("EMBEDDING_MODEL", "gemini")  # "local", "openai", or "gemini"
+EMBEDDING_MODEL = _cfg("EMBEDDING_MODEL", "openai")  # "local", "openai", or "gemini"
 
 # ─── N8N ──────────────────────────────────────────────────
 N8N_WEBHOOK_URL = os.getenv("N8N_WEBHOOK_URL", "")
