@@ -37,7 +37,16 @@ def chat_completion(messages: list[dict], temperature: float = 0.7, max_tokens: 
     Raises an Exception on failure -- callers should catch and handle.
     """
     if config.LLM_PROVIDER == "gemini":
-        return _gemini_chat(messages, temperature, max_tokens)
+        try:
+            return _gemini_chat(messages, temperature, max_tokens)
+        except Exception as e:
+            err_str = str(e)
+            if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str:
+                if getattr(config, "OPENAI_API_KEY", None):
+                    print(f"[INFO] Gemini 429 Rate Limit. Falling back to OpenAI...")
+                    return _openai_chat(messages, temperature, max_tokens)
+            # If not 429 or no fallback, re-raise
+            raise
     elif config.LLM_PROVIDER == "openai":
         return _openai_chat(messages, temperature, max_tokens)
     else:
@@ -60,6 +69,10 @@ def _openai_chat(messages: list[dict], temperature: float, max_tokens: int) -> s
 
 
 def _gemini_chat(messages: list[dict], temperature: float, max_tokens: int) -> str:
+    import os
+    if os.environ.get("MOCK_GEMINI_429") == "1":
+        raise RuntimeError("429 RESOURCE_EXHAUSTED. Fake rate limit for testing fallback.")
+
     from google import genai
     from google.genai import types
 

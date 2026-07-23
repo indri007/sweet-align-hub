@@ -86,14 +86,21 @@ def render_step_e():
             if not st.session_state.interview_started:
                 if st.button("🎬 Mulai Interview Sekarang", type="primary"):
                     with st.spinner("🤖 HR sedang mempersiapkan interview..."):
-                        from agents.interview_agent import start_interview
-                        result = start_interview(st.session_state.cv_text, job)
-                        if result["available"] and result["response"]:
+                        from agents.interview_agent import start_interview, get_active_question
+                        try:
+                            # Start session (FR-15) via wrapper
+                            session = start_interview(st.session_state.cv_text, job)
+                            st.session_state.interview_session = session
+                            
+                            first_q = get_active_question(session)
+                            
                             st.session_state.interview_history = [
-                                {"role": "assistant", "content": result["response"]}
+                                {"role": "assistant", "content": first_q}
                             ]
                             st.session_state.interview_started = True
                             st.rerun()
+                        except Exception as e:
+                            st.error(f"Gagal memulai interview: {e}")
             else:
                 # Display interview conversation
                 for msg in st.session_state.interview_history:
@@ -127,17 +134,41 @@ def render_step_e():
                             {"role": "user", "content": answer}
                         )
                         with st.spinner("🤵 HR sedang mengevaluasi jawaban..."):
-                            from agents.interview_agent import continue_interview
-                            result = continue_interview(
-                                st.session_state.cv_text,
-                                job,
-                                st.session_state.interview_history[:-1],
-                                answer,
-                            )
-                            if result["available"] and result["response"]:
-                                st.session_state.interview_history.append(
-                                    {"role": "assistant", "content": result["response"]}
-                                )
+                            from agents.interview_agent import handle_candidate_answer
+                            
+                            session = st.session_state.get("interview_session")
+                            if session:
+                                try:
+                                    next_q = handle_candidate_answer(
+                                        session,
+                                        jawaban_user=answer,
+                                    )
+                                    
+                                    if next_q:
+                                        st.session_state.interview_history.append(
+                                            {"role": "assistant", "content": next_q}
+                                        )
+                                    else:
+                                        st.session_state.interview_history.append(
+                                            {"role": "assistant", "content": "🎉 Wawancara selesai! Sedang menyusun laporan evaluasi..."}
+                                        )
+                                        try:
+                                            from agents.interview_agent import evaluate_interview
+                                            eval_res = evaluate_interview(session)
+                                            eval_text = "### 📊 Hasil Evaluasi Interview\n\n"
+                                            for ev in eval_res.get("evaluasi", []):
+                                                eval_text += f"**{ev.get('kompetensi', 'Kompetensi')}** (Skor: {ev.get('skor', '-')}/5)\n"
+                                                eval_text += f"> {ev.get('feedback', '')}\n\n"
+                                            eval_text += f"**Kesimpulan Umum:**\n{eval_res.get('kesimpulan_umum', '')}"
+                                            st.session_state.interview_history.append(
+                                                {"role": "assistant", "content": eval_text}
+                                            )
+                                        except Exception as e:
+                                            st.session_state.interview_history.append(
+                                                {"role": "assistant", "content": f"⚠️ Gagal memuat evaluasi: {e}"}
+                                            )
+                                except Exception as e:
+                                    st.error(f"Terjadi kesalahan: {e}")
                         st.rerun()
 
                 else:  # Voice mode
@@ -156,8 +187,9 @@ def render_step_e():
                                 with st.spinner("🎧 Transcribing audio..."):
                                     from agents.interview_agent import (
                                         transcribe_audio,
-                                        continue_interview,
+                                        handle_candidate_answer,
                                     )
+                                    
                                     transcribed = transcribe_audio(audio_bytes)
                                     st.info(f"📝 Transcribed: {transcribed}")
 
@@ -165,16 +197,38 @@ def render_step_e():
                                         {"role": "user", "content": transcribed}
                                     )
 
-                                    result = continue_interview(
-                                        st.session_state.cv_text,
-                                        job,
-                                        st.session_state.interview_history[:-1],
-                                        transcribed,
-                                    )
-                                    if result["available"] and result["response"]:
-                                        st.session_state.interview_history.append(
-                                            {"role": "assistant", "content": result["response"]}
-                                        )
+                                    session = st.session_state.get("interview_session")
+                                    if session:
+                                        try:
+                                            next_q = handle_candidate_answer(
+                                                session,
+                                                jawaban_user=transcribed,
+                                            )
+                                            if next_q:
+                                                st.session_state.interview_history.append(
+                                                    {"role": "assistant", "content": next_q}
+                                                )
+                                            else:
+                                                st.session_state.interview_history.append(
+                                                    {"role": "assistant", "content": "🎉 Wawancara selesai! Sedang menyusun laporan evaluasi..."}
+                                                )
+                                                try:
+                                                    from agents.interview_agent import evaluate_interview
+                                                    eval_res = evaluate_interview(session)
+                                                    eval_text = "### 📊 Hasil Evaluasi Interview\n\n"
+                                                    for ev in eval_res.get("evaluasi", []):
+                                                        eval_text += f"**{ev.get('kompetensi', 'Kompetensi')}** (Skor: {ev.get('skor', '-')}/5)\n"
+                                                        eval_text += f"> {ev.get('feedback', '')}\n\n"
+                                                    eval_text += f"**Kesimpulan Umum:**\n{eval_res.get('kesimpulan_umum', '')}"
+                                                    st.session_state.interview_history.append(
+                                                        {"role": "assistant", "content": eval_text}
+                                                    )
+                                                except Exception as e:
+                                                    st.session_state.interview_history.append(
+                                                        {"role": "assistant", "content": f"⚠️ Gagal memuat evaluasi: {e}"}
+                                                    )
+                                        except Exception as e:
+                                            st.error(f"Terjadi kesalahan: {e}")
                                     st.rerun()
                     except ImportError:
                         st.warning("📦 Package `audio-recorder-streamlit` belum terinstall.")
@@ -187,12 +241,14 @@ def render_step_e():
                 if st.button("🔄 Reset Interview"):
                     st.session_state.interview_started = False
                     st.session_state.interview_history = []
+                    st.session_state.interview_session = None
                     st.rerun()
             with col2:
                 if st.button("🔄 Ganti Posisi"):
                     st.session_state.interview_job = None
                     st.session_state.interview_started = False
                     st.session_state.interview_history = []
+                    st.session_state.interview_session = None
                     st.rerun()
 
     # Navigation

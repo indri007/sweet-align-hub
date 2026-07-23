@@ -5,9 +5,27 @@ import json
 import uuid
 import config
 from qdrant_client import QdrantClient, models
+from qdrant_client.http.exceptions import UnexpectedResponse
 from vector_store import embed_texts, embedding_dimension
 
 COLLECTION_NAME = "interview_questions_bank"
+
+def ensure_posisi_relevan_index(client, collection_name: str) -> None:
+    """
+    Pastikan payload index untuk field `posisi_relevan` ada di collection.
+    """
+    try:
+        client.create_payload_index(
+            collection_name=collection_name,
+            field_name="posisi_relevan",
+            field_schema=models.PayloadSchemaType.KEYWORD,
+        )
+        print(f"Index 'posisi_relevan' dibuat untuk collection '{collection_name}'.")
+    except UnexpectedResponse as e:
+        if "already exists" in str(e).lower():
+            print(f"Index 'posisi_relevan' sudah ada di '{collection_name}', dilewati.")
+        else:
+            raise
 
 def main():
     with open("Interview_Questions.json", "r") as f:
@@ -26,8 +44,10 @@ def main():
             ),
         )
         print(f"Created collection: {COLLECTION_NAME}")
+        ensure_posisi_relevan_index(client, COLLECTION_NAME)
     else:
         print(f"Collection {COLLECTION_NAME} already exists.")
+        ensure_posisi_relevan_index(client, COLLECTION_NAME)
         
     points = []
     texts_to_embed = [q["pertanyaan"] for q in questions]

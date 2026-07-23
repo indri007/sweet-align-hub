@@ -1,188 +1,208 @@
-"""
-Mock Interview Agent — Simulates HR interview with AI.
-Text-based interview via Gemini/OpenAI. Voice mode (Whisper/TTS) is disabled
-since it requires an OpenAI key specifically and is not used in this deployment.
-"""
+import json
+from typing import Optional
 
-import config
-from llm_client import chat_completion
+import agents.interview_agent_questions as iq
+import agents.interview_agent_state as ist
 
 
-INTERVIEWER_PROMPT = """Kamu adalah seorang HR Interviewer profesional di perusahaan besar Indonesia. 
-Kamu sedang melakukan mock interview dengan seorang kandidat.
-
-Konteks:
-- CV Kandidat sudah diberikan
-- Posisi yang dilamar: {job_title} di {company_name}
-- Deskripsi pekerjaan sudah diberikan
-
-Aturan:
-1. Tanyakan SATU pertanyaan interview pada satu waktu
-2. Setelah kandidat menjawab, berikan feedback singkat dan lanjut pertanyaan berikutnya
-3. Campurkan pertanyaan behavioral, technical, dan situational
-4. Bersikap profesional tapi ramah
-5. Gunakan Bahasa Indonesia (kecuali posisi mengharuskan Bahasa Inggris)
-6. Setelah 5-7 pertanyaan, akhiri interview dan berikan ringkasan feedback
-
-Format jawaban:
-- Jika ini pertanyaan baru: langsung tanyakan pertanyaannya
-- Jika sedang memberi feedback: berikan feedback singkat lalu pertanyaan selanjutnya
-- Jika interview selesai: berikan summary dengan format:
-
-## 📋 Ringkasan Interview
-### Skor Keseluruhan: [X]/10
-### Kelebihan:
-- [point]
-### Area Perbaikan:
-- [point]
-### Tips:
-- [tip]"""
-
-
-def start_interview(cv_text: str, job_info: dict) -> dict:
+def _default_chat_completion(messages, temperature, max_tokens):
     """
-    Start a mock interview session.
-
-    Args:
-        cv_text: User's CV content
-        job_info: dict with job_title, company_name, job_description
-
-    Returns dict with:
-    - "response": AI's first question
-    - "available": whether an LLM provider or N8N is configured
+    Lazy import supaya modul ini tetap bisa di-import/dites tanpa llm_client
+    tersedia.
     """
-    # Try N8N first
-    if config.is_n8n_configured():
-        try:
-            from n8n_client import start_interview_n8n
-            ai_text = start_interview_n8n(cv_text, job_info)
-            if ai_text and not ai_text.startswith("Error") and not ai_text.startswith("Tidak dapat") and not ai_text.startswith("N8N"):
-                return {"response": ai_text, "available": True}
-        except Exception:
-            pass
+    from llm_client import chat_completion
 
-    if not config.is_llm_configured():
-        return {"response": None, "available": False}
+    return chat_completion(messages=messages, temperature=temperature, max_tokens=max_tokens)
 
+
+# ---------------------------------------------------------------------------
+# Wiring LLM untuk dua keputusan sempit Agen 5 (bukan generator soal bebas)
+# ---------------------------------------------------------------------------
+
+def llm_is_answer_sufficient(jawaban: str, pertanyaan_aktif: str, chat_completion_fn=_default_chat_completion) -> bool:
+    """
+    Minta LLM menilai jawaban kandidat pada DUA dimensi terpisah:
+      1. relevan -- apakah jawaban benar-benar menjawab pertanyaan yang
+         diajukan.
+      2. lengkap -- apakah struktur STAR-nya cukup detail.
+    """
+    system_prompt = (
+        "Anda menilai jawaban kandidat wawancara kerja pada DUA dimensi terpisah:\n"
+        "1. relevan: apakah jawaban ini benar-benar menjawab PERTANYAAN yang "
+        "diajukan (bukan topik lain yang tidak berhubungan)?\n"
+        "2. lengkap: apakah jawaban ini cukup detail secara struktur STAR "
+        "(Situation/Task/Action/Result)?\n"
+        "Tugas Anda HANYA menilai, bukan menjawab atau mengomentari isi jawaban.\n"
+        "Balas HANYA dalam format JSON dengan alasan MAKSIMAL 10 KATA: "
+        "{\"relevan\": true/false, \"lengkap\": true/false, \"alasan\": \"...\"}\n\n"
+        f"Pertanyaan yang diajukan: {pertanyaan_aktif}\n"
+    )
     try:
-        system_prompt = INTERVIEWER_PROMPT.format(
-            job_title=job_info.get("job_title", "Unknown Position"),
-            company_name=job_info.get("company_name", "Unknown Company"),
+        raw = chat_completion_fn(
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": f"Jawaban kandidat: {jawaban}"}
+            ],
+            temperature=0.0,
+            max_tokens=250,
         )
+        parsed = _parse_json_response(raw)
+        if parsed is None or "relevan" not in parsed or "lengkap" not in parsed:
+            raise ValueError(f"LLM tidak merespons dalam format JSON yang valid. Raw: {raw!r}")
 
-        messages = [
-            {"role": "system", "content": system_prompt},
-            {
-                "role": "user",
-                "content": f"""[INFO INTERVIEW]
-CV Kandidat:
-{cv_text[:3000]}
-
-Deskripsi Pekerjaan:
-{job_info.get('job_description', 'N/A')[:2000]}
-
-Mulai interview sekarang. Perkenalkan diri kamu sebagai HR dan mulai dengan pertanyaan pertama.""",
-            },
-        ]
-
-        reply = chat_completion(messages=messages, temperature=0.7, max_tokens=800)
-
-        return {
-            "response": reply,
-            "available": True,
-        }
+        relevan = bool(parsed["relevan"])
+        lengkap = bool(parsed["lengkap"])
+        if not relevan:
+            print(f"[INFO] Jawaban dinilai TIDAK relevan terhadap pertanyaan aktif -- alasan: {parsed.get('alasan')!r}")
+        return relevan and lengkap
     except Exception as e:
-        return {"response": f"Error: {str(e)}", "available": True}
+        # Bubble up exception to UI so state is not mutated
+        raise RuntimeError(f"API Error saat mengevaluasi jawaban: {e}")
 
 
-def continue_interview(
-    cv_text: str,
-    job_info: dict,
-    interview_history: list[dict],
-    user_answer: str,
+def llm_generate_followup(system_prompt: str, chat_completion_fn=_default_chat_completion) -> str:
+    """
+    Panggil LLM (Agen 5) dengan system prompt dari build_agent5_system_prompt()
+    """
+    try:
+        text = chat_completion_fn(
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": "Tolong berikan SATU pertanyaan follow-up untuk jawaban saya."}
+            ],
+            temperature=0.7,
+            max_tokens=200,
+        )
+        return text.strip()
+    except Exception as e:
+        raise RuntimeError(f"API Error saat generate follow-up: {e}")
+
+
+FALLBACK_FOLLOWUP_TEXT = "Bisa diceritakan lebih detail lagi tentang situasi tersebut?"
+
+
+def llm_generate_followup_validated(
+    system_prompt: str,
+    pertanyaan_aktif: str,
+    chat_completion_fn=_default_chat_completion,
+) -> str:
+    """
+    Guardrail atas llm_generate_followup(): jangan tampilkan output LLM
+    mentah-mentah ke kandidat kalau kelihatan rusak/kosong/halusinasi keluar
+    peran.
+    """
+    text = llm_generate_followup(system_prompt, chat_completion_fn)
+
+    is_broken = (
+        not text
+        or len(text) < 10
+        or any(artefak in text for artefak in ("{", "}", "```"))
+        or text.strip().lower() == pertanyaan_aktif.strip().lower()
+    )
+    if is_broken:
+        print(f"[WARNING] Follow-up dari LLM terdeteksi cacat/echo, raw={text!r} -- fallback ke teks aman.")
+        return FALLBACK_FOLLOWUP_TEXT
+    return text
+
+
+def _parse_json_response(raw: str) -> Optional[dict]:
+    """Toleran terhadap LLM yang membungkus JSON dengan ```json fences."""
+    cleaned = raw.strip()
+    if cleaned.startswith("```"):
+        cleaned = cleaned.strip("`")
+        cleaned = cleaned.replace("json\n", "", 1).replace("json", "", 1)
+    try:
+        return json.loads(cleaned)
+    except (json.JSONDecodeError, ValueError):
+        return None
+
+
+# ---------------------------------------------------------------------------
+# API publik yang dipanggil dari Streamlit app
+# ---------------------------------------------------------------------------
+
+def start_interview(cv_text: str, job_info: dict, qdrant_client=None) -> ist.InterviewSession:
+    job_title = job_info.get("job_title", "Umum")
+    session = ist.start_interview(
+        posisi=job_title,
+        jumlah_kompetensi=4,
+        get_questions_fn=iq.get_interview_questions,
+        client=qdrant_client,
+    )
+    return session
+
+
+def get_active_question(session: ist.InterviewSession) -> str:
+    return session.turns[-1].pertanyaan
+
+
+def handle_candidate_answer(
+    session: ist.InterviewSession,
+    jawaban_user: str,
+    chat_completion_fn=_default_chat_completion,
+) -> Optional[str]:
+    pertanyaan_aktif = session.turns[-1].pertanyaan
+    return ist.record_answer_and_get_next(
+        session,
+        jawaban_user,
+        is_answer_sufficient_fn=lambda j: llm_is_answer_sufficient(j, pertanyaan_aktif, chat_completion_fn),
+        generate_followup_fn=lambda p: llm_generate_followup_validated(p, pertanyaan_aktif, chat_completion_fn),
+    )
+
+
+def evaluate_interview(
+    session: ist.InterviewSession,
+    chat_completion_fn=_default_chat_completion,
 ) -> dict:
-    """
-    Continue the mock interview with user's answer.
-
-    Args:
-        cv_text: User's CV content
-        job_info: Job information dict
-        interview_history: Previous Q&A messages
-        user_answer: User's answer to the current question
-
-    Returns dict with:
-    - "response": AI's feedback + next question (or summary if interview is done)
-    - "available": whether an LLM provider or N8N is configured
-    """
-    # Try N8N first
-    if config.is_n8n_configured():
-        try:
-            from n8n_client import continue_interview_n8n
-            ai_text = continue_interview_n8n(cv_text, job_info, interview_history, user_answer)
-            if ai_text and not ai_text.startswith("Error") and not ai_text.startswith("Tidak dapat") and not ai_text.startswith("N8N"):
-                return {"response": ai_text, "available": True}
-        except Exception:
-            pass
-
-    if not config.is_llm_configured():
-        return {"response": None, "available": False}
+    if not session.completed:
+        raise ValueError("Wawancara belum selesai. Evaluasi hanya dapat dilakukan di akhir sesi.")
+    
+    transcript = f"Posisi: {session.posisi}\n\n"
+    for t in session.turns:
+        tipe_q = "Pertanyaan (Follow-up)" if t.is_followup else f"Pertanyaan ({t.tahap} - {t.kompetensi})"
+        transcript += f"{tipe_q}: {t.pertanyaan}\n"
+        transcript += f"Jawaban Kandidat: {t.jawaban or '(Tidak ada jawaban)'}\n\n"
+        
+    system_prompt = (
+        "Anda adalah Agen 6 (Scoring Evaluator) untuk wawancara kerja.\n"
+        "Tugas Anda mengevaluasi kandidat berdasarkan keseluruhan transkrip sesi wawancara berbasis kompetensi STAR (Situation, Task, Action, Result).\n"
+        "Berikan penilaian kualitatif (PILIH TEPAT SATU dari 3 opsi berikut, JANGAN gunakan variasi lain: 'Kurang', 'Cukup', atau 'Baik') untuk setiap kompetensi yang diujikan, beserta feedback singkat (maksimal 30 kata per kompetensi).\n"
+        "Balas HANYA dalam format JSON dengan skema berikut:\n"
+        "{\n"
+        '  "evaluasi": [\n'
+        '    {"kompetensi": "Nama Kompetensi", "label": "Baik", "feedback": "..."}\n'
+        "  ],\n"
+        '  "kesimpulan_umum": "Ringkasan singkat performa kandidat secara keseluruhan (maks 50 kata)."\n'
+        "}\n\n"
+        f"Berikut adalah transkrip wawancaranya:\n{transcript}"
+    )
 
     try:
-        system_prompt = INTERVIEWER_PROMPT.format(
-            job_title=job_info.get("job_title", "Unknown Position"),
-            company_name=job_info.get("company_name", "Unknown Company"),
+        raw = chat_completion_fn(
+            messages=[{"role": "user", "content": system_prompt}],
+            temperature=0.2,
+            max_tokens=1500,
         )
-
-        messages = [
-            {"role": "system", "content": system_prompt},
-            {
-                "role": "user",
-                "content": f"[KONTEKS]\nCV: {cv_text[:2000]}\nJob: {job_info.get('job_description', '')[:1000]}",
-            },
-            {
-                "role": "assistant",
-                "content": "Baik, saya sudah memahami profil kandidat dan posisi yang dilamar. Mari kita mulai interview.",
-            },
-        ]
-
-        # Add interview history
-        for msg in interview_history:
-            messages.append(msg)
-
-        # Add current answer
-        messages.append({"role": "user", "content": user_answer})
-
-        # Check if we should end the interview (after 5+ exchanges)
-        user_count = sum(1 for m in interview_history if m["role"] == "user")
-        if user_count >= 5:
-            messages.append({
-                "role": "system",
-                "content": "Interview sudah cukup panjang. Berikan feedback terakhir dan RINGKASAN INTERVIEW dengan skor keseluruhan.",
-            })
-
-        reply = chat_completion(messages=messages, temperature=0.7, max_tokens=1200)
-
-        return {
-            "response": reply,
-            "available": True,
-        }
+        parsed = _parse_json_response(raw)
+        if parsed is None or "evaluasi" not in parsed:
+            raise ValueError(f"LLM tidak merespons JSON valid. Raw: {raw!r}")
+            
+        # Validasi label ketat
+        valid_labels = {"Kurang", "Cukup", "Baik"}
+        for item in parsed["evaluasi"]:
+            label = item.get("label")
+            if label not in valid_labels:
+                raise ValueError(f"LLM mengembalikan label yang tidak valid: {label!r}. Harus salah satu dari {valid_labels}")
+        
+        # Simpan ke state
+        session.evaluation_result = parsed
+        return parsed
     except Exception as e:
-        return {"response": f"Error: {str(e)}", "available": True}
+        raise RuntimeError(f"API Error saat evaluasi akhir: {e}")
 
 
 def transcribe_audio(audio_bytes: bytes) -> str:
-    """
-    Voice transcription is disabled in this deployment (requires OpenAI Whisper,
-    not part of the Gemini setup). Kept as a stub so app.py doesn't break if it
-    still references this function.
-    """
     return "[Fitur transkripsi suara dinonaktifkan]"
 
-
 def text_to_speech(text: str) -> bytes:
-    """
-    Voice output (TTS) is disabled in this deployment (requires OpenAI TTS,
-    not part of the Gemini setup). Kept as a stub so app.py doesn't break if it
-    still references this function.
-    """
     return b""
