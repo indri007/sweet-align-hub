@@ -1,67 +1,78 @@
 <div align="center">
 
 # 🎯 JobMatch AI
+### Platform AI untuk Pencarian Kerja, Analisis CV, dan Simulasi Wawancara
+*Dibangun khusus untuk Pasar Kerja Indonesia* 🇮🇩
 
-### Platform AI untuk Pencarian Kerja, Analisis CV, dan Simulasi Wawancara — Dibangun untuk Pasar Kerja Indonesia
+<br/>
 
+<a href="https://jobsmatch.streamlit.app/">
+  <img src="assets/demo.webp" alt="JobMatch AI UI Demo Animation" width="800" style="border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.2);">
+</a>
+
+<br/><br/>
+
+[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-jobsmatch.streamlit.app-00C7B7?style=for-the-badge&logo=streamlit&logoColor=white)](https://jobsmatch.streamlit.app/)
 [![Python](https://img.shields.io/badge/Python-3.13-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
-[![Streamlit](https://img.shields.io/badge/Streamlit-Cloud-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://jobsmatch.streamlit.app/)
-[![Gemini](https://img.shields.io/badge/Gemini-API-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white)](https://ai.google.dev/)
-[![Qdrant](https://img.shields.io/badge/Qdrant-Vector%20DB-DC244C?style=for-the-badge&logo=qdrant&logoColor=white)](https://qdrant.tech/)
-[![Aiven](https://img.shields.io/badge/Aiven-MySQL-FF3554?style=for-the-badge&logo=mysql&logoColor=white)](https://aiven.io/)
-[![Architecture](https://img.shields.io/badge/Architecture-Python--Native-2ECC71?style=for-the-badge)](#-arsitektur-sistem)
+[![Streamlit](https://img.shields.io/badge/Streamlit-UI-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://streamlit.io/)
+[![Gemini](https://img.shields.io/badge/Gemini_1.5_Flash-AI-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white)](https://ai.google.dev/)
+[![Qdrant](https://img.shields.io/badge/Qdrant-Vector_DB-DC244C?style=for-the-badge&logo=qdrant&logoColor=white)](https://qdrant.tech/)
 
-**[🚀 Coba Live Demo](https://jobsmatch.streamlit.app/)** &nbsp;·&nbsp; **[📖 PRD Lengkap](./PRD_JobMatch_AI.md)** &nbsp;·&nbsp; **[🗂️ ERD Database](./ERD_JobMatch_AI.md)**
+**[📖 Baca PRD Lengkap](./PRD_JobMatch_AI.md)** &nbsp;&bull;&nbsp; **[🗂️ Lihat ERD Database](./ERD_JobMatch_AI.md)**
 
 </div>
 
 ---
 
-## 🧩 Kenapa Project Ini Dibuat
+## 🧩 Kenapa Project Ini Dibuat?
 
-Pasar kerja di Indonesia saat ini sangat kompetitif. Banyak talenta berbakat yang gagal ke tahap wawancara hanya karena resume mereka tidak teroptimasi untuk sistem pelacakan pelamar (ATS), atau mereka kesulitan mencari lowongan yang benar-benar relevan dengan keahlian mereka.
+Pasar kerja di Indonesia saat ini sangat kompetitif. Banyak talenta berbakat yang gagal ke tahap wawancara hanya karena resume mereka **tidak teroptimasi untuk sistem pelacakan pelamar (ATS)**, atau mereka kesulitan mencari lowongan yang benar-benar relevan dengan keahlian spesifik mereka.
 
-JobMatch AI hadir untuk menjembatani kesenjangan tersebut. Kami memanfaatkan teknologi Generative AI terbaru untuk memberikan evaluasi objektif dan bimbingan yang terpersonalisasi. Mulai dari analisis kelayakan CV secara otomatis hingga simulasi wawancara mendalam, platform ini dirancang untuk bertindak sebagai konsultan karier pribadi 24/7 bagi setiap pencari kerja.
+**JobMatch AI** hadir untuk menjembatani kesenjangan tersebut. Kami memanfaatkan teknologi Generative AI terbaru untuk memberikan evaluasi objektif dan bimbingan yang terpersonalisasi. Mulai dari analisis kelayakan CV secara otomatis hingga simulasi wawancara mendalam, platform ini dirancang untuk bertindak sebagai **Konsultan Karier Pribadi 24/7** bagi setiap pencari kerja.
 
-| ❌ Masalah | ✅ Solusi JobMatch AI |
-|---|---|
-| CV gagal lolos parsing ATS karena format/keyword tidak sesuai | Skor ATS otomatis per kategori + saran perbaikan konkret |
-| Pencarian lowongan manual di banyak portal, memakan waktu | Pencarian semantik — cukup deskripsikan yang dicari dalam bahasa natural |
-| Tidak ada sarana latihan wawancara yang murah & tanpa konsekuensi nyata | Simulasi wawancara HRD berbasis STAR method dengan AI interviewer |
-| Pertanyaan berulang ke tim support tanpa jawaban konsisten | Chatbot CS yang grounded pada knowledge base resmi |
-| Feedback wawancara yang generik / tidak actionable | Evaluator AI dengan label kualitatif (Kurang/Cukup/Baik) per kompetensi |
-
----
-
-## ✨ Fitur Utama
-
-| Fitur | Deskripsi | Status |
-|---|---|---|
-| 📄 **CV Upload & ATS Scoring** | Analisis CV otomatis, skor tertimbang (Parsing 35% · Konten 60% · Match 5%) | ✅ Aktif |
-| 🔍 **Semantic Job Search** | Pencarian lowongan berbasis makna (Qdrant + embedding lokal), bukan keyword-matching kaku | ✅ Aktif |
-| 💬 **AI Career Consultant** | Konsultasi karier interaktif berbasis konteks CV pengguna | ✅ Aktif |
-| 🤖 **CS Chatbot** | Menjawab pertanyaan seputar platform, grounded pada knowledge base | ✅ Aktif |
-| 🎙️ **HRD Mock Interview** | Simulasi wawancara STAR multi-turn, dengan evaluasi akhir sesi | ✅ **Baru** |
-| 💾 **Transkrip Wawancara** | Riwayat sesi tersimpan otomatis ke Aiven MySQL untuk direview ulang | ✅ **Baru** |
-
-> 🆕 **Modul HRD Mock Interview** adalah pengembangan terbaru — mencakup state tracking multi-turn, guardrail anti-halusinasi, evaluator dengan skala kualitatif, dan penyimpanan transkrip end-to-end. Lihat [PRD_JobMatch_AI.md](./PRD_JobMatch_AI.md) untuk detail teknis lengkap.
+| ❌ Masalah yang Sering Terjadi | ✅ Solusi JobMatch AI |
+|:---|:---|
+| CV ditolak bot ATS karena format/keyword salah | **Skor ATS otomatis** + saran perbaikan konkret |
+| Pencarian lowongan manual memakan waktu | **Pencarian Semantik** — deskripsikan dengan natural |
+| Tidak ada sarana latihan wawancara profesional | **Simulasi HRD AI** berbasis *STAR method* |
+| Pertanyaan berulang ke CS memakan waktu | **Chatbot Support 24/7** dengan *Knowledge Base* resmi |
+| Feedback dari wawancara biasanya sangat generik | **Evaluasi AI Detail** per kategori kompetensi |
 
 ---
 
-## 🏗️ Arsitektur Sistem
+## ✨ Fitur Utama yang Mengubah Permainan
+
+### 📄 1. CV Upload & ATS Scoring
+Sistem langsung membaca PDF Anda, mengekstrak pengalaman, dan memberikan skor kelayakan berdasarkan standar HRD modern.
+*(Penilaian didasarkan pada: Parsing 35% · Konten 60% · Match 5%)*
+
+### 🔍 2. Semantic Job Search
+Jangan lagi pusing memikirkan *keyword* kaku. Ketik saja, *"Saya lulusan desain grafis yang suka bikin logo dan ngerti marketing dikit"*, dan AI akan mencari kecocokan makna menggunakan **Qdrant Vector Database**.
+
+### 🤖 3. Konsultan Karier & Chatbot CS AI
+Bingung harus mulai dari mana? Tanyakan langsung ke AI. Chatbot dilatih khusus untuk memahami konteks resume Anda dan menjawab pertanyaan umum platform.
+
+### 🎙️ 4. HRD Mock Interview (Fitur Baru!)
+Simulasi wawancara *multi-turn* (tanya-jawab interaktif) menggunakan pendekatan metode STAR. AI akan menempatkan dirinya sebagai HRD yang sesungguhnya dan mengevaluasi jawaban Anda di akhir sesi, lengkap dengan transkrip yang disimpan di database Aiven MySQL.
+
+---
+
+## 🏗️ Arsitektur Sistem Berkelas Enterprise
+
+Keseluruhan sistem ini dibangun menggunakan **Python-native murni**, membuang dependensi alat pihak ketiga seperti n8n untuk mendapatkan kecepatan maksimal, *state management* yang kuat, dan kontrol penuh atas *guardrail* (anti-halusinasi AI).
 
 ```mermaid
 flowchart TD
-    User(["👤 Pengguna"]) --> UI["🖥️ Streamlit App<br/>(Streamlit Community Cloud)"]
+    User(["👤 Pengguna"]) --> UI["🖥️ Streamlit App<br/>(Streamlit Cloud)"]
 
     UI --> Agents["🧠 AI Agents Layer<br/>(agents/*.py)"]
 
     Agents --> LLM{"🤖 LLM Provider"}
     LLM -->|utama| Gemini["✨ Google Gemini"]
-    LLM -->|fallback saat rate-limit| OpenAI["🔷 OpenAI"]
+    LLM -->|fallback| OpenAI["🔷 OpenAI"]
 
     Agents --> Vector["🔎 Qdrant Cloud<br/>(Semantic Search)"]
-    Agents --> DB["🗄️ Aiven MySQL<br/>(Data Terstruktur & Transkrip)"]
+    Agents --> DB["🗄️ Aiven MySQL<br/>(Data Terstruktur)"]
 
     Vector --> Collections["📦 indonesian_jobs<br/>📦 hr_knowledge_base<br/>📦 interview_questions_bank<br/>📦 cs_knowledge_base"]
     DB --> Tables["📋 jobs · users<br/>📋 cv_analysis_results<br/>📋 hrd_transcripts"]
@@ -79,94 +90,20 @@ flowchart TD
     class Vector,DB,Collections,Tables dataStyle
 ```
 
-### 🐍 Kenapa Python-Native, Bukan N8N?
-
-Rubrik penilaian awalnya membuka opsi N8N sebagai orchestrator. Setelah pengembangan modul HRD Mock Interview yang membutuhkan **state management kompleks** (multi-turn conversation, guardrail follow-up, fallback LLM saat rate-limit), keputusan arsitektur beralih ke Python-native murni:
-
-- 🧪 **Testability** — 8 test suite otomatis (`pytest`) untuk validasi logic, sulit dicapai dengan node visual N8N
-- 🔗 **Integrasi langsung** — SQLAlchemy ↔ Aiven MySQL tanpa lapisan webhook tambahan
-- 🛡️ **Guardrail presisi** — validasi output LLM (anti-halusinasi, anti-echo) yang butuh kontrol level-kode
-
-> File workflow N8N lama tetap diarsipkan di [`archive/n8n_legacy/`](./archive/n8n_legacy/) — bukan dihapus, sebagai referensi historis.
-
 ---
 
-## 🛠️ Tech Stack
+## 🎨 Material 3 Premium UI
 
-| Layer | Teknologi |
-|---|---|
-| **Frontend** | ![Streamlit](https://img.shields.io/badge/-Streamlit-FF4B4B?style=flat-square&logo=streamlit&logoColor=white) + Google OAuth |
-| **LLM** | ![Gemini](https://img.shields.io/badge/-Gemini-8E75B2?style=flat-square&logo=googlegemini&logoColor=white) (utama) + OpenAI (fallback rate-limit) |
-| **Vector DB** | ![Qdrant](https://img.shields.io/badge/-Qdrant-DC244C?style=flat-square) Cloud — semantic search |
-| **Relational DB** | ![MySQL](https://img.shields.io/badge/-Aiven%20MySQL-4479A1?style=flat-square&logo=mysql&logoColor=white) via SQLAlchemy |
-| **Hosting** | Streamlit Community Cloud |
-
----
-
-## 🔄 Cara Kerja (End-to-End Workflow)
-
-1. 📄 **Upload CV**: Pengguna mengunggah resume mereka ke platform. AI Agent akan langsung mengurai (*parsing*) informasi dan memberikan skor kelayakan (ATS Score).
-2. 🔍 **Pencarian Lowongan**: Berdasarkan profil CV, sistem secara otomatis mencari lowongan pekerjaan paling relevan di *vector database* (Qdrant) menggunakan teknologi *semantic search*.
-3. 💬 **Konsultasi Karier**: Pengguna berinteraksi dengan AI Career Consultant untuk mendapatkan saran perbaikan CV dan strategi melamar kerja.
-4. 🎙️ **Simulasi Wawancara (Mock Interview)**: Pengguna memasuki mode wawancara interaktif. AI bertindak sebagai HRD profesional dan mengajukan pertanyaan wawancara berbasis metode STAR (Situation, Task, Action, Result).
-5. 📊 **Evaluasi & Transkrip**: Setelah sesi wawancara selesai, AI mengevaluasi kualitas jawaban (Kurang/Cukup/Baik) dan menyimpan seluruh transkrip percakapan ke *database* MySQL (Aiven) untuk dapat ditinjau kembali di kemudian hari.
-
----
-
-## 🐛 Known Issues & Keterbatasan
-
-<details>
-<summary><strong>Klik untuk lihat daftar isu yang diketahui (transparan, sesuai catatan PRD)</strong></summary>
-
-<br>
-
-- **Insiden kehilangan data (23 Juli 2026):** Dua collection Qdrant lama (`job_embeddings`, `indonesian_jobs_gemini`) terhapus permanen saat proses cleanup — keduanya sudah tidak dipakai kode aktif, dampak fungsional nol, tapi dicatat sebagai insiden proses. Detail lengkap di [PRD_JobMatch_AI.md](./PRD_JobMatch_AI.md#catatan-jujur-insiden-kehilangan-data-data-loss).
-- **Rate limit Gemini:** Pada beban tinggi, sistem otomatis fallback ke OpenAI — pastikan `OPENAI_API_KEY` terisi di environment.
-- **ANN approximate search:** Qdrant menggunakan HNSW (approximate nearest neighbor) — hasil pencarian bisa sedikit melewatkan dokumen paling relevan pada parameter `ef_search` rendah.
-- **Skala pilot:** Sistem dirancang untuk penggunaan kecil-menengah, bukan trafik produksi skala besar.
-
-</details>
-
----
-
-## 🚀 Getting Started (Lokal)
-
-```bash
-git clone https://github.com/indri007/sweet-align-hub.git
-cd sweet-align-hub
-
-python3 -m venv venv
-source venv/bin/activate      # Windows: venv\Scripts\activate
-
-pip install -r requirements.txt --break-system-packages
-
-cp .env.example .env          # isi kredensial Anda sendiri
-streamlit run app.py
-```
-
-> 📄 Lihat [PRD_JobMatch_AI.md](./PRD_JobMatch_AI.md) untuk daftar lengkap environment variable yang dibutuhkan.
-
----
-
-## 📚 Dokumentasi Lengkap
-
-| Dokumen | Isi |
-|---|---|
-| [`PRD_JobMatch_AI.md`](./PRD_JobMatch_AI.md) | Requirement produk, keputusan arsitektur, catatan insiden |
-| [`ERD_JobMatch_AI.md`](./ERD_JobMatch_AI.md) | Skema database (Mermaid ERD) |
-| [`PRD_JobMatch_AI_Redeploy.md`](./PRD_JobMatch_AI_Redeploy.md) | Panduan teknis redeploy |
+Antarmuka **JobMatch AI** tidak hanya cerdas, tetapi juga **menawan secara visual**. Kami mendesain khusus *(custom CSS)* seluruh aplikasi menggunakan pedoman desain **Material 3 Dark Theme**:
+- 🌌 **Glassmorphism:** Navigasi tembus pandang bergaya modern.
+- 💊 **Pill-shaped Elements:** Sudut melengkung halus untuk pengalaman yang ramah pengguna.
+- ✨ **Micro-animations:** Tombol *Pulse-glow* dan efek *hover* interaktif yang membuat aplikasi terasa sangat "hidup".
 
 ---
 
 <div align="center">
-
-### 👥 Kontributor & Tim
-
-Proyek ini dikembangkan sebagai bagian dari **Final Project — JCAI (Job Connector AI Engineering), Purwadhika**.
-
-- 👩‍💻 **Indri Kartika** (@indri007) — *AI & Backend Engineering, Streamlit UI*
-- 🤝 *(Teman Satu Tim)* — *Data Preparation & QA*
-
-*Dibangun dengan 🐍 Python, ☕ waktu begadang, dan proses debugging yang cukup panjang.*
-
+  <b>Siap mendapatkan pekerjaan impian Anda berikutnya?</b><br><br>
+  <a href="https://jobsmatch.streamlit.app/">
+    <img src="https://img.shields.io/badge/Coba_Sekarang_Juga_🚀-00C7B7?style=for-the-badge&logo=streamlit" alt="Coba Sekarang">
+  </a>
 </div>
