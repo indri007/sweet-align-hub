@@ -1,0 +1,63 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+.output
+.vinxi
+.tanstack/**
+.nitro
+*.local
+
+# Wrangler / Cloudflare
+.wrangler/
+.dev.vars
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Python Cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# Local Secrets / Environments
+.env
+env
+.streamlit/secrets.toml
+
+# Backups & Archives (Ignored to avoid push size/credentials leaks)
+"job_search_app_05 July 2026 3/"
+job_search_app_05 July 2026 3/
+Tracker HR/
+*.zip
+*.docx
+
+# Python Environments
+.venv/
+venv/
+
+# Other projects
+daily-job-assistant/
+*.jsonl
+
+# IDE / OS / Agent
+.DS_Store
+.antigravity/

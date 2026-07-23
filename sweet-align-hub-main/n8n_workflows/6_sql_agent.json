@@ -1,0 +1,309 @@
+{
+  "name": "6 - SQL Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "sql-query",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": false
+        }
+      },
+      "id": "webhook-sql-query",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        200,
+        300
+      ],
+      "webhookId": "sql-query"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition-explain",
+              "leftValue": "={{ $json.body.action }}",
+              "rightValue": "explain",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-explain",
+      "name": "If Explain",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        420,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Kamu adalah SQL Query Generator. Tugasmu mengubah pertanyaan user tentang data lowongan pekerjaan menjadi SQL query.\n\nDatabase schema:\nTable: jobs\nColumns:\n- id (INTEGER, primary key)\n- job_title (VARCHAR)\n- company_name (VARCHAR)\n- location (VARCHAR)\n- work_type (VARCHAR): 'Full time', 'Paruh waktu', 'Kontrak/Temporer', 'Kasual'\n- salary_raw (VARCHAR)\n- salary_min (FLOAT, nullable)\n- salary_max (FLOAT, nullable)\n- job_description (TEXT)\n- scrape_timestamp (VARCHAR)\n\nRules:\n1. Hanya generate SELECT queries (READ-ONLY). JANGAN buat INSERT, UPDATE, DELETE, DROP, ALTER.\n2. Jawab HANYA dengan SQL query, tanpa penjelasan lain, tanpa markdown code block.\n3. Gunakan LIKE + LOWER() untuk pencarian text.\n4. Limit results ke 20 jika tidak disebutkan.\n5. Salary dalam Rupiah.\n6. Untuk pertanyaan agregat, gunakan COUNT/AVG/MIN/MAX/GROUP BY sesuai kebutuhan."
+            },
+            {
+              "role": "user",
+              "content": "={{ $json.body.question }}"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0,
+          "maxTokens": 500
+        }
+      },
+      "id": "openai-sql-generate",
+      "name": "OpenAI SQL Generate",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        660,
+        180
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "OPENAI_CREDENTIAL_ID",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition-is-select",
+              "leftValue": "={{ $json.message.content.trim().toUpperCase() }}",
+              "rightValue": "SELECT",
+              "operator": {
+                "type": "string",
+                "operation": "startsWith"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-is-select",
+      "name": "If Is SELECT",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        900,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "={{ $json.message.content.trim() }}",
+        "options": {}
+      },
+      "id": "mysql-execute-query",
+      "name": "Execute Query (Aiven MySQL)",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.4,
+      "position": [
+        1140,
+        100
+      ],
+      "credentials": {
+        "mySql": {
+          "id": "AIVEN_MYSQL_CREDENTIAL_ID",
+          "name": "Aiven MySQL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"output\": $('OpenAI SQL Generate').item.json.message.content.trim(), \"sql_query\": $('OpenAI SQL Generate').item.json.message.content.trim(), \"sql_results\": $json, \"row_count\": $items().length } }}"
+      },
+      "id": "respond-sql-generate",
+      "name": "Respond Generate",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1380,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"output\": \"Query ditolak: hanya SELECT (read-only) yang diizinkan.\", \"sql_query\": $json.message.content.trim() } }}"
+      },
+      "id": "respond-sql-rejected",
+      "name": "Respond Rejected",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1140,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Kamu adalah data analyst. Jelaskan hasil query database ini dalam Bahasa Indonesia dengan ringkas dan informatif."
+            },
+            {
+              "role": "user",
+              "content": "=Pertanyaan: {{ $json.body.question }}\nSQL: {{ $json.body.sql_query }}\nHasil ({{ $json.body.result_count }} rows): {{ $json.body.results }}"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.5,
+          "maxTokens": 800
+        }
+      },
+      "id": "openai-sql-explain",
+      "name": "OpenAI SQL Explain",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        660,
+        460
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "OPENAI_CREDENTIAL_ID",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"output\": $json.message.content } }}"
+      },
+      "id": "respond-sql-explain",
+      "name": "Respond Explain",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        900,
+        460
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "If Explain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Explain": {
+      "main": [
+        [
+          {
+            "node": "OpenAI SQL Explain",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "OpenAI SQL Generate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI SQL Generate": {
+      "main": [
+        [
+          {
+            "node": "If Is SELECT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Is SELECT": {
+      "main": [
+        [
+          {
+            "node": "Execute Query (Aiven MySQL)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Rejected",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Query (Aiven MySQL)": {
+      "main": [
+        [
+          {
+            "node": "Respond Generate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI SQL Explain": {
+      "main": [
+        [
+          {
+            "node": "Respond Explain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    {
+      "name": "JobMatch AI"
+    }
+  ]
+}
