@@ -22,13 +22,8 @@ _local_embedder = None
 
 
 def _embed_local(texts: list[str]) -> list[list[float]]:
-    """Embed texts locally using sentence-transformers (all-MiniLM-L6-v2, 384-dim)."""
-    global _local_embedder
-    if _local_embedder is None:
-        from sentence_transformers import SentenceTransformer
-        _local_embedder = SentenceTransformer("all-MiniLM-L6-v2")
-    embeddings = _local_embedder.encode(list(texts))
-    return [e.tolist() for e in embeddings]
+    """Local embedding has been disabled to completely remove HuggingFace dependency."""
+    raise NotImplementedError("Local embedding is disabled. Please use Gemini for embeddings.")
 
 
 def _embed_openai(texts: list[str]) -> list[list[float]]:
