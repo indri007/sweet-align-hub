@@ -84,16 +84,7 @@ def render_step_e():
 
             # Start interview if not started
             if not st.session_state.interview_started:
-                st.info("💡 Karena API Key Gemini saat ini terkena limit (429), Anda bisa menekan tombol Preview di bawah untuk melihat simulasi tampilannya.")
-                if st.button("👁️ Preview Tampilan UI (Tanpa Kuota API)", type="secondary"):
-                    st.session_state.interview_history = [
-                        {"role": "assistant", "content": "Halo, saya Leonardo, HR Manager di sini. Saya telah membaca CV Anda dengan teliti. Mari kita mulai wawancara ini. Coba ceritakan satu tantangan teknis paling rumit yang pernah Anda selesaikan."},
-                        {"role": "user", "content": "Tantangan terbesar saya adalah ketika server utama mengalami *downtime* tak terduga selama 3 jam. Saya harus berkoordinasi dengan tim jaringan sambil melakukan mitigasi data."},
-                        {"role": "assistant", "content": "Langkah mitigasi yang sangat responsif! Dalam situasi panik seperti itu, bagaimana cara Anda mengkomunikasikan masalahnya kepada klien yang terdampak?"}
-                    ]
-                    st.session_state.interview_started = True
-                    st.rerun()
-                
+
                 if st.button("🎬 Mulai Interview Sekarang", type="primary"):
                     with st.spinner("🤖 HR sedang mempersiapkan interview..."):
                         from agents.interview_agent import start_interview, get_active_question
