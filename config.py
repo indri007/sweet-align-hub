@@ -28,9 +28,84 @@ OPENAI_MODEL = _cfg("OPENAI_MODEL", "gpt-4o")
 OPENAI_EMBEDDING_MODEL = _cfg("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small")
 
 # ─── Google Gemini ────────────────────────────────────────
-GEMINI_API_KEY = _cfg("GEMINI_API_KEY") or _cfg("GEMINI_API_KEY_1")
+def _load_gemini_keys() -> list[str]:
+    keys = []
+    for i in range(1, 11):
+        k = _cfg(f"GEMINI_API_KEY_{i}")
+        if k:
+            keys.append(k)
+    if not keys:
+        k = _cfg("GEMINI_API_KEY")
+        if k:
+            keys.append(k)
+    return keys
+
+GEMINI_KEYS: list[str] = _load_gemini_keys()
+GEMINI_API_KEY: str = GEMINI_KEYS[0] if GEMINI_KEYS else ""
 GEMINI_MODEL = _cfg("GEMINI_MODEL", "gemini-flash-latest")
 GEMINI_EMBEDDING_MODEL = _cfg("GEMINI_EMBEDDING_MODEL", "models/gemini-embedding-001")
+
+# ─── State rotasi (per-proses) ────────────────────────────────────────────────
+_current_key_index: int = 0
+_gemini_clients: dict[int, object] = {}
+
+def get_gemini_client(force_index: int | None = None):
+    from google import genai
+    import logging
+    logger = logging.getLogger(__name__)
+
+    global _current_key_index
+    idx = force_index if force_index is not None else _current_key_index
+
+    if not GEMINI_KEYS:
+        return None
+
+    idx = idx % len(GEMINI_KEYS)
+
+    if idx not in _gemini_clients:
+        _gemini_clients[idx] = genai.Client(api_key=GEMINI_KEYS[idx])
+        logger.info(f"Gemini client dibuat untuk key index {idx + 1}/{len(GEMINI_KEYS)}")
+
+    return _gemini_clients[idx]
+
+def rotate_gemini_key() -> bool:
+    import logging
+    logger = logging.getLogger(__name__)
+    global _current_key_index
+    next_index = _current_key_index + 1
+
+    if next_index >= len(GEMINI_KEYS):
+        logger.warning(f"Semua {len(GEMINI_KEYS)} Gemini key sudah dicoba, tidak ada cadangan lagi.")
+        return False
+
+    _current_key_index = next_index
+    logger.warning(f"Gemini key index {next_index} diaktifkan (key {next_index + 1}/{len(GEMINI_KEYS)}).")
+    return True
+
+def gemini_call_with_rotation(fn, *args, max_retries: int = None, **kwargs):
+    from google.genai import errors
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    retries = max_retries if max_retries is not None else len(GEMINI_KEYS)
+    if retries == 0: retries = 1
+    
+    for attempt in range(retries):
+        client = get_gemini_client()
+        if client is None:
+            raise RuntimeError("Gemini tidak dikonfigurasi.")
+        
+        try:
+            return fn(client, *args, **kwargs)
+        except errors.APIError as e:
+            err_str = str(e)
+            if "RESOURCE_EXHAUSTED" in err_str or "429" in err_str:
+                logger.warning(f"[Rotasi] Rate limit tercapai pada percobaan {attempt+1}/{retries}")
+                if attempt < retries - 1:
+                    if rotate_gemini_key():
+                        continue
+            raise e
+    raise RuntimeError("Semua Kunci Gemini gagal karena limit/error.")
 
 # ─── LLM Provider ─────────────────────────────────────────
 # "gemini" or "openai". Auto-detected from available keys unless set explicitly.
@@ -90,7 +165,7 @@ def is_openai_configured() -> bool:
 
 def is_gemini_configured() -> bool:
     """Check if Gemini API key is set."""
-    return bool(GEMINI_API_KEY)
+    return bool(GEMINI_KEYS)
 
 
 def is_qdrant_configured() -> bool:

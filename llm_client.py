@@ -41,7 +41,7 @@ def chat_completion(messages: list[dict], temperature: float = 0.7, max_tokens: 
             return _gemini_chat(messages, temperature, max_tokens)
         except Exception as e:
             err_str = str(e)
-            if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str:
+            if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str or "Semua Kunci Gemini gagal" in err_str:
                 if getattr(config, "OPENAI_API_KEY", None):
                     print(f"[INFO] Gemini 429 Rate Limit. Falling back to OpenAI...")
                     return _openai_chat(messages, temperature, max_tokens)
@@ -76,8 +76,6 @@ def _gemini_chat(messages: list[dict], temperature: float, max_tokens: int) -> s
     from google import genai
     from google.genai import types
 
-    client = genai.Client(api_key=config.GEMINI_API_KEY)
-
     # Gemini keeps system instructions separate from the conversation turns,
     # and uses role "model" instead of "assistant".
     system_parts = []
@@ -98,14 +96,17 @@ def _gemini_chat(messages: list[dict], temperature: float, max_tokens: int) -> s
     if use_google_search:
         tools.append(types.Tool(google_search=types.GoogleSearch()))
 
-    response = client.models.generate_content(
-        model=config.GEMINI_MODEL,
-        contents=contents,
-        config=types.GenerateContentConfig(
-            system_instruction=system_instruction,
-            temperature=temperature,
-            max_output_tokens=max_tokens,
-            tools=tools if tools else None,
-        ),
-    )
+    def _do_generate(client):
+        return client.models.generate_content(
+            model=config.GEMINI_MODEL,
+            contents=contents,
+            config=types.GenerateContentConfig(
+                system_instruction=system_instruction,
+                temperature=temperature,
+                max_output_tokens=max_tokens,
+                tools=tools if tools else None,
+            ),
+        )
+
+    response = config.gemini_call_with_rotation(_do_generate)
     return response.text
