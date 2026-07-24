@@ -39,7 +39,7 @@
     },
     {
       "parameters": {
-        "model": "gpt-4o",
+        "model": "gpt-4o-mini",
         "options": {
           "temperature": 0.7
         }
