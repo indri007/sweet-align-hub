@@ -18,7 +18,7 @@ from zoneinfo import ZoneInfo
 
 from logger import get_logger
 from metrics import track_duration, record_event
-from jsearch_client import fetch_jobs
+
 from database import DatabaseManager, Job
 from vector_store import VectorStoreManager
 
@@ -90,22 +90,18 @@ def run():
     query = _today_query()
 
     with track_duration("daily_fetch"):
+        import json
+        import random
+        jobs = []
         try:
-            jobs = fetch_jobs(query, country="id", num_pages=1)
-        except Exception as e:
-            logger.warning("RapidAPI JSearch failed, activating fallback to local dataset!", extra={"error": str(e)})
-            import json
-            import random
-            jobs = []
-            try:
-                with open("dataset/jobs.jsonl", "r", encoding="utf-8") as f:
-                    all_jobs = [json.loads(line) for line in f]
-                random.shuffle(all_jobs)
-                jobs = all_jobs[:MAX_JOBS_PER_DAY]
-                logger.info("Fallback activated: Pulled 5 jobs from local dataset")
-            except Exception as ex:
-                logger.error("Fallback also failed", extra={"error": str(ex)})
-                return
+            with open("dataset/jobs.jsonl", "r", encoding="utf-8") as f:
+                all_jobs = [json.loads(line) for line in f]
+            random.shuffle(all_jobs)
+            jobs = all_jobs[:MAX_JOBS_PER_DAY]
+            logger.info("Pulled 5 jobs from local dataset (RapidAPI removed)")
+        except Exception as ex:
+            logger.error("Failed to load local dataset", extra={"error": str(ex)})
+            return
 
         if not jobs:
             logger.info("No jobs returned for query", extra={"query": query})
