@@ -24,7 +24,7 @@ def _cfg(key, default=""):
 
 # ─── OpenAI (opsional, dipakai untuk fitur voice interview jika diaktifkan) ──
 OPENAI_API_KEY = _cfg("OPENAI_API_KEY")
-OPENAI_MODEL = _cfg("OPENAI_MODEL", "gpt-4o")
+OPENAI_MODEL = _cfg("OPENAI_MODEL", "gpt-4o-mini")
 OPENAI_EMBEDDING_MODEL = _cfg("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small")
 
 # ─── Google Gemini ────────────────────────────────────────
