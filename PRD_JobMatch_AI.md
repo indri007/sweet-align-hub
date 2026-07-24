@@ -31,22 +31,25 @@ Browser User
      ▼
 Streamlit App (Streamlit Cloud — branch: streamlit)
      │
-     ├──► LLM Provider (Groq rotating 4 keys / fallback Gemini Flash)
-     │        └─ hanya untuk: evaluasi jawaban, saran CV, follow-up interview
+     ├──► N8N Workflow / Python-Native Pipeline (Dual Support)
+     │        └─ USE_N8N="true" untuk orkestrasi N8N, Python untuk fallback/logika internal
      │
-     ├──► Qdrant Cloud (vector_store.py)
-     │        ├─ [1] indonesian_jobs            → 465 vektor loker
-     │        ├─ [2] hr_knowledge_base           → 216 vektor aturan HRD + Excel
-     │        ├─ [3] interview_questions_bank    → bank soal STAR (BARU)
-     │        └─ [4] hr_memory / cs_memory       → memori refleksi agentic
+     ├──► LLM Provider (Gemini 5-Key Rotation / Fallback OpenAI gpt-4o-mini)
+     │        └─ untuk evaluasi jawaban, saran CV, follow-up interview, ATS generation
+     │
+     ├──► Qdrant Cloud (Dual Collection Fallback)
+     │        ├─ [1] indonesian_jobs (FastEmbed) / indonesian_jobs_openai (OpenAI)
+     │        ├─ [2] hr_knowledge_base (FastEmbed) / hr_knowledge_base_openai (OpenAI)
+     │        ├─ [3] interview_questions_bank
+     │        └─ [4] hr_memory / cs_memory
      │
      └──► Aiven MySQL (database.py, SQLAlchemy)
                └─ jobs, user_profiles, cv_analysis_results
 ```
 
-### 2.2 Arsitektur Target (Final: Python-Native)
+### 2.2 Arsitektur Target (Final: Dual-Pipeline)
 
-Penyelesaian Konflik #2 telah memutuskan bahwa aplikasi tidak akan menggunakan N8N. Eksekusi `agent` dilakukan langsung melalui Python secara *native* menuju Gemini API dan Qdrant.
+Penyelesaian Konflik #2 telah merevisi keputusan awal. Aplikasi sekarang berjalan secara hybrid (Dual-Pipeline): mendukung baik eksekusi melalui N8N Webhook (`USE_N8N="true"`) maupun Python-native langsung untuk fleksibilitas maksimal.
 
 ---
 
@@ -55,10 +58,10 @@ Penyelesaian Konflik #2 telah memutuskan bahwa aplikasi tidak akan menggunakan N
 | Layer | Teknologi |
 |---|---|
 | Frontend | Streamlit ≥ 1.39.0, Google OAuth (`st.login()`) |
-| LLM Utama | Groq (llama-3.3-70b), 4 key rotasi |
-| LLM Fallback | Gemini Flash (10 key rotasi) |
-| Embedding | `models/text-embedding-004` via Gemini API (768-dim) |
-| Vector DB | Qdrant Cloud (4 collections) |
+| LLM Utama | Gemini Flash (5 key rotasi anti rate-limit) |
+| LLM Fallback | OpenAI (`gpt-4o-mini`) via API atau N8N |
+| Embedding | Lokal (`all-MiniLM-L6-v2`) & Fallback OpenAI (`text-embedding-3-small`) |
+| Vector DB | Qdrant Cloud (Dual Collection Architecture) |
 | Relational DB | Aiven MySQL (SQLAlchemy + SSL) |
 | TTS Leonardo | gTTS (gratis, tanpa API key, Bahasa Indonesia) |
 | STT Voice Mode | OpenAI Whisper-1 (opsional) |
@@ -195,15 +198,13 @@ def get_or_analyze_cv(parsed_cv_text: str, job_id: str, language: str):
 
 | Var | Keterangan | Wajib? |
 |---|---|---|
-| `GEMINI_API_KEY` | Primary Gemini key | ✅ |
-| `GEMINI_API_KEYS` | 10 key rotasi (comma-separated) | ✅ |
-| `GROQ_API_KEY_1..4` | 4 key Groq rotasi | ✅ |
+| `GEMINI_API_KEY_1..5` | 5 Key Gemini untuk rotasi agen secara terpisah | ✅ |
 | `DATABASE_URL` | Aiven MySQL connection string | ✅ |
 | `QDRANT_URL` | URL cluster Qdrant utama | ✅ |
-| `QDRANT_API_KEY` | Key Qdrant (7 key baru, butuh write-access) | ✅ |
-| `GEMINI_EMBEDDING_MODEL` | default `models/gemini-embedding-001` | opsional |
-| `USE_N8N` | `false` (Deprecated, tidak dipakai) | ✅ |
-| `OPENAI_API_KEY` | Wajib -- fallback LLM saat Gemini kena rate limit (dipakai llm_client.py, terverifikasi aktif di FR-15/FR-16) | ✅ |
+| `QDRANT_API_KEY` | Key Qdrant (butuh write-access) | ✅ |
+| `EMBEDDING_MODEL` | default `local` (FastEmbed) | opsional |
+| `USE_N8N` | `true` (N8N aktif dan disinkronkan) | ✅ |
+| `OPENAI_API_KEY` | Wajib -- fallback LLM `gpt-4o-mini` dan embedding `text-embedding-3-small` | ✅ |
 | Google OAuth (`client_id`/`client_secret`) | Di `.streamlit/secrets.toml`, bukan `.env` | ✅ |
 
 ---
@@ -260,14 +261,12 @@ before/after yang nyata untuk didokumentasikan di sini.
 
 *Living document — diperbarui setiap ada perubahan arsitektur signifikan.*
 
-## Keputusan Arsitektur: N8N vs Python-Native (Konflik #2 -- Ditutup)
+## Keputusan Arsitektur: N8N vs Python-Native (Konflik #2 -- Direvisi & Ditutup)
 
-**Tanggal keputusan**: 23 Juli 2026
+**Tanggal keputusan awal**: 23 Juli 2026 (Menolak N8N)
+**Tanggal revisi final**: 24 Juli 2026 (Menerima Dual-Pipeline)
 
-**Keputusan**: Arsitektur produksi JobMatch AI menggunakan jalur Python-native
-langsung (Streamlit -> agents/*.py -> Gemini/OpenAI + Qdrant + Aiven MySQL),
-BUKAN N8N sebagai backbone orkestrasi. USE_N8N=false adalah konfigurasi final,
-bukan sementara.
+**Keputusan Akhir**: Arsitektur produksi JobMatch AI resmi mendukung **Dual-Pipeline**. Fitur N8N kembali diaktifkan (`USE_N8N="true"`) dan disinkronisasikan sepenuhnya dengan model hemat biaya `gpt-4o-mini` serta prompt ATS Harvard yang komprehensif. Python-native tetap berfungsi berdampingan sebagai pengaman logika dan Fallback jika webhook gagal.
 
 **Alasan**:
 1. Seluruh FR-14 (filter Qdrant), FR-15 (state tracking multi-turn + guardrail),

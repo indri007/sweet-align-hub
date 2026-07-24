@@ -57,9 +57,17 @@ Simulasi wawancara *multi-turn* (tanya-jawab interaktif) menggunakan pendekatan 
 
 ---
 
-## 🏗️ Arsitektur Sistem Berkelas Enterprise
+## 🏗️ Mengapa Memilih Pendekatan Ini?
 
-Keseluruhan sistem ini dibangun menggunakan **Python-native murni**, membuang dependensi alat pihak ketiga seperti n8n untuk mendapatkan kecepatan maksimal, *state management* yang kuat, dan kontrol penuh atas *guardrail* (anti-halusinasi AI).
+Proyek ini sengaja tidak membatasi diri pada alat-alat No-Code biasa, melainkan menggunakan fondasi pemrograman yang bisa di-*scale* hingga tingkat *Enterprise*. Kami berfokus pada kecepatan maksimal, *state management* yang kuat, dan kontrol penuh atas *guardrail* (anti-halusinasi AI).
+
+### 🐍 Arsitektur Dual-Pipeline (Python-Native & N8N)
+
+Awalnya, keputusan arsitektur beralih ke Python-native murni karena kebutuhan **state management kompleks** (multi-turn conversation, guardrail follow-up). Namun, pada 24 Juli 2026, **N8N telah diaktifkan kembali dan disinkronisasikan 100%** dengan Python-Native.
+
+- 🤖 **Python-Native Pipeline**: Digunakan untuk orkestrasi internal dengan `pytest` dan perlindungan tingkat kode (anti-halusinasi).
+- 🔗 **N8N Pipeline**: Tersedia secara opsional (`USE_N8N="true"`) dan sudah menggunakan model `gpt-4o-mini` yang hemat serta dibekali prompt ATS tingkat lanjut.
+- 🛡️ **Dual-Collection Vector DB**: Menyediakan jaring pengaman tingkat enterprise, di mana pencarian lokal (FastEmbed 384-dim) akan otomatis *fallback* ke OpenAI (1536-dim) jika server kehabisan memori.
 
 ```mermaid
 flowchart TD
