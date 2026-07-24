@@ -184,9 +184,16 @@ class QdrantVectorStore:
             self.client.upsert(collection_name=self.collection_name, points=points)
 
     def search_similar_jobs(self, query_text: str, top_k: int = 10) -> list[dict]:
-        query_vector = embed_texts([query_text])[0]
+        try:
+            query_vector = _embed_local([query_text])[0]
+            target_collection = self.collection_name
+        except Exception as e:
+            print(f"[VectorStore] Local embedding failed: {e}. Falling back to OpenAI (Plan B).")
+            query_vector = _embed_openai([query_text])[0]
+            target_collection = f"{self.collection_name}_openai"
+
         response = self.client.query_points(
-            collection_name=self.collection_name,
+            collection_name=target_collection,
             query=query_vector,
             limit=top_k,
             with_payload=True,
