@@ -8,10 +8,7 @@
 
 ## Ringkasan
 
-Project ini pada awalnya dikembangkan dan di-deploy menggunakan Google Cloud
-Run sebagai hosting, dengan environment kerja awal di Google Cloud Shell.
-Proses migrasi memindahkan seluruh kode dan environment kerja ke laptop lokal,
-lalu arsitektur hosting dipindahkan sepenuhnya ke Streamlit Community Cloud.
+ Streamlit Community Cloud.
 
 ## Status Arsitektur Final
 
