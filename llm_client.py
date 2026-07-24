@@ -26,7 +26,7 @@ def is_llm_configured() -> bool:
     return config.is_llm_configured()
 
 
-def chat_completion(messages: list[dict], temperature: float = 0.7, max_tokens: int = 1500, use_google_search: bool = False) -> str:
+def chat_completion(messages: list[dict], temperature: float = 0.7, max_tokens: int = 1500, use_google_search: bool = False, agent_id: int = None) -> str:
     """
     Send a chat-style request to whichever LLM provider is configured.
 
@@ -38,7 +38,7 @@ def chat_completion(messages: list[dict], temperature: float = 0.7, max_tokens: 
     """
     if config.LLM_PROVIDER == "gemini":
         try:
-            return _gemini_chat(messages, temperature, max_tokens, use_google_search)
+            return _gemini_chat(messages, temperature, max_tokens, use_google_search, agent_id)
         except Exception as e:
             err_str = str(e)
             if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str or "Semua Kunci Gemini gagal" in err_str:
@@ -68,7 +68,7 @@ def _openai_chat(messages: list[dict], temperature: float, max_tokens: int) -> s
     return response.choices[0].message.content
 
 
-def _gemini_chat(messages: list[dict], temperature: float, max_tokens: int, use_google_search: bool = False) -> str:
+def _gemini_chat(messages: list[dict], temperature: float, max_tokens: int, use_google_search: bool = False, agent_id: int = None) -> str:
     import os
     if os.environ.get("MOCK_GEMINI_429") == "1":
         raise RuntimeError("429 RESOURCE_EXHAUSTED. Fake rate limit for testing fallback.")
@@ -108,5 +108,5 @@ def _gemini_chat(messages: list[dict], temperature: float, max_tokens: int, use_
             ),
         )
 
-    response = config.gemini_call_with_rotation(_do_generate)
+    response = config.gemini_call_with_rotation(_do_generate, agent_id=agent_id)
     return response.text

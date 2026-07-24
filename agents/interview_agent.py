@@ -12,7 +12,7 @@ def _default_chat_completion(messages, temperature, max_tokens):
     """
     from llm_client import chat_completion
 
-    return chat_completion(messages=messages, temperature=temperature, max_tokens=max_tokens)
+    return chat_completion(messages=messages, temperature=temperature, max_tokens=max_tokens, agent_id=4)
 
 
 # ---------------------------------------------------------------------------
@@ -233,9 +233,10 @@ Transkrip Wawancara:
 Output harus singkat, padat, dan langsung menjadi instruksi bagi Leonardo."""
             
             reflection = chat_completion(
-                messages=[{"role": "user", "content": prompt}],
+                messages=[{"role": "user", "content": reflection_prompt}],
                 temperature=0.4,
-                max_tokens=300
+                max_tokens=1000,
+                agent_id=4
             )
             
             hr_memory.add_documents(

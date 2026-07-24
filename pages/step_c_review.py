@@ -119,7 +119,7 @@ def render_step_c():
                 ):
                     with st.spinner("✨ AI sedang membuat CV ATS-friendly..."):
                         try:
-                            from agents.cv_analyzer_agent import generate_ats_cv
+                            from agents.cv_generator_agent import generate_ats_cv
                             result = generate_ats_cv(st.session_state.cv_text, selected_job, language=lang_choice)
                             if result["available"] and result["ats_text"]:
                                 st.session_state.ats_cv_text = result["ats_text"]
@@ -151,7 +151,7 @@ def render_step_c():
                 with col1:
                     try:
                         if st.session_state.get("ats_docx_bytes") is None:
-                            from agents.cv_analyzer_agent import export_cv_to_docx
+                            from agents.cv_generator_agent import export_cv_to_docx
                             st.session_state.ats_docx_bytes = export_cv_to_docx(st.session_state.ats_cv_text)
                         st.download_button(
                             "📄 Download Word (.docx)",
@@ -166,7 +166,7 @@ def render_step_c():
                 with col2:
                     try:
                         if st.session_state.get("ats_pdf_bytes") is None:
-                            from agents.cv_analyzer_agent import export_cv_to_pdf
+                            from agents.cv_generator_agent import export_cv_to_pdf
                             st.session_state.ats_pdf_bytes = export_cv_to_pdf(st.session_state.ats_cv_text)
                         st.download_button(
                             "📑 Download PDF (.pdf)",

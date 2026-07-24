@@ -89,6 +89,7 @@ Berikan analisis singkat:
                     ],
                     temperature=0.7,
                     max_tokens=2000,
+                    agent_id=5,
                 )
                 result["ai_summary"] = reply
             except Exception as e:

@@ -82,30 +82,47 @@ def rotate_gemini_key() -> bool:
     logger.warning(f"Gemini key index {next_index} diaktifkan (key {next_index + 1}/{len(GEMINI_KEYS)}).")
     return True
 
-def gemini_call_with_rotation(fn, *args, max_retries: int = None, **kwargs):
+def gemini_call_with_rotation(fn, *args, agent_id: int = None, max_retries: int = None, **kwargs):
     from google.genai import errors
     import logging
     logger = logging.getLogger(__name__)
     
-    retries = max_retries if max_retries is not None else len(GEMINI_KEYS)
-    if retries == 0: retries = 1
-    
-    for attempt in range(retries):
-        client = get_gemini_client()
+    if agent_id is not None:
+        # Agent-specific key locking (1-based index)
+        # 1 -> index 0, 2 -> index 1, etc.
+        idx = (agent_id - 1) % len(GEMINI_KEYS) if GEMINI_KEYS else 0
+        client = get_gemini_client(force_index=idx)
         if client is None:
             raise RuntimeError("Gemini tidak dikonfigurasi.")
-        
+            
         try:
             return fn(client, *args, **kwargs)
         except errors.APIError as e:
             err_str = str(e)
             if "RESOURCE_EXHAUSTED" in err_str or "429" in err_str:
-                logger.warning(f"[Rotasi] Rate limit tercapai pada percobaan {attempt+1}/{retries}")
-                if attempt < retries - 1:
-                    if rotate_gemini_key():
-                        continue
+                logger.warning(f"[Lock] Rate limit tercapai untuk Agent {agent_id} (Key Index {idx}). Tidak melakukan rotasi, serahkan pada OpenAI Fallback.")
             raise e
-    raise RuntimeError("Semua Kunci Gemini gagal karena limit/error.")
+    else:
+        # Legacy rotation for unassigned calls
+        retries = max_retries if max_retries is not None else len(GEMINI_KEYS)
+        if retries == 0: retries = 1
+        
+        for attempt in range(retries):
+            client = get_gemini_client()
+            if client is None:
+                raise RuntimeError("Gemini tidak dikonfigurasi.")
+            
+            try:
+                return fn(client, *args, **kwargs)
+            except errors.APIError as e:
+                err_str = str(e)
+                if "RESOURCE_EXHAUSTED" in err_str or "429" in err_str:
+                    logger.warning(f"[Rotasi] Rate limit tercapai pada percobaan {attempt+1}/{retries}")
+                    if attempt < retries - 1:
+                        if rotate_gemini_key():
+                            continue
+                raise e
+        raise RuntimeError("Semua Kunci Gemini gagal karena limit/error.")
 
 # ─── LLM Provider ─────────────────────────────────────────
 # "gemini" or "openai". Auto-detected from available keys unless set explicitly.

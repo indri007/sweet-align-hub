@@ -91,7 +91,7 @@ Berikan insight tentang skill yang dibutuhkan, cara mempersiapkan diri, dan lang
         # Add current message
         messages.append({"role": "user", "content": user_message})
 
-        reply = chat_completion(messages=messages, temperature=0.7, max_tokens=1500, use_google_search=True)
+        reply = chat_completion(messages=messages, temperature=0.7, max_tokens=1500, use_google_search=True, agent_id=3)
 
         return {
             "response": reply,
