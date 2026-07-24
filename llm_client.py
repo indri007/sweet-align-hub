@@ -38,7 +38,7 @@ def chat_completion(messages: list[dict], temperature: float = 0.7, max_tokens: 
     """
     if config.LLM_PROVIDER == "gemini":
         try:
-            return _gemini_chat(messages, temperature, max_tokens)
+            return _gemini_chat(messages, temperature, max_tokens, use_google_search)
         except Exception as e:
             err_str = str(e)
             if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str or "Semua Kunci Gemini gagal" in err_str:
@@ -68,7 +68,7 @@ def _openai_chat(messages: list[dict], temperature: float, max_tokens: int) -> s
     return response.choices[0].message.content
 
 
-def _gemini_chat(messages: list[dict], temperature: float, max_tokens: int) -> str:
+def _gemini_chat(messages: list[dict], temperature: float, max_tokens: int, use_google_search: bool = False) -> str:
     import os
     if os.environ.get("MOCK_GEMINI_429") == "1":
         raise RuntimeError("429 RESOURCE_EXHAUSTED. Fake rate limit for testing fallback.")
