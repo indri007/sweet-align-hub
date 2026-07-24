@@ -202,10 +202,7 @@ def ensure_data_dir():
     DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 
-def get_gemini_client():
-    """Returns a Google Gemini API client instance."""
-    from google import genai
-    return genai.Client(api_key=GEMINI_API_KEY)
+
 
 
 def get_qdrant_client():
