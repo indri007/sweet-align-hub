@@ -1,4 +1,4 @@
-## Entity‑Relationship Diagram (ERD)
+## 1. Entity‑Relationship Diagram (ERD) - Relational DB (Aiven MySQL)
 
 Berikut diagram ERD utama yang menggambarkan tabel‑tabel inti dalam database MySQL Aiven.
 
@@ -62,4 +62,28 @@ erDiagram
     text ats_cv_text
     datetime created_at
   }
+```
+
+---
+
+## 2. Vector Collections Schema (Qdrant Cloud)
+
+Karena arsitektur menggunakan pendekatan *Dual-Pipeline* dan *Embeddings Fallback*, berikut adalah struktur koleksi vektor di Qdrant:
+
+```mermaid
+erDiagram
+    QDRANT_CLOUD ||--o{ PRIMARY_FAST_EMBED : "Tingkat 1 (Local/384-dim)"
+    QDRANT_CLOUD ||--o{ FALLBACK_OPENAI : "Tingkat 2 (Cloud/1536-dim)"
+
+    PRIMARY_FAST_EMBED {
+        varchar indonesian_jobs "465 Vektor Lowongan Kerja"
+        varchar hr_knowledge_base "216 Vektor Aturan HRD & KPI"
+        varchar interview_questions_bank "Bank Soal STAR Interview"
+        varchar hr_memory "Log Refleksi CS / HR"
+    }
+
+    FALLBACK_OPENAI {
+        varchar indonesian_jobs_openai "Plan B: Jika memori Streamlit penuh"
+        varchar hr_knowledge_base_openai "Plan B: Menggunakan text-embedding-3-small"
+    }
 ```
