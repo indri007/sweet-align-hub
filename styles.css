@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════
-   JobMatch AI — Premium Material 3 Dark Theme + Animations
+   JobMatch AI — Premium Material 3 Light Theme + Animations
    ═══════════════════════════════════════════════════════════ */
 
 /* ── Google Fonts Import ─────────────────────────────────── */
@@ -8,24 +8,24 @@
 /* ── M3 Tokens & Variables ───────────────────────────────── */
 :root {
     /* Color Palette */
-    --m3-bg-base: #0B0E14; /* Sangat gelap, modern */
-    --m3-surface: rgba(22, 27, 34, 0.65); /* Glassmorphism base */
-    --m3-surface-hover: rgba(33, 40, 51, 0.85);
+    --m3-bg-base: #f8fafc; /* Latar sangat bersih, modern (slate-50) */
+    --m3-surface: rgba(255, 255, 255, 0.75); /* Glassmorphism bening */
+    --m3-surface-hover: rgba(241, 245, 249, 0.95);
     
-    --m3-primary: #3b82f6; /* Modern Blue */
-    --m3-primary-glow: rgba(59, 130, 246, 0.4);
+    --m3-primary: #2563eb; /* Modern Blue */
+    --m3-primary-glow: rgba(37, 99, 235, 0.25);
     
-    --m3-secondary: #8b5cf6; /* Modern Purple */
-    --m3-secondary-glow: rgba(139, 92, 246, 0.4);
+    --m3-secondary: #5cc8f6; /* User's Modern blue */
+    --m3-secondary-glow: rgba(236, 6, 6, 0.4); /* User's red glow */
     
-    --m3-success: #10b981;
-    --m3-error: #ef4444;
-    --m3-warning: #f59e0b;
+    --m3-success: #059669;
+    --m3-error: #dc2626;
+    --m3-warning: #d97706;
 
     /* Text */
-    --m3-on-bg: #f8fafc;
-    --m3-on-surface: #cbd5e1;
-    --m3-on-surface-variant: #94a3b8;
+    --m3-on-bg: #0f172a; /* Teks utama sangat gelap */
+    --m3-on-surface: #334155;
+    --m3-on-surface-variant: #64748b;
 
     /* Gradients */
     --m3-gradient-primary: linear-gradient(135deg, var(--m3-primary), var(--m3-secondary));
@@ -42,7 +42,7 @@
     --m3-glow-shadow: 0 0 25px var(--m3-primary-glow);
     
     /* Glass Effect */
-    --m3-glass-border: 1px solid rgba(255, 255, 255, 0.08);
+    --m3-glass-border: 1px solid rgba(0, 0, 0, 0.06);
     --m3-glass-blur: blur(12px);
 
     /* Transitions */
@@ -86,7 +86,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* ── Sidebar (Glassmorphism) ─────────────────────────────── */
 [data-testid="stSidebar"] {
-    background: rgba(11, 14, 20, 0.75) !important;
+    background: rgba(241, 245, 249, 0.85) !important;
     backdrop-filter: var(--m3-glass-blur) !important;
     -webkit-backdrop-filter: var(--m3-glass-blur) !important;
     border-right: var(--m3-glass-border) !important;
