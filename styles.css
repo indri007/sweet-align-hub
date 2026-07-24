@@ -1,0 +1,344 @@
+/* ═══════════════════════════════════════════════════════════
+   JobMatch AI — Premium Material 3 Light Theme + Animations
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Google Fonts Import ─────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Roboto:wght@300;400;500;700&display=swap');
+
+/* ── M3 Tokens & Variables ───────────────────────────────── */
+:root {
+    /* Color Palette */
+    --m3-bg-base: #f8fafc; /* Latar sangat bersih, modern (slate-50) */
+    --m3-surface: rgba(255, 255, 255, 0.75); /* Glassmorphism bening */
+    --m3-surface-hover: rgba(241, 245, 249, 0.95);
+    
+    --m3-primary: #2563eb; /* Modern Blue */
+    --m3-primary-glow: rgba(37, 99, 235, 0.25);
+    
+    --m3-secondary: #5cc8f6; /* User's Modern blue */
+    --m3-secondary-glow: rgba(236, 6, 6, 0.4); /* User's red glow */
+    
+    --m3-success: #059669;
+    --m3-error: #dc2626;
+    --m3-warning: #d97706;
+
+    /* Text */
+    --m3-on-bg: #0f172a; /* Teks utama sangat gelap */
+    --m3-on-surface: #334155;
+    --m3-on-surface-variant: #64748b;
+
+    /* Gradients */
+    --m3-gradient-primary: linear-gradient(135deg, var(--m3-primary), var(--m3-secondary));
+    --m3-gradient-success: linear-gradient(135deg, var(--m3-success), #059669);
+    
+    /* Shapes */
+    --m3-shape-pill: 9999px;
+    --m3-shape-card: 20px;
+    --m3-shape-input: 16px;
+
+    /* Elevations */
+    --m3-elevation-1: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.15);
+    --m3-elevation-2: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+    --m3-glow-shadow: 0 0 25px var(--m3-primary-glow);
+    
+    /* Glass Effect */
+    --m3-glass-border: 1px solid rgba(0, 0, 0, 0.06);
+    --m3-glass-blur: blur(12px);
+
+    /* Transitions */
+    --m3-transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --m3-transition-smooth: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── Keyframes (Animations) ──────────────────────────────── */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulseGlow {
+    0% { box-shadow: 0 0 15px var(--m3-primary-glow); }
+    50% { box-shadow: 0 0 35px var(--m3-secondary-glow); }
+    100% { box-shadow: 0 0 15px var(--m3-primary-glow); }
+}
+
+@keyframes floatElement {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-5px); }
+    100% { transform: translateY(0px); }
+}
+
+/* ── Global Styles ───────────────────────────────────────── */
+.stApp {
+    font-family: 'Outfit', 'Roboto', sans-serif !important;
+    background-color: var(--m3-bg-base) !important;
+    color: var(--m3-on-bg) !important;
+    animation: fadeInUp 0.6s ease-out forwards;
+}
+
+/* Base Headings */
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', sans-serif !important;
+    font-weight: 700 !important;
+    color: var(--m3-on-bg) !important;
+    letter-spacing: -0.5px;
+}
+
+/* ── Sidebar (Glassmorphism) ─────────────────────────────── */
+[data-testid="stSidebar"] {
+    background: rgba(241, 245, 249, 0.85) !important;
+    backdrop-filter: var(--m3-glass-blur) !important;
+    -webkit-backdrop-filter: var(--m3-glass-blur) !important;
+    border-right: var(--m3-glass-border) !important;
+}
+
+[data-testid="stSidebar"] .stMarkdown h1 {
+    background: var(--m3-gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 800;
+    font-size: 1.8rem;
+    text-align: center;
+    padding: 0.5rem 0;
+    animation: pulseGlow 4s infinite alternate;
+}
+
+/* ── Step Indicators in Sidebar (Custom Elements) ────────── */
+.step-item {
+    display: flex;
+    align-items: center;
+    padding: 14px 18px;
+    margin: 8px 0;
+    border-radius: var(--m3-shape-card);
+    cursor: pointer;
+    transition: all var(--m3-transition-smooth);
+    border: var(--m3-glass-border);
+    background: var(--m3-surface);
+}
+
+.step-item:hover {
+    transform: translateX(8px);
+    background: var(--m3-surface-hover);
+    box-shadow: var(--m3-elevation-1);
+}
+
+.step-item.active {
+    background: rgba(59, 130, 246, 0.15);
+    border-color: var(--m3-primary);
+    box-shadow: var(--m3-glow-shadow);
+    transform: translateX(10px);
+}
+
+.step-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--m3-shape-pill);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 14px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    transition: all var(--m3-transition-smooth);
+}
+
+.step-item:hover .step-icon {
+    transform: scale(1.15) rotate(-5deg);
+}
+
+.step-icon.active {
+    background: var(--m3-gradient-primary);
+    color: white;
+    box-shadow: var(--m3-glow-shadow);
+    animation: floatElement 3s infinite ease-in-out;
+}
+
+.step-icon.completed {
+    background: var(--m3-gradient-success);
+    color: white;
+}
+
+/* ── Buttons (Material 3 Pill & Interactive) ─────────────── */
+.stButton > button {
+    border-radius: var(--m3-shape-pill) !important;
+    background: var(--m3-surface) !important;
+    color: var(--m3-on-bg) !important;
+    border: var(--m3-glass-border) !important;
+    font-weight: 600 !important;
+    padding: 0.5rem 1.5rem !important;
+    transition: all var(--m3-transition-fast) !important;
+    box-shadow: var(--m3-elevation-1) !important;
+    overflow: hidden;
+    position: relative;
+}
+
+.stButton > button:hover {
+    transform: translateY(-3px) scale(1.02) !important;
+    box-shadow: var(--m3-elevation-2), var(--m3-glow-shadow) !important;
+    border-color: var(--m3-primary) !important;
+    background: var(--m3-surface-hover) !important;
+    color: var(--m3-primary) !important;
+}
+
+.stButton > button:active {
+    transform: translateY(0) scale(0.98) !important;
+}
+
+/* Primary Button Override */
+button[kind="primary"] {
+    background: var(--m3-gradient-primary) !important;
+    color: white !important;
+    border: none !important;
+    animation: pulseGlow 3s infinite alternate;
+}
+
+button[kind="primary"]:hover {
+    color: white !important;
+    transform: translateY(-4px) scale(1.03) !important;
+    box-shadow: 0 10px 25px var(--m3-primary-glow) !important;
+}
+
+/* ── Inputs & TextAreas (Glass Inputs) ───────────────────── */
+.stTextInput > div > div > input,
+.stTextArea > div > div > textarea,
+.stSelectbox > div > div {
+    border-radius: var(--m3-shape-input) !important;
+    background: var(--m3-surface) !important;
+    border: var(--m3-glass-border) !important;
+    color: var(--m3-on-bg) !important;
+    transition: all var(--m3-transition-fast) !important;
+    padding: 0.75rem 1rem !important;
+}
+
+.stTextInput > div > div > input:focus,
+.stTextArea > div > div > textarea:focus,
+.stSelectbox > div > div:focus {
+    background: var(--m3-surface-hover) !important;
+    border-color: var(--m3-primary) !important;
+    box-shadow: 0 0 0 2px var(--m3-primary-glow) !important;
+    transform: translateY(-2px);
+}
+
+/* ── Chat Input (Material 3 Dock) ────────────────────────── */
+.stChatInputContainer {
+    border-radius: var(--m3-shape-pill) !important;
+    background: rgba(22, 27, 34, 0.85) !important;
+    backdrop-filter: var(--m3-glass-blur) !important;
+    border: var(--m3-glass-border) !important;
+    box-shadow: var(--m3-elevation-2) !important;
+    transition: all var(--m3-transition-fast) !important;
+    padding: 0.2rem 1rem !important;
+}
+
+.stChatInputContainer:focus-within {
+    border-color: var(--m3-primary) !important;
+    box-shadow: 0 10px 30px var(--m3-primary-glow) !important;
+    transform: translateY(-5px);
+}
+
+/* ── Chat Messages (Bubbles) ─────────────────────────────── */
+[data-testid="stChatMessage"] {
+    background: var(--m3-surface) !important;
+    border-radius: var(--m3-shape-card) !important;
+    border: var(--m3-glass-border) !important;
+    padding: 1.5rem !important;
+    margin-bottom: 1rem !important;
+    box-shadow: var(--m3-elevation-1) !important;
+    animation: fadeInUp 0.5s ease-out forwards;
+    transition: all var(--m3-transition-fast);
+}
+
+[data-testid="stChatMessage"]:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--m3-elevation-2);
+}
+
+/* User Message specific */
+[data-testid="stChatMessage"][data-baseweb="card"]:has(svg[title="user"]) {
+    background: rgba(59, 130, 246, 0.1) !important;
+    border-color: rgba(59, 130, 246, 0.3) !important;
+}
+
+/* ── Alerts (M3 Info Cards) ──────────────────────────────── */
+.stAlert {
+    border-radius: var(--m3-shape-card) !important;
+    border: var(--m3-glass-border) !important;
+    box-shadow: var(--m3-elevation-1) !important;
+    background-color: var(--m3-surface) !important;
+    transition: all var(--m3-transition-fast) !important;
+    animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.stAlert:hover {
+    transform: scale(1.01) translateY(-2px);
+    box-shadow: var(--m3-elevation-2);
+}
+
+/* Override Alert Colors (Success/Error/Warning) */
+div[data-testid="stAlert"]:has(svg[color="red"]), div[data-testid="stAlert"]:has(svg[color="#ff2b2b"]) {
+    background-color: rgba(239, 68, 68, 0.1) !important;
+    border-left: 4px solid var(--m3-error) !important;
+}
+
+div[data-testid="stAlert"]:has(svg[color="green"]), div[data-testid="stAlert"]:has(svg[color="#09ab3b"]) {
+    background-color: rgba(16, 185, 129, 0.1) !important;
+    border-left: 4px solid var(--m3-success) !important;
+}
+
+div[data-testid="stAlert"]:has(svg[color="orange"]), div[data-testid="stAlert"]:has(svg[color="#ffb923"]) {
+    background-color: rgba(245, 158, 11, 0.1) !important;
+    border-left: 4px solid var(--m3-warning) !important;
+}
+
+/* ── Dividers ────────────────────────────────────────────── */
+hr {
+    border-color: var(--m3-glass-border) !important;
+    opacity: 0.5;
+}
+
+/* ── Custom UI Additions ─────────────────────────────────── */
+/* Google-style Profile Avatar */
+.gauth-avatar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 14px;
+    border-radius: var(--m3-shape-pill);
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    transition: all var(--m3-transition-smooth);
+    margin-bottom: 20px;
+    animation: fadeInUp 0.8s ease-out forwards;
+}
+
+.gauth-avatar-wrap:hover {
+    background: rgba(59, 130, 246, 0.2);
+    box-shadow: 0 0 15px var(--m3-primary-glow);
+    transform: translateY(-2px);
+}
+
+.gauth-avatar-img {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--m3-primary);
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+}
+
+.gauth-avatar-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.gauth-avatar-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--m3-on-bg);
+}
+
+.gauth-avatar-email {
+    font-size: 0.75rem;
+    color: var(--m3-on-surface-variant);
+}

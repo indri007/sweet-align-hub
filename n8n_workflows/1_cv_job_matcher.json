@@ -1,0 +1,213 @@
+{
+  "name": "1 - CV Job Matcher",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "job-match",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": false
+        }
+      },
+      "id": "webhook-job-match",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        250,
+        300
+      ],
+      "webhookId": "job-match"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Berikut adalah CV user:\n---\n{{ $json.body.cv_text }}\n---\n\nKonteks lowongan tambahan dari sistem (boleh kosong):\n{{ $json.body.jobs_context || \"(tidak ada)\" }}\n\nTugas:\n1. Analisis skill utama dari CV.\n2. Gunakan tool pencarian lowongan (cari_lowongan_kerja) untuk mengambil lowongan paling relevan langsung dari database vektor berdasarkan skill/kata kunci di CV.\n3. Bandingkan hasil pencarian tool dengan konteks lowongan yang diberikan (jika ada), lalu gabungkan.\n4. Berikan ranking top 3-5 lowongan paling cocok beserta match score dan alasannya.",
+        "options": {
+          "systemMessage": "Kamu adalah AI Job Recommendation Expert yang membantu mencocokkan CV seseorang dengan lowongan pekerjaan yang tersedia di database vektor (Qdrant, koleksi lowongan kerja Indonesia). Selalu gunakan tool cari_lowongan_kerja untuk mengambil data lowongan aktual sebelum menjawab -- jangan mengarang nama perusahaan atau lowongan yang tidak ada di hasil tool. Jawab dalam Bahasa Indonesia, format jelas dan terstruktur."
+        }
+      },
+      "id": "agent-job-match",
+      "name": "CV Job Matcher Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        520,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o-mini",
+        "options": {
+          "temperature": 0.7
+        }
+      },
+      "id": "chatmodel-job-match",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        420,
+        520
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "OPENAI_CREDENTIAL_ID",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "cari_lowongan_kerja",
+        "description": "Mencari lowongan pekerjaan paling relevan dari database vektor (Qdrant) berdasarkan skill, jabatan, atau kata kunci dari CV.",
+        "topK": 6
+      },
+      "id": "tool-vectorstore-job-match",
+      "name": "Vector Store Tool",
+      "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
+      "typeVersion": 1.1,
+      "position": [
+        620,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "qdrantCollection": {
+          "__rl": true,
+          "value": "indonesian_jobs_gemini",
+          "mode": "list"
+        },
+        "options": {
+          "topK": 6
+        }
+      },
+      "id": "qdrant-job-match",
+      "name": "Qdrant Vector Store",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+      "typeVersion": 1,
+      "position": [
+        620,
+        680
+      ],
+      "credentials": {
+        "qdrantApi": {
+          "id": "QDRANT_CREDENTIAL_ID",
+          "name": "QdrantApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-embedding-001"
+      },
+      "id": "embeddings-job-match",
+      "name": "Google Gemini Embeddings",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        820,
+        680
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "GEMINI_CREDENTIAL_ID",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"output\": $json.output } }}"
+      },
+      "id": "respond-job-match",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        900,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "CV Job Matcher Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CV Job Matcher Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "CV Job Matcher Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vector Store Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "CV Job Matcher Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qdrant Vector Store": {
+      "ai_vectorStore": [
+        [
+          {
+            "node": "Vector Store Tool",
+            "type": "ai_vectorStore",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Embeddings": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Qdrant Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    {
+      "name": "JobMatch AI"
+    }
+  ]
+}

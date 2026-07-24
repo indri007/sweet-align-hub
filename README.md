@@ -1,13 +1,13 @@
 <div align="center">
 
-# 🎯 JobMatch AI
+# 🎯 JobsMatchAI
 ### Platform AI untuk Pencarian Kerja, Analisis CV, dan Simulasi Wawancara
 *Dibangun khusus untuk Pasar Kerja Indonesia* 🇮🇩
 
 <br/>
 
 <a href="https://jobsmatch.streamlit.app/">
-  <img src="assets/demo.webp" alt="JobMatch AI UI Demo Animation" width="800" style="border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.2);">
+  <img src="assets/demo.webp" alt="JobsMatchAI UI Demo Animation" width="800" style="border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.2);">
 </a>
 
 <br/><br/>
@@ -28,9 +28,9 @@
 
 Pasar kerja di Indonesia saat ini sangat kompetitif. Banyak talenta berbakat yang gagal ke tahap wawancara hanya karena resume mereka **tidak teroptimasi untuk sistem pelacakan pelamar (ATS)**, atau mereka kesulitan mencari lowongan yang benar-benar relevan dengan keahlian spesifik mereka.
 
-**JobMatch AI** hadir untuk menjembatani kesenjangan tersebut. Kami memanfaatkan teknologi Generative AI terbaru untuk memberikan evaluasi objektif dan bimbingan yang terpersonalisasi. Mulai dari analisis kelayakan CV secara otomatis hingga simulasi wawancara mendalam, platform ini dirancang untuk bertindak sebagai **Konsultan Karier Pribadi 24/7** bagi setiap pencari kerja.
+**JobsMatchAI** hadir untuk menjembatani kesenjangan tersebut. Kami memanfaatkan teknologi Generative AI terbaru untuk memberikan evaluasi objektif dan bimbingan yang terpersonalisasi. Mulai dari analisis kelayakan CV secara otomatis hingga simulasi wawancara mendalam, platform ini dirancang untuk bertindak sebagai **Konsultan Karier Pribadi 24/7** bagi setiap pencari kerja.
 
-| ❌ Masalah yang Sering Terjadi | ✅ Solusi JobMatch AI |
+| ❌ Masalah yang Sering Terjadi | ✅ Solusi JobsMatchAI |
 |:---|:---|
 | CV ditolak bot ATS karena format/keyword salah | **Skor ATS otomatis** + saran perbaikan konkret |
 | Pencarian lowongan manual memakan waktu | **Pencarian Semantik** — deskripsikan dengan natural |
@@ -102,7 +102,7 @@ flowchart TD
 
 ## 🎨 Material 3 Premium UI
 
-Antarmuka **JobMatch AI** tidak hanya cerdas, tetapi juga **menawan secara visual**. Kami mendesain khusus *(custom CSS)* seluruh aplikasi menggunakan pedoman desain **Material 3 Dark Theme**:
+Antarmuka **JobsMatchAI** tidak hanya cerdas, tetapi juga **menawan secara visual**. Kami mendesain khusus *(custom CSS)* seluruh aplikasi menggunakan pedoman desain **Material 3 Dark Theme**:
 - 🌌 **Glassmorphism:** Navigasi tembus pandang bergaya modern.
 - 💊 **Pill-shaped Elements:** Sudut melengkung halus untuk pengalaman yang ramah pengguna.
 - ✨ **Micro-animations:** Tombol *Pulse-glow* dan efek *hover* interaktif yang membuat aplikasi terasa sangat "hidup".

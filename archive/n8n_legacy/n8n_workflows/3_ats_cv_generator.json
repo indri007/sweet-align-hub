@@ -1,0 +1,96 @@
+{
+  "name": "3 - ATS CV Generator",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ats-generate",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": false
+        }
+      },
+      "id": "webhook-ats-generate",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 300],
+      "webhookId": "ats-generate"
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Kamu adalah CV Writer Expert. Berdasarkan CV asli user berikut, buat versi CV yang ATS-friendly.\n\nRules:\n1. Gunakan format yang clean dan terstruktur\n2. Gunakan bullet points\n3. Highlight skills dan achievements\n4. Gunakan keywords yang relevan untuk ATS systems\n5. Format sections: PROFIL, PENGALAMAN KERJA, PENDIDIKAN, SKILLS, SERTIFIKASI (jika ada)\n6. Tulis dalam bahasa yang sama dengan CV asli (Indonesia/Inggris)\n\nOutput HANYA isi CV yang sudah diperbaiki, tanpa penjelasan tambahan.\nGunakan format plain text dengan heading yang jelas."
+            },
+            {
+              "role": "user",
+              "content": "=CV Asli:\n\n{{ $json.body.cv_text }}"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.4,
+          "maxTokens": 3000
+        }
+      },
+      "id": "openai-ats-generate",
+      "name": "OpenAI Chat",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [500, 300],
+      "credentials": {
+        "openAiApi": {
+          "id": "OPENAI_CREDENTIAL_ID",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"output\": $json.message.content } }}"
+      },
+      "id": "respond-ats-generate",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [750, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "OpenAI Chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    {
+      "name": "JobMatch AI"
+    }
+  ]
+}

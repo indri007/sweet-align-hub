@@ -1,0 +1,213 @@
+{
+  "name": "4 - Career Consultant",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "career-chat",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": false
+        }
+      },
+      "id": "webhook-career-chat",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        250,
+        300
+      ],
+      "webhookId": "career-chat"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=[CV user untuk referensi]\n{{ $json.body.cv_text }}\n\n[Riwayat chat sebelumnya]\n{{ ($json.body.chat_history || []).map(m => (m.role || 'user') + ': ' + m.content).join('\\n') }}\n\n[Pesan user sekarang]\n{{ $json.body.user_message }}",
+        "options": {
+          "systemMessage": "Kamu adalah Career Consultant AI yang berpengalaman. Bantu user mendiskusikan karir dan cita-cita berdasarkan CV mereka: pahami posisi karir saat ini, eksplorasi tujuan karir, identifikasi skill gap, beri langkah konkret, dan berikan insight tren industri. Kamu punya tool cari_lowongan_kerja untuk melihat contoh lowongan nyata dari database sebagai bahan referensi tren pasar kerja saat ini -- gunakan tool ini saat relevan (misalnya user bertanya soal peluang di suatu bidang). Jawab dalam Bahasa Indonesia (kecuali user menulis dalam Bahasa Inggris), bersikap supportive, spesifik, dan actionable. Jangan menghakimi pilihan karir user."
+        }
+      },
+      "id": "agent-career-chat",
+      "name": "Career Consultant Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        520,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o-mini",
+        "options": {
+          "temperature": 0.7
+        }
+      },
+      "id": "chatmodel-career-chat",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        420,
+        520
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "OPENAI_CREDENTIAL_ID",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "cari_lowongan_kerja",
+        "description": "Mencari contoh lowongan pekerjaan nyata dari database vektor (Qdrant) untuk melihat tren pasar kerja terkini di suatu bidang/skill.",
+        "topK": 5
+      },
+      "id": "tool-vectorstore-career-chat",
+      "name": "Vector Store Tool",
+      "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
+      "typeVersion": 1.1,
+      "position": [
+        620,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "qdrantCollection": {
+          "__rl": true,
+          "value": "indonesian_jobs_gemini",
+          "mode": "list"
+        },
+        "options": {
+          "topK": 5
+        }
+      },
+      "id": "qdrant-career-chat",
+      "name": "Qdrant Vector Store",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+      "typeVersion": 1,
+      "position": [
+        620,
+        680
+      ],
+      "credentials": {
+        "qdrantApi": {
+          "id": "QDRANT_CREDENTIAL_ID",
+          "name": "QdrantApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-embedding-001"
+      },
+      "id": "embeddings-career-chat",
+      "name": "Google Gemini Embeddings",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        820,
+        680
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "GEMINI_CREDENTIAL_ID",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"output\": $json.output } }}"
+      },
+      "id": "respond-career-chat",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        900,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Career Consultant Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Career Consultant Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Career Consultant Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vector Store Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "Career Consultant Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qdrant Vector Store": {
+      "ai_vectorStore": [
+        [
+          {
+            "node": "Vector Store Tool",
+            "type": "ai_vectorStore",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Embeddings": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Qdrant Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    {
+      "name": "JobMatch AI"
+    }
+  ]
+}

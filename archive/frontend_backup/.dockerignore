@@ -1,0 +1,16 @@
+.env
+.venv
+venv/
+.git
+.gitignore
+__pycache__/
+*.zip
+*.db
+.streamlit/secrets.toml
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.DS_Store
+aiven/ca.pem
+ca.pem

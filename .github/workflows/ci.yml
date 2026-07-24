@@ -1,0 +1,38 @@
+name: JobMatch AI CI Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Cek Keluar Kode (Checkout)
+      uses: actions/checkout@v4
+
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.10"
+
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Pengecekan Sintaks (Linting dengan Flake8)
+      run: |
+        # Hentikan proses jika ada fatal error sintaks
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # Peringatan saja jika kepanjangan
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+    - name: Dry-Run Aplikasi Utama
+      run: |
+        # Mengkompilasi app.py untuk memastikan tidak ada import error yang parah
+        python -m py_compile app.py
+        echo "Aplikasi berhasil dikompilasi tanpa syntax error fatal!"

@@ -30,3 +30,35 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Python Cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# Local Secrets / Environments
+.env
+.env.*
+env
+.streamlit/secrets.toml
+
+# Backups & Archives (Ignored to avoid push size/credentials leaks)
+"job_search_app_05 July 2026 3/"
+job_search_app_05 July 2026 3/
+Tracker HR/
+*.zip
+*.docx
+
+# Python Environments
+.venv/
+venv/
+
+# Other projects
+daily-job-assistant/
+*.jsonl
+
+# IDE / OS / Agent
+.DS_Store
+.antigravity/
