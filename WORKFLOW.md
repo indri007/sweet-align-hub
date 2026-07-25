@@ -1,10 +1,10 @@
-# Technical Workflow Specification — JobMatch AI (V2.0)
+# Technical Workflow Specification — JobsMatchAI (V2.0)
 
 **Document Type:** System Workflow & Data Pipeline Specification
 **Author:** Principal Software Engineering Team (Antigravity)
 **Date:** July 19, 2026
 
-Dokumen ini memetakan *End-to-End User Journey* dan aliran data (*Data Flow*) di dalam sistem JobMatch AI V2.0. Proses direpresentasikan sebagai *pipeline* terstruktur dari titik masuk (*ingress*) hingga penyimpanan telemetri asinkron (*egress*).
+Dokumen ini memetakan *End-to-End User Journey* dan aliran data (*Data Flow*) di dalam sistem JobsMatchAI V2.0. Proses direpresentasikan sebagai *pipeline* terstruktur dari titik masuk (*ingress*) hingga penyimpanan telemetri asinkron (*egress*).
 
 ---
 
@@ -23,8 +23,9 @@ Dokumen ini memetakan *End-to-End User Journey* dan aliran data (*Data Flow*) di
 ### Phase 3: Multi-modal Retrieval System (Step B)
 *   **Trigger:** Permintaan rekomendasi lowongan atau *query* natural dari pengguna.
 *   **Proses (Vector Retrieval - RAG):** 
-    *   Teks CV diproses oleh model `gemini-embedding-001` menjadi vektor berdimensi tinggi.
-    *   Sistem mengeksekusi *k-Nearest Neighbors (k-NN) search* via *Cosine Similarity* pada Qdrant Vector DB untuk mencari lowongan yang relevan secara semantik.
+    *   Teks CV diproses oleh model `gemini-embedding-001` menjadi vektor berdimensi tinggi (768-dimensi).
+    *   Sistem mengeksekusi *k-Nearest Neighbors (k-NN) search* via *Cosine Similarity* pada Qdrant Vector DB (`indonesian_jobs_gemini`) untuk mencari lowongan yang relevan secara semantik.
+    *   Jika lowongan tidak cukup, *Live Scraper* (`scraper.py`) secara asinkron menarik lowongan terbaru dan otomatis melakukan embedding menggunakan *Gemini Key Rotation* lalu menyinkronkannya ke dalam Qdrant.
 *   **Proses (Structured Retrieval - Text-to-SQL):** 
     *   Jika *intent* pengguna bersifat analitikal (contoh: "Gaji di atas 10 juta"), `sql_agent.py` menerjemahkan *Natural Language* menjadi kueri SQL.
     *   Sistem mengeksekusi *Read-Only Query* ke Aiven MySQL dan mengembalikan *Recordset*.

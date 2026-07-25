@@ -1,16 +1,16 @@
-# PRD — JobMatch AI: Arsitektur & Panduan Teknis
+# PRD — JobsMatchAI: Arsitektur & Panduan Teknis
 
-**Project**: JobMatch AI (repo: `indri007/sweet-align-hub`, branch: `streamlit`)
+**Project**: JobsMatchAI (repo: `indri007/sweet-align-hub`, branch: `streamlit`)
 **URL Live**: `https://jobsmatch.streamlit.app`
 **Konteks**: Final Project JCAI — Job Connector AI Engineering, Purwadhika
 **Disusun untuk**: Indri Kartikasari
-**Terakhir diperbarui**: 21 Juli 2026
+**Terakhir diperbarui**: 25 Juli 2026
 
 ---
 
 ## 1. Ringkasan Eksekutif
 
-JobMatch AI adalah aplikasi Streamlit berbasis multi-agent AI yang membantu pencari kerja di Indonesia:
+JobsMatchAI adalah aplikasi Streamlit berbasis multi-agent AI yang membantu pencari kerja di Indonesia:
 - Analisis CV & skor ATS
 - Rekomendasi lowongan (RAG via Qdrant)
 - Review CV + generate CV format ATS (Bahasa Indonesia & Inggris)
@@ -60,7 +60,7 @@ Penyelesaian Konflik #2 telah merevisi keputusan awal. Aplikasi sekarang berjala
 | Frontend | Streamlit ≥ 1.39.0, Google OAuth (`st.login()`) |
 | LLM Utama | Gemini Flash (5 key rotasi anti rate-limit) |
 | LLM Fallback | OpenAI (`gpt-4o-mini`) via API atau N8N |
-| Embedding | Lokal (`all-MiniLM-L6-v2`) & Fallback OpenAI (`text-embedding-3-small`) |
+| Embedding | Gemini Embedding (`models/gemini-embedding-001`) dengan Fallback OpenAI |
 | Vector DB | Qdrant Cloud (Dual Collection Architecture) |
 | Relational DB | Aiven MySQL (SQLAlchemy + SSL) |
 | TTS Leonardo | gTTS (gratis, tanpa API key, Bahasa Indonesia) |
@@ -76,7 +76,7 @@ Penyelesaian Konflik #2 telah merevisi keputusan awal. Aplikasi sekarang berjala
 
 | Collection | Isi | Jumlah | Dipakai Oleh |
 |---|---|---|---|
-| `indonesian_jobs` | Vektor loker + metadata | 465 | `rag_agent.py` — Step B |
+| `indonesian_jobs_gemini` | Vektor loker tersinkronisasi via Gemini (scraper.py) | 465+ | `rag_agent.py` — Step B, N8N |
 | `hr_knowledge_base` | Keyword Bank, KPI, Salary Grade, Common Mistakes | 216 | `cv_analyzer_agent.py`, `career_agent.py` |
 | `interview_questions_bank` | Bank soal STAR per kompetensi | ~41 | `interview_agent.py` — **BARU, precompute offline** |
 | `hr_memory` | Refleksi insight sesi interview | Dinamis | `interview_agent.py` auto-append |

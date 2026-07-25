@@ -72,11 +72,11 @@ Karena arsitektur menggunakan pendekatan *Dual-Pipeline* dan *Embeddings Fallbac
 
 ```mermaid
 erDiagram
-    QDRANT_CLOUD ||--o{ PRIMARY_FAST_EMBED : "Tingkat 1 (Local/384-dim)"
+    QDRANT_CLOUD ||--o{ PRIMARY_GEMINI : "Tingkat 1 (Gemini/768-dim)"
     QDRANT_CLOUD ||--o{ FALLBACK_OPENAI : "Tingkat 2 (Cloud/1536-dim)"
 
-    PRIMARY_FAST_EMBED {
-        varchar indonesian_jobs "465 Vektor Lowongan Kerja"
+    PRIMARY_GEMINI {
+        varchar indonesian_jobs_gemini "465+ Vektor Lowongan Kerja (tersinkronisasi)"
         varchar hr_knowledge_base "216 Vektor Aturan HRD & KPI"
         varchar interview_questions_bank "Bank Soal STAR Interview"
         varchar hr_memory "Log Refleksi CS / HR"

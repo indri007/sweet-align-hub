@@ -37,35 +37,11 @@ def chat_completion(messages: list[dict], temperature: float = 0.7, max_tokens: 
     Raises an Exception on failure -- callers should catch and handle.
     """
     if config.LLM_PROVIDER == "gemini":
-        try:
-            return _gemini_chat(messages, temperature, max_tokens, use_google_search, agent_id)
-        except Exception as e:
-            err_str = str(e)
-            if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str or "Semua Kunci Gemini gagal" in err_str:
-                if getattr(config, "OPENAI_API_KEY", None):
-                    print(f"[INFO] Gemini 429 Rate Limit. Falling back to OpenAI...")
-                    return _openai_chat(messages, temperature, max_tokens)
-            # If not 429 or no fallback, re-raise
-            raise
-    elif config.LLM_PROVIDER == "openai":
-        return _openai_chat(messages, temperature, max_tokens)
+        return _gemini_chat(messages, temperature, max_tokens, use_google_search, agent_id)
     else:
         raise RuntimeError(
-            "Tidak ada LLM yang dikonfigurasi. Set GEMINI_API_KEY atau OPENAI_API_KEY di .env"
+            "Tidak ada LLM yang dikonfigurasi. Set GEMINI_API_KEY di .env"
         )
-
-
-def _openai_chat(messages: list[dict], temperature: float, max_tokens: int) -> str:
-    from openai import OpenAI
-
-    client = OpenAI(api_key=config.OPENAI_API_KEY)
-    response = client.chat.completions.create(
-        model=config.OPENAI_MODEL,
-        messages=messages,
-        temperature=temperature,
-        max_tokens=max_tokens,
-    )
-    return response.choices[0].message.content
 
 
 def _gemini_chat(messages: list[dict], temperature: float, max_tokens: int, use_google_search: bool = False, agent_id: int = None) -> str:

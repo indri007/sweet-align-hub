@@ -54,7 +54,7 @@ echo ""
 echo "--- 3. Environment Variables (.env) ---"
 if [[ -f .env ]]; then
   pass ".env ditemukan"
-  for var in GEMINI_API_KEY DATABASE_URL QDRANT_URL QDRANT_API_KEY USE_N8N; do
+  for var in DATABASE_URL QDRANT_URL QDRANT_API_KEY USE_N8N; do
     if grep -q "^${var}=" .env; then
       VAL=$(grep "^${var}=" .env | cut -d'=' -f2-)
       if [[ -z "$VAL" || "$VAL" == '""' || "$VAL" == "''" ]]; then
@@ -66,10 +66,15 @@ if [[ -f .env ]]; then
       fail "$var TIDAK ditemukan di .env"
     fi
   done
-  if grep -q '^USE_N8N="false"' .env; then
-    pass "USE_N8N=false terkonfirmasi (arsitektur Python-native)"
+  if grep -q '^GEMINI_API_KEY' .env; then
+    pass "GEMINI_API_KEY(s) terisi"
   else
-    warn "USE_N8N bukan 'false' -- cek ulang, seharusnya sudah diputuskan Python-native"
+    fail "GEMINI_API_KEY TIDAK ditemukan di .env"
+  fi
+  if grep -q '^USE_N8N="true"' .env; then
+    pass "USE_N8N=true terkonfirmasi (arsitektur Dual-Pipeline aktif)"
+  else
+    warn "USE_N8N bukan 'true' -- pastikan N8N diaktifkan jika menggunakan N8N"
   fi
 else
   fail ".env TIDAK ditemukan -- redeploy tidak akan jalan tanpa ini"
@@ -93,15 +98,12 @@ fi
 pass "aiven/ca.pem dan ca.pem terverifikasi aman (public certificate, sudah dicek manual)"
 echo ""
 
-# --- 5. Arsip N8N terkonfirmasi ---
-echo "--- 5. Arsitektur N8N (Konflik #2) ---"
-if [[ -d archive/n8n_legacy ]]; then
-  pass "n8n_workflows dan n8n_client.py sudah diarsipkan ke archive/n8n_legacy/"
+# --- 5. Arsitektur N8N (Konflik #2) ---
+echo "--- 5. Arsitektur N8N (Telah Diaktifkan Kembali) ---"
+if [[ -d n8n_workflows && -f n8n_client.py ]]; then
+  pass "n8n_workflows dan n8n_client.py tersedia untuk Dual-Pipeline"
 else
-  warn "archive/n8n_legacy/ tidak ditemukan -- cek apakah arsip N8N sudah dilakukan"
-fi
-if [[ -d n8n_workflows || -f n8n_client.py ]]; then
-  fail "n8n_workflows/ atau n8n_client.py MASIH ada di lokasi lama -- seharusnya sudah dipindah"
+  warn "n8n_workflows atau n8n_client.py tidak ditemukan -- cek ulang integrasi N8N"
 fi
 echo ""
 

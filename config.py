@@ -23,9 +23,10 @@ def _cfg(key, default=""):
 
 
 # ─── OpenAI (opsional, dipakai untuk fitur voice interview jika diaktifkan) ──
-OPENAI_API_KEY = _cfg("OPENAI_API_KEY")
-OPENAI_MODEL = _cfg("OPENAI_MODEL", "gpt-4o-mini")
-OPENAI_EMBEDDING_MODEL = _cfg("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small")
+# OPENAI_API_KEY = _cfg("OPENAI_API_KEY")
+# OPENAI_MODEL = _cfg("OPENAI_MODEL", "gpt-4o-mini")
+# OPENAI_EMBEDDING_MODEL = _cfg("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small")
+
 
 # ─── Google Gemini ────────────────────────────────────────
 def _load_gemini_keys() -> list[str]:
@@ -131,8 +132,6 @@ if _explicit_provider in ("gemini", "openai"):
     LLM_PROVIDER = _explicit_provider
 elif GEMINI_API_KEY:
     LLM_PROVIDER = "gemini"
-elif OPENAI_API_KEY:
-    LLM_PROVIDER = "openai"
 else:
     LLM_PROVIDER = "gemini"  # default; will just report "not configured"
 
@@ -144,10 +143,9 @@ VECTOR_STORE = _cfg("VECTOR_STORE", "qdrant")
 CHROMA_PERSIST_DIR = os.getenv("CHROMA_PERSIST_DIR", str(BASE_DIR / "data" / "chroma_db"))
 QDRANT_URL = _cfg("QDRANT_URL")
 QDRANT_API_KEY = _cfg("QDRANT_API_KEY")
-COLLECTION_NAME = "indonesian_jobs"
-
 # ─── Embedding ────────────────────────────────────────────
-EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "local").lower()  # "local", "openai", or "gemini"
+EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "gemini").lower()
+COLLECTION_NAME = "indonesian_jobs_gemini"
 
 # ─── N8N ──────────────────────────────────────────────────
 N8N_WEBHOOK_URL = os.getenv("N8N_WEBHOOK_URL", "")
@@ -177,7 +175,7 @@ TOP_K_RESULTS = 10
 
 def is_openai_configured() -> bool:
     """Check if OpenAI API key is set and valid-looking."""
-    return bool(OPENAI_API_KEY and OPENAI_API_KEY.startswith("sk-"))
+    return False
 
 
 def is_gemini_configured() -> bool:
