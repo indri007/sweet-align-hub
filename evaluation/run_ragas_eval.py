@@ -75,13 +75,11 @@ def build_samples() -> list:
 
 def get_judge_llm_and_embeddings():
     """
-    Judge model for scoring: reuses whichever provider is configured for the
-    app (Gemini by default). Embeddings for context-based metrics use the
-    same local sentence-transformers model the app uses by default for
-    ChromaDB, so evaluation doesn't require extra API keys/cost.
+    Judge model and Embeddings for scoring: reuses whichever provider is configured for the
+    app (Gemini by default).
     """
     from ragas.llms import LangchainLLMWrapper
-    from ragas.embeddings import HuggingFaceEmbeddings
+    from ragas.embeddings import LangchainEmbeddingsWrapper
 
     if not config.is_llm_configured():
         raise RuntimeError(
@@ -90,24 +88,32 @@ def get_judge_llm_and_embeddings():
         )
 
     if config.LLM_PROVIDER == "gemini":
-        from langchain_google_genai import ChatGoogleGenerativeAI
+        from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
 
         llm = ChatGoogleGenerativeAI(
             model=config.GEMINI_MODEL,
             google_api_key=config.GEMINI_API_KEY,
             temperature=0,
         )
+        base_embeddings = GoogleGenerativeAIEmbeddings(
+            model=config.GEMINI_EMBEDDING_MODEL,
+            google_api_key=config.GEMINI_API_KEY
+        )
     else:
-        from langchain_openai import ChatOpenAI
+        from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 
         llm = ChatOpenAI(
             model=config.OPENAI_MODEL,
             api_key=config.OPENAI_API_KEY,
             temperature=0,
         )
+        base_embeddings = OpenAIEmbeddings(
+            model="text-embedding-3-small",
+            openai_api_key=config.OPENAI_API_KEY
+        )
 
     judge_llm = LangchainLLMWrapper(llm)
-    embeddings = HuggingFaceEmbeddings(model="all-MiniLM-L6-v2")
+    embeddings = LangchainEmbeddingsWrapper(base_embeddings)
     return judge_llm, embeddings
 
 

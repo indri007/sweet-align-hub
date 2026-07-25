@@ -4,9 +4,9 @@ Re-ingest dataset/jobs.jsonl ke Qdrant Cloud, di-embed pakai Gemini
 "Google Gemini Embeddings" di workflow N8N (1_cv_job_matcher,
 4_career_consultant).
 
-Collection HASIL SCRIPT INI TERPISAH dari collection "indonesian_jobs"
-yang sudah dipakai app Streamlit (yang itu pakai FastEmbed bawaan
-Qdrant client, dimensinya beda). Jangan timpa collection lama.
+Collection HASIL SCRIPT INI adalah collection "indonesian_jobs_gemini"
+yang dipakai app Streamlit secara default dengan dimensi 768.
+Pastikan tidak menimpa jika nama collection sudah sesuai.
 
 Cara pakai (jalankan dari root folder project, misal ~/projects/jobmatch-restore/source-cvatsjob):
 

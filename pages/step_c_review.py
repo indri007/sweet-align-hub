@@ -98,18 +98,8 @@ def render_step_c():
                                 "job_description": man_desc or "N/A"
                             }
 
-                st.markdown("#### 🌐 Pilih Bahasa CV ATS")
-                lang_choice = st.radio(
-                    "Bahasa output CV ATS:",
-                    options=["auto", "id", "en"],
-                    format_func=lambda x: {
-                        "auto": "🔄 Otomatis (ikuti bahasa CV asli)",
-                        "id": "🇮🇩 Bahasa Indonesia",
-                        "en": "🇬🇧 English",
-                    }[x],
-                    horizontal=True,
-                    label_visibility="collapsed",
-                )
+                st.markdown("#### ✨ Generate CV ATS")
+                st.caption("AI akan otomatis membuat versi Bahasa Indonesia dan English secara bersamaan.")
 
                 if st.button(
                     "✨ Generate CV ATS",
@@ -120,11 +110,14 @@ def render_step_c():
                     with st.spinner("✨ AI sedang membuat CV ATS-friendly..."):
                         try:
                             from agents.cv_generator_agent import generate_ats_cv
-                            result = generate_ats_cv(st.session_state.cv_text, selected_job, language=lang_choice)
-                            if result["available"] and result["ats_text"]:
-                                st.session_state.ats_cv_text = result["ats_text"]
-                                st.session_state.ats_docx_bytes = None
-                                st.session_state.ats_pdf_bytes = None
+                            result = generate_ats_cv(st.session_state.cv_text, selected_job, language="auto")
+                            if result.get("available") and result.get("ats_text_id") and result.get("ats_text_en"):
+                                st.session_state.ats_text_id = result["ats_text_id"]
+                                st.session_state.ats_text_en = result["ats_text_en"]
+                                st.session_state.ats_docx_id = None
+                                st.session_state.ats_pdf_id = None
+                                st.session_state.ats_docx_en = None
+                                st.session_state.ats_pdf_en = None
                                 st.rerun()
                             else:
                                 st.error("❌ Gagal membuat CV ATS. Coba lagi beberapa saat.")
@@ -136,52 +129,99 @@ def render_step_c():
                     st.caption("⚠️ Isi jabatan/posisi dulu untuk mengaktifkan tombol generate.")
             else:
                 st.markdown("### 📄 Preview CV ATS")
-                st.text_area(
-                    "ATS CV",
-                    st.session_state.ats_cv_text,
-                    height=400,
-                    disabled=True,
-                    label_visibility="collapsed",
-                )
+                
+                tab_id, tab_en = st.tabs(["🇮🇩 Bahasa Indonesia", "🇬🇧 English"])
+                
+                with tab_id:
+                    st.text_area(
+                        "ATS CV ID",
+                        st.session_state.ats_text_id,
+                        height=400,
+                        disabled=True,
+                        label_visibility="collapsed",
+                    )
+                with tab_en:
+                    st.text_area(
+                        "ATS CV EN",
+                        st.session_state.ats_text_en,
+                        height=400,
+                        disabled=True,
+                        label_visibility="collapsed",
+                    )
 
                 # Download buttons
                 st.markdown("### 📥 Download CV ATS")
+                
+                # We need to import the export functions
+                from agents.cv_generator_agent import export_cv_to_docx, export_cv_to_pdf
+                
                 col1, col2 = st.columns(2)
 
+                # Indonesia Downloads
                 with col1:
+                    st.markdown("#### 🇮🇩 Versi Indonesia")
                     try:
-                        if st.session_state.get("ats_docx_bytes") is None:
-                            from agents.cv_generator_agent import export_cv_to_docx
-                            st.session_state.ats_docx_bytes = export_cv_to_docx(st.session_state.ats_cv_text)
+                        if st.session_state.get("ats_docx_id") is None:
+                            st.session_state.ats_docx_id = export_cv_to_docx(st.session_state.ats_text_id)
                         st.download_button(
-                            "📄 Download Word (.docx)",
-                            data=st.session_state.ats_docx_bytes,
-                            file_name="CV_ATS_Optimized.docx",
+                            "⬇️ Download CV (Indonesia) - DOCX",
+                            data=st.session_state.ats_docx_id,
+                            file_name="CV_ATS_Optimized_ID.docx",
                             mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                             use_container_width=True,
                         )
                     except Exception as e:
-                        st.error(f"Error generating DOCX: {e}")
-
-                with col2:
+                        st.error(f"Error DOCX ID: {e}")
+                        
                     try:
-                        if st.session_state.get("ats_pdf_bytes") is None:
-                            from agents.cv_generator_agent import export_cv_to_pdf
-                            st.session_state.ats_pdf_bytes = export_cv_to_pdf(st.session_state.ats_cv_text)
+                        if st.session_state.get("ats_pdf_id") is None:
+                            st.session_state.ats_pdf_id = export_cv_to_pdf(st.session_state.ats_text_id)
                         st.download_button(
-                            "📑 Download PDF (.pdf)",
-                            data=st.session_state.ats_pdf_bytes,
-                            file_name="CV_ATS_Optimized.pdf",
+                            "⬇️ Download CV (Indonesia) - PDF",
+                            data=st.session_state.ats_pdf_id,
+                            file_name="CV_ATS_Optimized_ID.pdf",
                             mime="application/pdf",
                             use_container_width=True,
                         )
                     except Exception as e:
-                        st.error(f"Error generating PDF: {e}")
+                        st.error(f"Error PDF ID: {e}")
 
-                if st.button("🔄 Generate Ulang"):
-                    st.session_state.ats_cv_text = None
-                    st.session_state.ats_docx_bytes = None
-                    st.session_state.ats_pdf_bytes = None
+                # English Downloads
+                with col2:
+                    st.markdown("#### 🇬🇧 English Version")
+                    try:
+                        if st.session_state.get("ats_docx_en") is None:
+                            st.session_state.ats_docx_en = export_cv_to_docx(st.session_state.ats_text_en)
+                        st.download_button(
+                            "⬇️ Download CV (English) - DOCX",
+                            data=st.session_state.ats_docx_en,
+                            file_name="CV_ATS_Optimized_EN.docx",
+                            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                            use_container_width=True,
+                        )
+                    except Exception as e:
+                        st.error(f"Error DOCX EN: {e}")
+                        
+                    try:
+                        if st.session_state.get("ats_pdf_en") is None:
+                            st.session_state.ats_pdf_en = export_cv_to_pdf(st.session_state.ats_text_en)
+                        st.download_button(
+                            "⬇️ Download CV (English) - PDF",
+                            data=st.session_state.ats_pdf_en,
+                            file_name="CV_ATS_Optimized_EN.pdf",
+                            mime="application/pdf",
+                            use_container_width=True,
+                        )
+                    except Exception as e:
+                        st.error(f"Error PDF EN: {e}")
+
+                if st.button("🔄 Generate Ulang", use_container_width=True):
+                    st.session_state.ats_text_id = None
+                    st.session_state.ats_text_en = None
+                    st.session_state.ats_docx_id = None
+                    st.session_state.ats_pdf_id = None
+                    st.session_state.ats_docx_en = None
+                    st.session_state.ats_pdf_en = None
                     st.rerun()
 
     # Navigation

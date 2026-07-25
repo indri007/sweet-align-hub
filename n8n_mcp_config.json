@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "n8n-mcp": {
+      "type": "http",
+      "url": "https://n8n.kelasantai.online/mcp-server/http",
+      "headers": {
+        "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0ODNiODdjYi0xNjg1LTRiOTQtYTJlYy05MjhlMWNiZDI5OGQiLCJpc3MiOiJuOG4iLCJhdWQiOiJtY3Atc2VydmVyLWFwaSIsImp0aSI6IjhlMzQyYTA2LTBjMjctNGZlMC05ZDZjLTkyYjU2ZWVlNDEyZCIsImlhdCI6MTc4NDQ3ODI3MX0.HERXXtf-UB7R3FBcXZUOBMljUMLTjQDq-xVUCqo4ZjY"
+      }
+    }
+  }
+}

@@ -18,56 +18,48 @@ import config
 
 # ─── Embedding backends (used by Qdrant; ChromaDB uses its own built-in embedder) ───
 
-_local_embedder = None
-
-
-def _embed_local(texts: list[str]) -> list[list[float]]:
-    global _local_embedder
-    if _local_embedder is None:
-        from fastembed import TextEmbedding
-        _local_embedder = TextEmbedding(model_name="BAAI/bge-small-en-v1.5", cache_dir="./model_cache")
-    return list(_local_embedder.embed(texts))
-
-
-
 def _embed_gemini(texts: list[str]) -> list[list[float]]:
     from google import genai
     from google.genai import types, errors
     import logging
+    import time
     logger = logging.getLogger(__name__)
 
     dim = embedding_dimension()
     cfg = types.EmbedContentConfig(output_dimensionality=dim)
     
-    for attempt, key in enumerate(config.GEMINI_KEYS):
-        client = genai.Client(api_key=key)
-        try:
-            result = client.models.embed_content(
-                model=config.GEMINI_EMBEDDING_MODEL,
-                contents=texts,
-                config=cfg
-            )
-            return [e.values for e in result.embeddings]
-        except errors.APIError as e:
-            if "429" in str(e) or "RESOURCE_EXHAUSTED" in str(e):
-                logger.warning(f"[VectorStore] Rate limit on Gemini key {attempt+1}/{len(config.GEMINI_KEYS)}, trying next...")
-                continue
-            raise e
-    raise RuntimeError("Semua Kunci Gemini gagal untuk embedding karena limit/error.")
+    max_retries = 3
+    for retry_loop in range(max_retries):
+        for attempt, key in enumerate(config.GEMINI_KEYS):
+            client = genai.Client(api_key=key)
+            try:
+                result = client.models.embed_content(
+                    model=config.GEMINI_EMBEDDING_MODEL,
+                    contents=texts,
+                    config=cfg
+                )
+                return [e.values for e in result.embeddings]
+            except errors.APIError as e:
+                if "429" in str(e) or "RESOURCE_EXHAUSTED" in str(e):
+                    logger.warning(f"[VectorStore] Rate limit on Gemini key {attempt+1}/{len(config.GEMINI_KEYS)}, trying next...")
+                    continue
+                raise e
+        
+        # If we exhausted all keys in this loop, wait 10 seconds before the next loop
+        logger.warning(f"[VectorStore] All keys exhausted on loop {retry_loop+1}/{max_retries}. Sleeping 10s...")
+        time.sleep(10)
+        
+    raise RuntimeError("Semua Kunci Gemini gagal untuk embedding karena limit/error setelah beberapa kali retry.")
 
 
 def embed_texts(texts: list[str]) -> list[list[float]]:
-    """Embed a batch of texts using the configured embedding backend (local/gemini)."""
-    if config.EMBEDDING_MODEL == "gemini":
-        return _embed_gemini(texts)
-    return _embed_local(texts)
+    """Embed a batch of texts using Gemini."""
+    return _embed_gemini(texts)
 
 
 def embedding_dimension() -> int:
-    """Vector dimension for the configured embedding backend."""
-    if config.EMBEDDING_MODEL == "gemini":
-        return 768  # gemini-embedding-001 default output dim
-    return 384  # all-MiniLM-L6-v2
+    """Vector dimension for Gemini embeddings."""
+    return 768  # gemini-embedding-001 default output dim
 
 
 def _stable_point_id(raw_id: str) -> str:

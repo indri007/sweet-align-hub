@@ -1,9 +1,0 @@
-# JobMatch AI
-
-> AI-powered CV analyzer untuk job seekers Indonesia. Cek ATS score, rapikan CV, latihan mock interview, dan match CV kamu dengan job description.
-
-JobMatch AI membantu fresh graduate dan pencari kerja di Indonesia lolos filter ATS (Applicant Tracking System) dan meningkatkan peluang dapat interview. Fitur utama: ATS score checker, CV generator (Bahasa Indonesia & English), CV × Job Match analyzer, dan AI mock interview.
-
-## Pages
-
-- [Home](/): Landing page dengan ATS checker, CV generator, dan CV × Job Match tool.

@@ -174,30 +174,25 @@ def scrape_jobs(query: str, limit: int = 5, status_callback=None) -> list[dict]:
         metadatas = []
         ids = []
         
-        # Get start index from count
-        start_idx = db.get_job_count()
         for idx, job in enumerate(scraped_jobs):
-            # Prepare RAG doc
-            doc_parts = [
-                f"Job Title: {job.get('job_title', 'N/A')}",
-                f"Company: {job.get('company_name', 'N/A')}",
-                f"Location: {job.get('location', 'N/A')}",
-                f"Work Type: {job.get('work_type', 'N/A')}",
-                f"Salary: {job.get('salary', 'None')}",
-                "",
-                job.get("job_description", "")
-            ]
-            doc = "\n".join(doc_parts)
+            # Prepare RAG doc (matching sync_jobs_qdrant.py exactly)
+            job_title = job.get("job_title", "")
+            company_name = job.get("company_name", "")
+            job_description = job.get("job_description", "")
+            
+            doc_parts = [job_title, company_name, job_description]
+            doc = "\n".join(p for p in doc_parts if p)
             meta = {
-                "job_title": job.get("job_title", ""),
-                "company_name": job.get("company_name", ""),
+                "job_title": job_title,
+                "company_name": company_name,
                 "location": job.get("location", ""),
                 "work_type": job.get("work_type", ""),
                 "salary": job.get("salary", "None"),
             }
             documents.append(doc)
             metadatas.append(meta)
-            ids.append(f"job_scraped_{start_idx + idx}")
+            # Use job_text as raw_id so vector_store.py hashes it to the EXACT SAME UUID
+            ids.append(doc)
             
         vs.add_documents(documents, metadatas, ids)
         

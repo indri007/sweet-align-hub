@@ -11,33 +11,20 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 import config
 from llm_client import chat_completion
+from database import DatabaseManager
+from sqlalchemy import text as sql_text
 
 
-REVIEW_PROMPT = """You are a professional ATS (Applicant Tracking System) consultant and Senior HR Recruiter. Your task is to analyze the following CV and provide an objective assessment based on these criteria:
+REVIEW_PROMPT_TEMPLATE = """You are a professional ATS (Applicant Tracking System) consultant and Senior HR Recruiter. Your task is to analyze the following CV and provide an objective assessment based on these criteria:
 
-A. ATS Parsing (weight 35%)
-   - File format & structure compatibility.
-   - Keyword relevance and keyword density.
-   - Standard headings usage (Work Experience, Education, Skills).
-   - Date format consistency and chronology.
-
-B. Konten/HRD (weight 60%)
-   - Relevance of work experience and career progression.
-   - Quantified achievements and measurable metrics.
-   - Skill match and education background.
-   - CV length, grammar, and absence of red flags.
-
-C. Match Scoring (weight 5%)
-   - Match between mandatory required skills (from target job) vs skills in CV.
+{rubric_context}
 
 OUTPUT INSTRUCTIONS — provide results EXACTLY in this format (use these exact headings):
 
 ## 📊 ATS & HRD Score: [score]/100
 
 ## 📋 Skor Per Kategori
-- ATS Parsing: [x]/35
-- Konten/HRD: [x]/60
-- Match Scoring: [x]/5
+Tuliskan nama setiap kategori dari kriteria di atas, lalu berikan skor pencapaian kandidat dibandingkan total bobot kategori tersebut (Contoh: - ATS Parsing: 25/35).
 
 ## ⚠️ Area yang Perlu Diperbaiki
 - [point 1]
@@ -57,9 +44,36 @@ OUTPUT INSTRUCTIONS — provide results EXACTLY in this format (use these exact 
 
 Respond in Bahasa Indonesia. Focus on SPECIFIC, actionable findings only."""
 
-
-
-
+def get_scoring_rubric_context() -> str:
+    """Fetch scoring rubric from database to inject into prompt."""
+    try:
+        db = DatabaseManager()
+        with db.engine.connect() as conn:
+            result = conn.execute(sql_text("SELECT kategori, kriteria, bobot_persen FROM scoring_rubric"))
+            rows = result.fetchall()
+            if not rows:
+                return "Gunakan kriteria ATS standar (ATS Parsing, Konten, dsb)."
+            
+            categories = {}
+            for row in rows:
+                cat = row[0]
+                crit = row[1]
+                weight = row[2]
+                if cat not in categories:
+                    categories[cat] = []
+                categories[cat].append((crit, weight))
+            
+            rubric_text = ""
+            for cat, items in categories.items():
+                total_weight = sum(w for c, w in items)
+                rubric_text += f"{cat} (total bobot: {total_weight}%)\n"
+                for crit, weight in items:
+                    rubric_text += f"   - {crit} (bobot: {weight}%)\n"
+                rubric_text += "\n"
+            return rubric_text.strip()
+    except Exception as e:
+        print(f"Warning: Failed to fetch scoring rubric: {e}")
+    return "Gunakan kriteria ATS standar (ATS Parsing, Konten, dsb)."
 def review_cv(cv_text: str, target_job: dict = None) -> dict:
     """
     Analyze CV and return structured feedback.
@@ -85,7 +99,8 @@ def review_cv(cv_text: str, target_job: dict = None) -> dict:
         }
 
     try:
-        system_prompt = REVIEW_PROMPT
+        rubric_context = get_scoring_rubric_context()
+        system_prompt = REVIEW_PROMPT_TEMPLATE.replace("{rubric_context}", rubric_context)
         target_context = ""
         if target_job:
             target_context = f"\n\nPosisi Target:\n- Jabatan: {target_job.get('job_title', 'N/A')}\n- Perusahaan: {target_job.get('company_name', 'N/A')}\n- Deskripsi Pekerjaan: {target_job.get('job_description', 'N/A')}"

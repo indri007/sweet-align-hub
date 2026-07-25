@@ -45,6 +45,7 @@ env
 .streamlit/secrets.toml
 
 # Backups & Archives (Ignored to avoid push size/credentials leaks)
+archive/
 "job_search_app_05 July 2026 3/"
 job_search_app_05 July 2026 3/
 Tracker HR/

@@ -47,70 +47,70 @@ GEMINI_MODEL = _cfg("GEMINI_MODEL", "gemini-flash-latest")
 GEMINI_EMBEDDING_MODEL = _cfg("GEMINI_EMBEDDING_MODEL", "models/gemini-embedding-001")
 
 # ─── State rotasi (per-proses) ────────────────────────────────────────────────
-_current_key_index: int = 0
-_gemini_clients: dict[int, object] = {}
+_gemini_clients_by_key: dict[str, object] = {}
 
-def get_gemini_client(force_index: int | None = None):
+def get_keys_for_agent(agent_id: int) -> list[str]:
+    if not GEMINI_KEYS: return []
+    # Alokasikan 3 key per agent (pool 3)
+    keys_per_agent = 3
+    agent_idx = agent_id if agent_id else 1
+    
+    start = ((agent_idx - 1) * keys_per_agent) % len(GEMINI_KEYS)
+    
+    agent_keys = []
+    for i in range(keys_per_agent):
+        idx = (start + i) % len(GEMINI_KEYS)
+        agent_keys.append(GEMINI_KEYS[idx])
+        
+    return agent_keys
+
+def get_gemini_client_by_key(api_key: str):
     from google import genai
     import logging
     logger = logging.getLogger(__name__)
 
-    global _current_key_index
-    idx = force_index if force_index is not None else _current_key_index
+    if api_key not in _gemini_clients_by_key:
+        _gemini_clients_by_key[api_key] = genai.Client(api_key=api_key)
+        logger.info(f"Gemini client dibuat untuk key (masked: {api_key[:5]}...)")
+    return _gemini_clients_by_key[api_key]
 
-    if not GEMINI_KEYS:
-        return None
-
-    idx = idx % len(GEMINI_KEYS)
-
-    if idx not in _gemini_clients:
-        _gemini_clients[idx] = genai.Client(api_key=GEMINI_KEYS[idx])
-        logger.info(f"Gemini client dibuat untuk key index {idx + 1}/{len(GEMINI_KEYS)}")
-
-    return _gemini_clients[idx]
+def get_gemini_client(force_index: int | None = None):
+    # Backward compatibility
+    if not GEMINI_KEYS: return None
+    idx = force_index if force_index is not None else 0
+    key = GEMINI_KEYS[idx % len(GEMINI_KEYS)]
+    return get_gemini_client_by_key(key)
 
 def rotate_gemini_key() -> bool:
-    import logging
-    logger = logging.getLogger(__name__)
-    global _current_key_index
-    next_index = _current_key_index + 1
+    # Dummy function for backwards compatibility
+    return False
 
-    if next_index >= len(GEMINI_KEYS):
-        logger.warning(f"Semua {len(GEMINI_KEYS)} Gemini key sudah dicoba, tidak ada cadangan lagi.")
-        return False
-
-    _current_key_index = next_index
-    logger.warning(f"Gemini key index {next_index} diaktifkan (key {next_index + 1}/{len(GEMINI_KEYS)}).")
-    return True
-
-def gemini_call_with_rotation(fn, *args, agent_id: int = None, max_retries: int = None, **kwargs):
+def gemini_call_with_rotation(fn, *args, agent_id: int = 1, max_retries: int = None, **kwargs):
     from google.genai import errors
     import logging
     logger = logging.getLogger(__name__)
     
-    global _current_key_index
-    retries = max_retries if max_retries is not None else len(GEMINI_KEYS)
-    if retries == 0: retries = 1
+    agent_keys = get_keys_for_agent(agent_id)
+    if not agent_keys:
+        raise RuntimeError("Gemini tidak dikonfigurasi.")
     
-    # Start at agent-specific index if provided, otherwise use global rotating index
-    start_idx = (agent_id - 1) % len(GEMINI_KEYS) if agent_id is not None and GEMINI_KEYS else _current_key_index
+    retries = max_retries if max_retries is not None else len(agent_keys)
+    if retries <= 0: retries = 1
     
     for attempt in range(retries):
-        idx = (start_idx + attempt) % len(GEMINI_KEYS)
-        client = get_gemini_client(force_index=idx)
-        if client is None:
-            raise RuntimeError("Gemini tidak dikonfigurasi.")
+        key = agent_keys[attempt % len(agent_keys)]
+        client = get_gemini_client_by_key(key)
         
         try:
             return fn(client, *args, **kwargs)
         except errors.APIError as e:
             err_str = str(e)
             if "RESOURCE_EXHAUSTED" in err_str or "429" in err_str:
-                logger.warning(f"[Rotasi] Rate limit tercapai pada Key Index {idx} (percobaan {attempt+1}/{retries})")
+                logger.warning(f"[Rotasi] Rate limit tercapai pada Agent {agent_id} (percobaan {attempt+1}/{retries})")
                 if attempt < retries - 1:
                     continue
             raise e
-    raise RuntimeError("Semua Kunci Gemini gagal karena limit/error.")
+    raise RuntimeError(f"Semua Kunci Gemini untuk Agent {agent_id} gagal karena limit/error.")
 
 # ─── LLM Provider ─────────────────────────────────────────
 # "gemini" or "openai". Auto-detected from available keys unless set explicitly.
@@ -131,11 +131,12 @@ CHROMA_PERSIST_DIR = os.getenv("CHROMA_PERSIST_DIR", str(BASE_DIR / "data" / "ch
 QDRANT_URL = _cfg("QDRANT_URL")
 QDRANT_API_KEY = _cfg("QDRANT_API_KEY")
 # ─── Embedding ────────────────────────────────────────────
-EMBEDDING_MODEL = _cfg("EMBEDDING_MODEL", "gemini").lower()
+
 COLLECTION_NAME = "indonesian_jobs_gemini"
 
 # ─── N8N ──────────────────────────────────────────────────
 N8N_WEBHOOK_URL = os.getenv("N8N_WEBHOOK_URL", "")
+N8N_WEBHOOK_SECRET = _cfg("N8N_WEBHOOK_SECRET", "")
 USE_N8N = os.getenv("USE_N8N", "false").lower() == "true"
 
 

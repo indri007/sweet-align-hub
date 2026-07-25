@@ -34,10 +34,9 @@ def call_n8n_webhook(endpoint: str, data: dict, timeout: int = 120) -> dict:
 
     try:
         headers = {"Content-Type": "application/json"}
-        if config.N8N_API_KEY:
-            # Send both Bearer and Header Auth for compatibility with the new webhook
-            headers["Authorization"] = f"Bearer {config.N8N_API_KEY}"
-            headers["X-API-Key"] = config.N8N_API_KEY
+        if getattr(config, "N8N_WEBHOOK_SECRET", ""):
+            # Header diset ke "X-Webhook-Secret" untuk dicocokkan dengan n8n Header Auth
+            headers["X-Webhook-Secret"] = config.N8N_WEBHOOK_SECRET
             
         response = requests.post(
             url,

@@ -6,7 +6,8 @@
         "httpMethod": "POST",
         "path": "job-assistant",
         "responseMode": "lastNode",
-        "options": {}
+        "options": {},
+        "authentication": "headerAuth"
       },
       "id": "adfc7845-f1c3-4132-95f0-82b300fa0feb",
       "name": "Streamlit App (Webhook Entry)",
@@ -17,7 +18,13 @@
         -608
       ],
       "webhookId": "3d047310-11a9-4b30-a0bc-7e144e70ffca",
-      "notes": "PENTING: Setelah import, buat credential 'Header Auth' baru di n8n (Settings > Credentials), lalu pilih di node ini. Header auth ini yang menggantikan Google Auth Validator lama yang tidak berfungsi. App Streamlit kamu harus kirim header yang sama persis saat memanggil webhook ini."
+      "notes": "PENTING: Setelah import, buat credential 'Header Auth' baru di n8n (Settings > Credentials), lalu pilih di node ini. Header auth ini yang menggantikan Google Auth Validator lama yang tidak berfungsi. App Streamlit kamu harus kirim header yang sama persis saat memanggil webhook ini.",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "placeholder_header_auth_id",
+          "name": "Webhook Header Auth"
+        }
+      }
     },
     {
       "parameters": {
@@ -166,49 +173,6 @@
       "notes": "Butuh user_id atau session_id dikirim dari Streamlit di setiap request supaya history percakapan per-user tidak tercampur."
     },
     {
-      "parameters": {
-        "name": "qdranttool",
-        "description": "Cari informasi pekerjaan (job_title, company_name, job_description) di database vektor Qdrant.",
-        "topK": 10
-      },
-      "id": "d16bbb5e-c4de-4787-924d-a2db4e53216e",
-      "name": "HR Knowledge Tool",
-      "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
-      "typeVersion": 1,
-      "position": [
-        -176,
-        -560
-      ],
-      "notes": "CATATAN: coba tambahkan parameter minimum similarity score di UI n8n setelah import."
-    },
-    {
-      "parameters": {
-        "qdrantCollection": {
-          "__rl": true,
-          "value": "indonesian_jobs_gemini",
-          "mode": "list",
-          "cachedResultName": "indonesian_jobs_gemini"
-        },
-        "options": {
-          "contentPayloadKey": "document"
-        }
-      },
-      "id": "dbfe3a42-1a87-4658-9a9a-c64e68d46668",
-      "name": "Qdrant 1 (Jobs Vector DB)",
-      "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
-      "typeVersion": 1,
-      "position": [
-        -176,
-        -368
-      ],
-      "credentials": {
-        "qdrantApi": {
-          "id": "wyfhb025LhPdqv8X",
-          "name": "Qdrant cvatsjob"
-        }
-      }
-    },
-    {
       "parameters": {},
       "id": "a2c255c2-059d-46b8-85ea-c78344207408",
       "name": "Gemini Embeddings",
@@ -273,7 +237,9 @@
         "agent": "toolsAgent",
         "promptType": "define",
         "text": "={{ $json.body.cs_query_veronika }}",
-        "options": {}
+        "options": {
+          "systemMessage": "Kamu adalah Veronika, asisten Customer Service yang ramah. Tugasmu membantu user bernavigasi di aplikasi, memecahkan masalah teknis, dan menjawab pertanyaan umum menggunakan CS Knowledge Tool."
+        }
       },
       "id": "dfb4dc90-cdd4-4b45-84ff-98902c0751a5",
       "name": "Veronika (CS Agent)",
@@ -304,10 +270,12 @@
         "agent": "toolsAgent",
         "promptType": "define",
         "text": "={{ $json.body.cs_query_leonardo }}",
-        "options": {}
+        "options": {
+          "systemMessage": "Kamu adalah Leonardo, Senior HR Recruiter dengan pengalaman 25 tahun. Gunakan HRD Knowledge Tool untuk menjawab pertanyaan user terkait panduan karir, kriteria CV ATS, dan tips wawancara yang terstandarisasi."
+        }
       },
       "id": "90cf74a6-2a8b-434d-8aba-5f6170ca9ab4",
-      "name": "Leonardo (CS Agent)",
+      "name": "Leonardo (HRD Agent)",
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 1.4,
       "position": [
@@ -410,7 +378,8 @@
         -368,
         444
       ],
-      "notes": "Agen khusus untuk Mock Interview."
+      "notes": "Agen khusus untuk Mock Interview.",
+      "disabled": true
     },
     {
       "parameters": {
@@ -489,7 +458,90 @@
           "name": "Gemini cvatsjob"
         }
       },
-      "notes": "Gunakan API Keys Anda di Settings > Credentials."
+      "notes": "Gunakan API Keys Anda di Settings > Credentials.",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "name": "qdranttool",
+        "description": "Cari informasi panduan HRD dan kriteria ATS.",
+        "topK": 10
+      },
+      "id": "5fcf4bf4-4cb3-4cd8-b8ea-81171cff7f75",
+      "name": "HRD Knowledge Tool",
+      "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
+      "typeVersion": 1,
+      "position": [
+        32,
+        -64
+      ]
+    },
+    {
+      "parameters": {
+        "qdrantCollection": {
+          "__rl": true,
+          "value": "hrd_knowledge",
+          "mode": "list",
+          "cachedResultName": "hrd_knowledge"
+        },
+        "options": {
+          "contentPayloadKey": "document"
+        }
+      },
+      "id": "81053268-5537-47d7-9146-5cd8d9bd10f3",
+      "name": "Qdrant (HRD Knowledge DB)",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+      "typeVersion": 1,
+      "position": [
+        32,
+        144
+      ],
+      "credentials": {
+        "qdrantApi": {
+          "id": "wyfhb025LhPdqv8X",
+          "name": "Qdrant cvatsjob"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "gemini-pro",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -464,
+        -464
+      ],
+      "id": "c3e4d066-77f3-4ea2-9d55-1853e3958ddd",
+      "name": "Gemini Chat Model - Leonardo",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "placeholder_leonardo_id",
+          "name": "Gemini - Leonardo"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "gemini-pro",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -464,
+        -464
+      ],
+      "id": "39ca45ff-f0b4-4d84-9255-6392a150ff45",
+      "name": "Gemini Chat Model - Veronika",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "placeholder_veronika_id",
+          "name": "Gemini - Veronika"
+        }
+      }
     }
   ],
   "pinData": {},
@@ -516,7 +568,7 @@
         ],
         [
           {
-            "node": "Leonardo (CS Agent)",
+            "node": "Leonardo (HRD Agent)",
             "type": "main",
             "index": 0
           }
@@ -528,13 +580,7 @@
             "index": 0
           }
         ],
-        [
-          {
-            "node": "Mock Interview Agent",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        []
       ]
     },
     "Gemini Chat Model": {
@@ -542,26 +588,6 @@
         [
           {
             "node": "Main Orchestrator Agent",
-            "type": "ai_languageModel",
-            "index": 0
-          },
-          {
-            "node": "Veronika (CS Agent)",
-            "type": "ai_languageModel",
-            "index": 0
-          },
-          {
-            "node": "Leonardo (CS Agent)",
-            "type": "ai_languageModel",
-            "index": 0
-          },
-          {
-            "node": "HR Knowledge Tool",
-            "type": "ai_languageModel",
-            "index": 0
-          },
-          {
-            "node": "CS Knowledge Tool",
             "type": "ai_languageModel",
             "index": 0
           }
@@ -572,11 +598,6 @@
       "ai_embedding": [
         [
           {
-            "node": "Qdrant 1 (Jobs Vector DB)",
-            "type": "ai_embedding",
-            "index": 0
-          },
-          {
             "node": "Qdrant 2 (CS Memory DB)",
             "type": "ai_embedding",
             "index": 0
@@ -586,18 +607,12 @@
             "type": "ai_embedding",
             "index": 0
           }
-        ]
-      ]
-    },
-    "Qdrant 1 (Jobs Vector DB)": {
-      "ai_vectorStore": [
-        [
-          {
-            "node": "HR Knowledge Tool",
-            "type": "ai_vectorStore",
-            "index": 0
-          }
-        ]
+        ],
+        {
+          "node": "Qdrant (HRD Knowledge DB)",
+          "type": "ai_embedding",
+          "index": 0
+        }
       ]
     },
     "Qdrant 2 (CS Memory DB)": {
@@ -606,17 +621,6 @@
           {
             "node": "CS Knowledge Tool",
             "type": "ai_vectorStore",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "HR Knowledge Tool": {
-      "ai_tool": [
-        [
-          {
-            "node": "Main Orchestrator Agent",
-            "type": "ai_tool",
             "index": 0
           }
         ]
@@ -659,7 +663,7 @@
       "ai_memory": [
         [
           {
-            "node": "Leonardo (CS Agent)",
+            "node": "Leonardo (HRD Agent)",
             "type": "ai_memory",
             "index": 0
           }
@@ -675,7 +679,7 @@
             "index": 0
           },
           {
-            "node": "Leonardo (CS Agent)",
+            "node": "Leonardo (HRD Agent)",
             "type": "ai_tool",
             "index": 0
           }
@@ -687,11 +691,6 @@
         [
           {
             "node": "Veronika (CS Agent)",
-            "type": "ai_tool",
-            "index": 0
-          },
-          {
-            "node": "Leonardo (CS Agent)",
             "type": "ai_tool",
             "index": 0
           }
@@ -736,6 +735,60 @@
         [
           {
             "node": "Mock Interview Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qdrant (HRD Knowledge DB)": {
+      "ai_vectorStore": [
+        [
+          {
+            "node": "HRD Knowledge Tool",
+            "type": "ai_vectorStore",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HRD Knowledge Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "Leonardo (HRD Agent)",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini Chat Model - Leonardo": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Leonardo (HRD Agent)",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "HRD Knowledge Tool",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini Chat Model - Veronika": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Veronika (CS Agent)",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "CS Knowledge Tool",
             "type": "ai_languageModel",
             "index": 0
           }
