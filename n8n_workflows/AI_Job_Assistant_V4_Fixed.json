@@ -6,14 +6,16 @@
         "httpMethod": "POST",
         "path": "job-assistant",
         "responseMode": "lastNode",
-        "authentication": "headerAuth",
         "options": {}
       },
-      "id": "b870661b-79cb-45c9-855e-54e04fef4088",
+      "id": "adfc7845-f1c3-4132-95f0-82b300fa0feb",
       "name": "Streamlit App (Webhook Entry)",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1.1,
-      "position": [100, -200],
+      "position": [
+        -864,
+        -608
+      ],
       "webhookId": "3d047310-11a9-4b30-a0bc-7e144e70ffca",
       "notes": "PENTING: Setelah import, buat credential 'Header Auth' baru di n8n (Settings > Credentials), lalu pilih di node ini. Header auth ini yang menggantikan Google Auth Validator lama yang tidak berfungsi. App Streamlit kamu harus kirim header yang sama persis saat memanggil webhook ini."
     },
@@ -23,12 +25,20 @@
           "values": [
             {
               "conditions": {
-                "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
                 "conditions": [
                   {
                     "leftValue": "={{ $json.body.cs_query_veronika }}",
                     "rightValue": "",
-                    "operator": { "type": "string", "operation": "notEmpty" }
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty"
+                    }
                   }
                 ],
                 "combinator": "and"
@@ -38,12 +48,20 @@
             },
             {
               "conditions": {
-                "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
                 "conditions": [
                   {
                     "leftValue": "={{ $json.body.cs_query_leonardo }}",
                     "rightValue": "",
-                    "operator": { "type": "string", "operation": "notEmpty" }
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty"
+                    }
                   }
                 ],
                 "combinator": "and"
@@ -53,12 +71,20 @@
             },
             {
               "conditions": {
-                "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
                 "conditions": [
                   {
                     "leftValue": "={{ $json.body.query }}",
                     "rightValue": "",
-                    "operator": { "type": "string", "operation": "notEmpty" }
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty"
+                    }
                   }
                 ],
                 "combinator": "and"
@@ -68,13 +94,18 @@
             }
           ]
         },
-        "options": { "fallbackOutput": "none" }
+        "options": {
+          "fallbackOutput": "none"
+        }
       },
-      "id": "router-switch-001",
+      "id": "80d15f99-9306-416b-bbc6-227899cd8f4b",
       "name": "Request Router",
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3,
-      "position": [300, -200],
+      "position": [
+        -672,
+        -608
+      ],
       "notes": "Menggantikan fan-out ke 3 agent sekaligus. Sekarang 1 request cuma memicu 1 agent yang relevan, berdasarkan field mana yang terisi di body request. Urutan pengecekan: Veronika > Leonardo > Main Orchestrator."
     },
     {
@@ -82,16 +113,18 @@
         "agent": "toolsAgent",
         "promptType": "define",
         "text": "={{ $json.body.query }}",
-        "hasOutputParser": false,
         "options": {
           "systemMessage": "Kamu adalah asisten pencari kerja. Gunakan tool yang tersedia untuk menjawab pertanyaan user berdasarkan data lowongan yang ada. Jangan mengarang informasi lowongan yang tidak ada di database."
         }
       },
-      "id": "d899f28a-bc6a-4b91-a044-248955350d9d",
+      "id": "1b5bd338-29a6-4a26-adfb-1f46da2492e3",
       "name": "Main Orchestrator Agent",
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 1.4,
-      "position": [600, -300]
+      "position": [
+        -368,
+        -720
+      ]
     },
     {
       "parameters": {
@@ -99,11 +132,14 @@
         "sessionKey": "={{ $json.body.user_id || $json.body.session_id }}",
         "contextWindowLength": 10
       },
-      "id": "memory-main-001",
+      "id": "c0f015f2-9b3a-4265-a4ad-c6ea4e210064",
       "name": "Memory (Main Orchestrator)",
       "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
       "typeVersion": 1.3,
-      "position": [600, -450],
+      "position": [
+        -368,
+        -864
+      ],
       "notes": "Butuh user_id atau session_id dikirim dari Streamlit di setiap request supaya history percakapan per-user tidak tercampur."
     },
     {
@@ -112,11 +148,14 @@
         "description": "Cari informasi pekerjaan (job_title, company_name, job_description) di database vektor Qdrant.",
         "topK": 10
       },
-      "id": "b1264cdd-7ef0-43f4-ad50-75a79adc3622",
+      "id": "d16bbb5e-c4de-4787-924d-a2db4e53216e",
       "name": "HR Knowledge Tool",
       "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
       "typeVersion": 1,
-      "position": [800, -150],
+      "position": [
+        -176,
+        -560
+      ],
       "notes": "CATATAN: coba tambahkan parameter minimum similarity score di UI n8n setelah import."
     },
     {
@@ -127,28 +166,40 @@
           "mode": "list",
           "cachedResultName": "indonesian_jobs_gemini"
         },
-        "options": { "contentPayloadKey": "document" }
+        "options": {
+          "contentPayloadKey": "document"
+        }
       },
-      "id": "ac8b6d83-f919-4144-8a6d-8f74962f8e29",
+      "id": "dbfe3a42-1a87-4658-9a9a-c64e68d46668",
       "name": "Qdrant 1 (Jobs Vector DB)",
       "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
       "typeVersion": 1,
-      "position": [800, 50],
+      "position": [
+        -176,
+        -368
+      ],
       "credentials": {
-        "qdrantApi": { "id": "wyfhb025LhPdqv8X", "name": "Qdrant cvatsjob" }
+        "qdrantApi": {
+          "id": "wyfhb025LhPdqv8X",
+          "name": "Qdrant cvatsjob"
+        }
       }
     },
     {
-      "parameters": {
-        "modelName": "models/gemini-embedding-001"
-      },
-      "id": "5bd4ab74-5575-4561-bf4a-d8fedd6c012e",
+      "parameters": {},
+      "id": "a2c255c2-059d-46b8-85ea-c78344207408",
       "name": "Gemini Embeddings",
       "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
       "typeVersion": 1,
-      "position": [750, 250],
+      "position": [
+        -224,
+        -160
+      ],
       "credentials": {
-        "googlePalmApi": { "id": "afSVvCI66b95QyJI", "name": "Gemini cvatsjob" }
+        "googlePalmApi": {
+          "id": "afSVvCI66b95QyJI",
+          "name": "Gemini cvatsjob"
+        }
       }
     },
     {
@@ -156,16 +207,22 @@
         "descriptionType": "manual",
         "toolDescription": "Query tabel MySQL bernama \"jobs\" untuk mencari lowongan berdasarkan data terstruktur.",
         "operation": "executeQuery",
-        "query": "={{$fromAI('query', 'SELECT query saja, tidak boleh INSERT/UPDATE/DELETE/DROP')}}",
+        "query": "{{$fromAI('query', 'SELECT query saja, tidak boleh INSERT/UPDATE/DELETE/DROP')}}",
         "options": {}
       },
       "type": "n8n-nodes-base.mySqlTool",
       "typeVersion": 2.5,
-      "position": [1000, -50],
-      "id": "e1e5a2f9-bf5f-4512-829f-18f7bf43d93c",
+      "position": [
+        32,
+        -464
+      ],
+      "id": "e50c93c7-fbd6-4262-94ad-566fbc01324b",
       "name": "Aiven 1 (Primary SQL - Read Only)",
       "credentials": {
-        "mySql": { "id": "GANTI_DENGAN_CREDENTIAL_READONLY_BARU", "name": "MySQL cvatsjob (READ-ONLY)" }
+        "mySql": {
+          "id": "xPwkS4hRLsvaF53j",
+          "name": "MySQL cvatsjob"
+        }
       }
     },
     {
@@ -175,11 +232,17 @@
       },
       "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
       "typeVersion": 1,
-      "position": [500, -50],
-      "id": "e2bb8ea8-4976-4624-9409-e77275c52386",
+      "position": [
+        -464,
+        -464
+      ],
+      "id": "da41a41a-f18d-4258-a6a4-357e9461bcde",
       "name": "Gemini Chat Model",
       "credentials": {
-        "googlePalmApi": { "id": "afSVvCI66b95QyJI", "name": "Gemini cvatsjob" }
+        "googlePalmApi": {
+          "id": "afSVvCI66b95QyJI",
+          "name": "Gemini cvatsjob"
+        }
       }
     },
     {
@@ -189,11 +252,14 @@
         "text": "={{ $json.body.cs_query_veronika }}",
         "options": {}
       },
-      "id": "507ba070-f654-406f-b046-0e8677bc9ce7",
+      "id": "dfb4dc90-cdd4-4b45-84ff-98902c0751a5",
       "name": "Veronika (CS Agent)",
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 1.4,
-      "position": [600, 250]
+      "position": [
+        -368,
+        -160
+      ]
     },
     {
       "parameters": {
@@ -201,11 +267,14 @@
         "sessionKey": "={{ $json.body.user_id || $json.body.session_id }}",
         "contextWindowLength": 10
       },
-      "id": "memory-veronika-001",
+      "id": "6eb594f9-b132-439c-9f75-2df31a4186d7",
       "name": "Memory (Veronika)",
       "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
       "typeVersion": 1.3,
-      "position": [600, 100]
+      "position": [
+        -368,
+        -320
+      ]
     },
     {
       "parameters": {
@@ -214,11 +283,14 @@
         "text": "={{ $json.body.cs_query_leonardo }}",
         "options": {}
       },
-      "id": "e9877f65-425c-4be0-b4b4-24a424985766",
+      "id": "90cf74a6-2a8b-434d-8aba-5f6170ca9ab4",
       "name": "Leonardo (CS Agent)",
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 1.4,
-      "position": [600, 550]
+      "position": [
+        -368,
+        144
+      ]
     },
     {
       "parameters": {
@@ -226,27 +298,36 @@
         "sessionKey": "={{ $json.body.user_id || $json.body.session_id }}",
         "contextWindowLength": 10
       },
-      "id": "memory-leonardo-001",
+      "id": "478eb05d-7686-4e4a-b5bc-8fbb64df0319",
       "name": "Memory (Leonardo)",
       "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
       "typeVersion": 1.3,
-      "position": [600, 700]
+      "position": [
+        -368,
+        288
+      ]
     },
     {
       "parameters": {
         "descriptionType": "manual",
         "toolDescription": "Simpan log percakapan ke Aiven 2.",
         "operation": "executeQuery",
-        "query": "={{$fromAI('query', 'INSERT query ke tabel log saja')}}",
+        "query": "{{$fromAI('query', 'INSERT query ke tabel log saja')}}",
         "options": {}
       },
       "type": "n8n-nodes-base.mySqlTool",
       "typeVersion": 2.5,
-      "position": [900, 250],
-      "id": "f39e8c25-20ee-42df-bef4-2a6b0f688108",
+      "position": [
+        -64,
+        -160
+      ],
+      "id": "ba194987-c26d-4ada-8a28-5b574b6db2da",
       "name": "Aiven 2 (Telemetry Log Only)",
       "credentials": {
-        "mySql": { "id": "GANTI_DENGAN_CREDENTIAL_LOGGING_TERBATAS", "name": "MySQL cvatsjob (LOG ONLY)" }
+        "mySql": {
+          "id": "xPwkS4hRLsvaF53j",
+          "name": "MySQL cvatsjob"
+        }
       }
     },
     {
@@ -257,15 +338,23 @@
           "mode": "list",
           "cachedResultName": "cs_memory"
         },
-        "options": { "contentPayloadKey": "document" }
+        "options": {
+          "contentPayloadKey": "document"
+        }
       },
-      "id": "be590680-2275-4195-b851-63050553a9db",
+      "id": "ce4b5a1b-e047-40b6-b7c8-fac311192bb1",
       "name": "Qdrant 2 (CS Memory DB)",
       "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
       "typeVersion": 1,
-      "position": [1000, 550],
+      "position": [
+        32,
+        144
+      ],
       "credentials": {
-        "qdrantApi": { "id": "wyfhb025LhPdqv8X", "name": "Qdrant cvatsjob" }
+        "qdrantApi": {
+          "id": "wyfhb025LhPdqv8X",
+          "name": "Qdrant cvatsjob"
+        }
       }
     },
     {
@@ -274,84 +363,232 @@
         "description": "Cari riwayat percakapan customer service.",
         "topK": 10
       },
-      "id": "d0ae7ade-ea68-4ecf-af91-0742a96be8e2",
+      "id": "87fc937d-4414-464e-b765-b39ce5c9b34d",
       "name": "CS Knowledge Tool",
       "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
       "typeVersion": 1,
-      "position": [1000, 350]
+      "position": [
+        32,
+        -64
+      ]
     }
   ],
   "pinData": {},
   "connections": {
     "Streamlit App (Webhook Entry)": {
-      "main": [[ { "node": "Request Router", "type": "main", "index": 0 } ]]
+      "main": [
+        [
+          {
+            "node": "Request Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Request Router": {
       "main": [
-        [ { "node": "Veronika (CS Agent)", "type": "main", "index": 0 } ],
-        [ { "node": "Leonardo (CS Agent)", "type": "main", "index": 0 } ],
-        [ { "node": "Main Orchestrator Agent", "type": "main", "index": 0 } ]
+        [
+          {
+            "node": "Veronika (CS Agent)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Leonardo (CS Agent)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Main Orchestrator Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     },
     "Gemini Chat Model": {
       "ai_languageModel": [
         [
-          { "node": "Main Orchestrator Agent", "type": "ai_languageModel", "index": 0 },
-          { "node": "Veronika (CS Agent)", "type": "ai_languageModel", "index": 0 },
-          { "node": "Leonardo (CS Agent)", "type": "ai_languageModel", "index": 0 },
-          { "node": "HR Knowledge Tool", "type": "ai_languageModel", "index": 0 },
-          { "node": "CS Knowledge Tool", "type": "ai_languageModel", "index": 0 }
+          {
+            "node": "Main Orchestrator Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Veronika (CS Agent)",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Leonardo (CS Agent)",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "HR Knowledge Tool",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "CS Knowledge Tool",
+            "type": "ai_languageModel",
+            "index": 0
+          }
         ]
       ]
     },
     "Gemini Embeddings": {
       "ai_embedding": [
         [
-          { "node": "Qdrant 1 (Jobs Vector DB)", "type": "ai_embedding", "index": 0 },
-          { "node": "Qdrant 2 (CS Memory DB)", "type": "ai_embedding", "index": 0 }
+          {
+            "node": "Qdrant 1 (Jobs Vector DB)",
+            "type": "ai_embedding",
+            "index": 0
+          },
+          {
+            "node": "Qdrant 2 (CS Memory DB)",
+            "type": "ai_embedding",
+            "index": 0
+          }
         ]
       ]
     },
     "Qdrant 1 (Jobs Vector DB)": {
-      "ai_vectorStore": [[ { "node": "HR Knowledge Tool", "type": "ai_vectorStore", "index": 0 } ]]
+      "ai_vectorStore": [
+        [
+          {
+            "node": "HR Knowledge Tool",
+            "type": "ai_vectorStore",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Qdrant 2 (CS Memory DB)": {
-      "ai_vectorStore": [[ { "node": "CS Knowledge Tool", "type": "ai_vectorStore", "index": 0 } ]]
+      "ai_vectorStore": [
+        [
+          {
+            "node": "CS Knowledge Tool",
+            "type": "ai_vectorStore",
+            "index": 0
+          }
+        ]
+      ]
     },
     "HR Knowledge Tool": {
-      "ai_tool": [[ { "node": "Main Orchestrator Agent", "type": "ai_tool", "index": 0 } ]]
+      "ai_tool": [
+        [
+          {
+            "node": "Main Orchestrator Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Aiven 1 (Primary SQL - Read Only)": {
-      "ai_tool": [[ { "node": "Main Orchestrator Agent", "type": "ai_tool", "index": 0 } ]]
+      "ai_tool": [
+        [
+          {
+            "node": "Main Orchestrator Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Memory (Main Orchestrator)": {
-      "ai_memory": [[ { "node": "Main Orchestrator Agent", "type": "ai_memory", "index": 0 } ]]
+      "ai_memory": [
+        [
+          {
+            "node": "Main Orchestrator Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Memory (Veronika)": {
-      "ai_memory": [[ { "node": "Veronika (CS Agent)", "type": "ai_memory", "index": 0 } ]]
+      "ai_memory": [
+        [
+          {
+            "node": "Veronika (CS Agent)",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Memory (Leonardo)": {
-      "ai_memory": [[ { "node": "Leonardo (CS Agent)", "type": "ai_memory", "index": 0 } ]]
+      "ai_memory": [
+        [
+          {
+            "node": "Leonardo (CS Agent)",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Aiven 2 (Telemetry Log Only)": {
       "ai_tool": [
         [
-          { "node": "Veronika (CS Agent)", "type": "ai_tool", "index": 0 },
-          { "node": "Leonardo (CS Agent)", "type": "ai_tool", "index": 0 }
+          {
+            "node": "Veronika (CS Agent)",
+            "type": "ai_tool",
+            "index": 0
+          },
+          {
+            "node": "Leonardo (CS Agent)",
+            "type": "ai_tool",
+            "index": 0
+          }
         ]
       ]
     },
     "CS Knowledge Tool": {
       "ai_tool": [
         [
-          { "node": "Veronika (CS Agent)", "type": "ai_tool", "index": 0 },
-          { "node": "Leonardo (CS Agent)", "type": "ai_tool", "index": 0 }
+          {
+            "node": "Veronika (CS Agent)",
+            "type": "ai_tool",
+            "index": 0
+          },
+          {
+            "node": "Leonardo (CS Agent)",
+            "type": "ai_tool",
+            "index": 0
+          }
         ]
       ]
     }
   },
-  "active": false,
+  "active": true,
   "settings": {
-    "executionOrder": "v1"
-  }
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true,
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "timeSavedPerExecution": 1
+  },
+  "versionId": "444c1da4-b34c-4dff-9364-e9cc4dabda35",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5339293d85928bc760485385f5ff46eb25ac9218165c9e70c2dbd619391c468b"
+  },
+  "id": "joc429PfquCLynfI",
+  "tags": [
+    {
+      "updatedAt": "2026-05-09T06:49:17.467Z",
+      "createdAt": "2026-05-09T06:49:17.467Z",
+      "id": "3PucFwtAX1H7TWWQ",
+      "name": "kelassantai"
+    }
+  ]
 }
