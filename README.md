@@ -6,10 +6,6 @@
 
 <br/>
 
-<a href="https://jobsmatch.streamlit.app/">
-  <img src="assets/demo.webp" alt="JobsMatchAI UI Demo Animation" width="800" style="border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.2);">
-</a>
-
 <br/><br/>
 
 [![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-jobsmatch.streamlit.app-00C7B7?style=for-the-badge&logo=streamlit&logoColor=white)](https://jobsmatch.streamlit.app/)
