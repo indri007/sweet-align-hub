@@ -88,42 +88,29 @@ def gemini_call_with_rotation(fn, *args, agent_id: int = None, max_retries: int 
     import logging
     logger = logging.getLogger(__name__)
     
-    if agent_id is not None:
-        # Agent-specific key locking (1-based index)
-        # 1 -> index 0, 2 -> index 1, etc.
-        idx = (agent_id - 1) % len(GEMINI_KEYS) if GEMINI_KEYS else 0
+    global _current_key_index
+    retries = max_retries if max_retries is not None else len(GEMINI_KEYS)
+    if retries == 0: retries = 1
+    
+    # Start at agent-specific index if provided, otherwise use global rotating index
+    start_idx = (agent_id - 1) % len(GEMINI_KEYS) if agent_id is not None and GEMINI_KEYS else _current_key_index
+    
+    for attempt in range(retries):
+        idx = (start_idx + attempt) % len(GEMINI_KEYS)
         client = get_gemini_client(force_index=idx)
         if client is None:
             raise RuntimeError("Gemini tidak dikonfigurasi.")
-            
+        
         try:
             return fn(client, *args, **kwargs)
         except errors.APIError as e:
             err_str = str(e)
             if "RESOURCE_EXHAUSTED" in err_str or "429" in err_str:
-                logger.warning(f"[Lock] Rate limit tercapai untuk Agent {agent_id} (Key Index {idx}). Tidak melakukan rotasi, serahkan pada OpenAI Fallback.")
+                logger.warning(f"[Rotasi] Rate limit tercapai pada Key Index {idx} (percobaan {attempt+1}/{retries})")
+                if attempt < retries - 1:
+                    continue
             raise e
-    else:
-        # Legacy rotation for unassigned calls
-        retries = max_retries if max_retries is not None else len(GEMINI_KEYS)
-        if retries == 0: retries = 1
-        
-        for attempt in range(retries):
-            client = get_gemini_client()
-            if client is None:
-                raise RuntimeError("Gemini tidak dikonfigurasi.")
-            
-            try:
-                return fn(client, *args, **kwargs)
-            except errors.APIError as e:
-                err_str = str(e)
-                if "RESOURCE_EXHAUSTED" in err_str or "429" in err_str:
-                    logger.warning(f"[Rotasi] Rate limit tercapai pada percobaan {attempt+1}/{retries}")
-                    if attempt < retries - 1:
-                        if rotate_gemini_key():
-                            continue
-                raise e
-        raise RuntimeError("Semua Kunci Gemini gagal karena limit/error.")
+    raise RuntimeError("Semua Kunci Gemini gagal karena limit/error.")
 
 # ─── LLM Provider ─────────────────────────────────────────
 # "gemini" or "openai". Auto-detected from available keys unless set explicitly.
@@ -144,7 +131,7 @@ CHROMA_PERSIST_DIR = os.getenv("CHROMA_PERSIST_DIR", str(BASE_DIR / "data" / "ch
 QDRANT_URL = _cfg("QDRANT_URL")
 QDRANT_API_KEY = _cfg("QDRANT_API_KEY")
 # ─── Embedding ────────────────────────────────────────────
-EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "gemini").lower()
+EMBEDDING_MODEL = _cfg("EMBEDDING_MODEL", "gemini").lower()
 COLLECTION_NAME = "indonesian_jobs_gemini"
 
 # ─── N8N ──────────────────────────────────────────────────
