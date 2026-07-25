@@ -185,6 +185,9 @@ def render_step_e():
                                             )
                                 except Exception as e:
                                     st.error(f"Terjadi kesalahan: {e}")
+                                    st.session_state.interview_history.append(
+                                        {"role": "assistant", "content": f"⚠️ Sistem error (tidak dapat memproses jawaban): {e}"}
+                                    )
                         st.rerun()
 
                 else:  # Voice mode
@@ -259,6 +262,9 @@ def render_step_e():
                                                     )
                                         except Exception as e:
                                             st.error(f"Terjadi kesalahan: {e}")
+                                            st.session_state.interview_history.append(
+                                                {"role": "assistant", "content": f"⚠️ Sistem error (tidak dapat memproses jawaban): {e}"}
+                                            )
                                     st.rerun()
                     except ImportError:
                         st.warning("📦 Package `audio-recorder-streamlit` belum terinstall.")
