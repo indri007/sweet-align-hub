@@ -29,12 +29,6 @@ def _embed_local(texts: list[str]) -> list[list[float]]:
     return list(_local_embedder.embed(texts))
 
 
-def _embed_openai(texts: list[str]) -> list[list[float]]:
-    from openai import OpenAI
-    client = OpenAI(api_key=config.OPENAI_API_KEY)
-    response = client.embeddings.create(model=config.OPENAI_EMBEDDING_MODEL, input=texts)
-    return [d.embedding for d in response.data]
-
 
 def _embed_gemini(texts: list[str]) -> list[list[float]]:
     from google import genai
@@ -63,19 +57,15 @@ def _embed_gemini(texts: list[str]) -> list[list[float]]:
 
 
 def embed_texts(texts: list[str]) -> list[list[float]]:
-    """Embed a batch of texts using the configured embedding backend (local/openai/gemini)."""
-    if config.EMBEDDING_MODEL == "openai":
-        return _embed_openai(texts)
-    elif config.EMBEDDING_MODEL == "gemini":
+    """Embed a batch of texts using the configured embedding backend (local/gemini)."""
+    if config.EMBEDDING_MODEL == "gemini":
         return _embed_gemini(texts)
     return _embed_local(texts)
 
 
 def embedding_dimension() -> int:
     """Vector dimension for the configured embedding backend."""
-    if config.EMBEDDING_MODEL == "openai":
-        return 1536  # text-embedding-3-small
-    elif config.EMBEDDING_MODEL == "gemini":
+    if config.EMBEDDING_MODEL == "gemini":
         return 768  # gemini-embedding-001 default output dim
     return 384  # all-MiniLM-L6-v2
 
@@ -197,12 +187,11 @@ class QdrantVectorStore:
 
     def search_similar_jobs(self, query_text: str, top_k: int = 10) -> list[dict]:
         try:
-            query_vector = _embed_local([query_text])[0]
+            query_vector = embed_texts([query_text])[0]
             target_collection = self.collection_name
         except Exception as e:
-            print(f"[VectorStore] Local embedding failed: {e}. Falling back to OpenAI (Plan B).")
-            query_vector = _embed_openai([query_text])[0]
-            target_collection = f"{self.collection_name}_openai"
+            print(f"[VectorStore] Embedding failed: {e}")
+            return []
 
         response = self.client.query_points(
             collection_name=target_collection,
