@@ -1151,3 +1151,106 @@ Prompt sekarang sudah bagus (1 pertanyaan per waktu, campur behavioral/technical
 ---
 
 *Dokumen ini disetujui 21 Juli 2026, terus diperbarui aktif sampai 25 Juli 2026. Krisis "pivot React" sudah resolved (§2.12). Fitur inti CV Generator sudah selesai (§2.13). Yang tersisa paling mendesak: webhook production tanpa autentikasi (§2.5A/§12), status revoke token GitHub (§2.11), dan penyelesaian batch pekerjaan Leonardo/Veronika yang sedang berjalan (§2.8/§2.15). Sisanya di §13 adalah keputusan non-blocking yang bisa dijawab kapan saja.*
+
+
+---
+
+## 14. [UPDATE 26 JULI] Skema Database dan ERD Final (Python-Native)
+
+# Skema Data JobMatch AI (Sesuai PRD V3.0)
+
+Dokumen ini menjabarkan seluruh skema data yang saat ini aktif dan ter- *deploy* di ekosistem JobMatch AI, yang terdiri dari **Aiven MySQL** (Data Relasional) dan **Qdrant Cloud** (Vector/Semantic Data).
+
+## 1. Relational Database (Aiven MySQL)
+
+Tabel-tabel di bawah ini diakses dan dikelola baik melalui ORM (SQLAlchemy di `database.py`) maupun eksekusi SQL langsung (seperti saat Ingestion Knowledge Base).
+
+### A. Core Tables (via SQLAlchemy)
+- **`jobs`**: Menyimpan data lowongan kerja.
+  - Kolom: `id`, `job_title`, `company_name`, `location`, `work_type`, `salary_raw`, `salary_min`, `salary_max`, `job_description`, `scrape_timestamp`
+- **`hrd_transcripts`**: Menyimpan log sesi wawancara (Mock Interview).
+  - Kolom: `id`, `session_id`, `email`, `posisi`, `transcript_json`, `evaluation_result`, `completed`, `created_at`
+
+### B. ATS Knowledge Base Tables (via SQL Migration)
+Sistem *CV Generator* dan *CV Analyzer* mengacu pada tabel-tabel ini (termasuk *scoring rubric*) sesuai rancangan §5.4 dan §11 PRD:
+- **`scoring_rubric`**: Master kriteria penilaian (14 kriteria).
+  - Kolom: `rubric_id`, `dimension`, `criterion`, `max_points`, `weight`, `rule_type`
+- **`cv_red_flags`**: Tanda bahaya/kesalahan umum dalam CV.
+  - Kolom: `flag_id`, `flag_name_id`, `flag_name_en`, `description_id`, `description_en`, `severity`, `fix_suggestion_id`, `fix_suggestion_en`
+- **`action_verbs`**: Kata kerja kuat untuk perbaikan CV.
+  - Kolom: `verb_id`, `verb_id_lang`, `verb_en_lang`, `category`
+- **`rewrite_examples`**: Contoh penulisan CV *before-after*.
+  - Kolom: `example_id`, `function_id`, `before_text_id`, `after_text_id`, `before_text_en`, `after_text_en`, `principle`
+- **`skills`**, **`job_functions`**, **`job_levels`**: Taksonomi fungsi pekerjaan dan *skill* yang terkait.
+- **`cv_scoring_history`**: Log histori penilaian CV oleh *Analyzer*.
+
+---
+
+## 2. Vector Database (Qdrant Cloud)
+
+Arsitektur telah bergeser ke **100% Python-Native** yang memusatkan semua indeks pencarian semantik ke satu sumber provider LLM saja (Google Gemini dengan dimensi 768).
+
+### Collection Utama:
+- **`indonesian_jobs_gemini`** (Dimensi: 768)
+  - **Fungsi:** Menyimpan hasil *embedding* dari tabel `jobs` (Aiven) agar LLM bisa melakukan *Semantic Search* (RAG) saat pengguna mencari lowongan dengan *natural language*.
+  - **Model:** `models/gemini-embedding-001`
+
+- **`hrd_knowledge`** (Dimensi: 768)
+  - **Fungsi:** Menyimpan dokumen kebijakan HRD, FAQ, dan pengetahuan teknis bagi Agen CS (Veronika) dan Agen HRD (Leonardo).
+  - **Model:** `models/gemini-embedding-001`
+
+> **Catatan Sejarah (Deprecated):** 
+> Collection lama bernama `indonesian_jobs_n8n` (384-dim) atau koleksi berbasis OpenAI (1536-dim) sudah dinonaktifkan sepenuhnya dari arsitektur sejalan dengan keputusan mempensiunkan *pipeline* N8N.
+
+
+---
+
+## 1. Entity-Relationship Diagram (ERD) - Relational DB (Aiven MySQL)
+
+Berikut diagram ERD utama yang menggambarkan tabel-tabel inti dalam database MySQL Aiven secara aktual berdasarkan implementasi di `database.py`.
+
+```mermaid
+erDiagram
+    JOBS {
+        int id PK "Job ID"
+        varchar job_title "Judul"
+        varchar company_name "Perusahaan"
+        varchar location "Lokasi"
+        varchar work_type "Tipe Kerja"
+        varchar salary_raw "Gaji Mentah"
+        float salary_min "Gaji Minimum"
+        float salary_max "Gaji Maksimum"
+        text job_description "Deskripsi"
+        varchar scrape_timestamp "Timestamp Scrape"
+    }
+
+    HRD_TRANSCRIPTS {
+        int id PK
+        varchar session_id UK "UUID Sesi Wawancara"
+        varchar email "Menyambung ke Users/Email"
+        varchar posisi "Posisi yang dilamar"
+        json transcript_json "Log percakapan QA"
+        json evaluation_result "Skor/Feedback final"
+        boolean completed "Status Selesai"
+        datetime created_at "Waktu Dibuat"
+    }
+```
+
+*(Catatan: Tabel USERS, APPLICATIONS, CVS, dan CV_ANALYSIS_RESULTS sebelumnya merupakan rancangan awal (planned), namun secara aktual pada rilis ini hanya 2 tabel di atas yang diaktifkan sebagai tabel inti)*
+
+---
+
+## 2. Vector Collections Schema (Qdrant Cloud)
+
+Berikut adalah struktur koleksi vektor aktual di Qdrant yang menggunakan *embedding* Gemini (`models/gemini-embedding-001`, dimensi 768) sesuai dengan arsitektur Python-Native terkini:
+
+```mermaid
+erDiagram
+    QDRANT_CLOUD ||--o{ GEMINI_EMBEDDING : "Primary (Gemini 768-dim)"
+
+    GEMINI_EMBEDDING {
+        varchar indonesian_jobs_gemini "Vektor Lowongan Kerja"
+        varchar hrd_knowledge "Vektor Aturan HRD & KPI"
+    }
+```
+
