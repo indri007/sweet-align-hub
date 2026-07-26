@@ -21,10 +21,10 @@ echo ""
 
 # --- 1. Konfirmasi lokasi ---
 echo "--- 1. Lokasi & Struktur Dasar ---"
-if [[ "$(basename "$(pwd)")" == "sweet-align-hub-extracted" ]]; then
-  pass "Berada di folder repo yang benar (sweet-align-hub-extracted)"
+if [[ "$(basename "$(pwd)")" == "sweet-align-hub" ]]; then
+  pass "Berada di folder repo yang benar (sweet-align-hub)"
 else
-  fail "TIDAK berada di sweet-align-hub-extracted -- cd ke folder yang benar dulu!"
+  fail "TIDAK berada di sweet-align-hub -- cd ke folder yang benar dulu!"
 fi
 
 for f in app.py config.py database.py llm_client.py; do
