@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://cv-coach-id.lovable.app/sitemap.xml
