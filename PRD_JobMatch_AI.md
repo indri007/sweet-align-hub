@@ -473,6 +473,13 @@ Script verifikasi otomatis (bukan laporan naratif) dijalankan untuk pertama kali
 
 **Satu-satunya FAIL yang tersisa:** cek #1 (sync job data), gap masih **13 baris** (499 vs 486) — belum berubah dari run pertama, masih perlu dituntaskan. Duplikat entri `GEMINI_API_KEY` di `.env` (cek #4) juga masih belum diperiksa.
 
+### 2.21 ✅ Update 26 Juli: 100% Python-Native & Housekeeping Selesai
+
+Berdasarkan audit dan pembersihan (*housekeeping*) pra-redeploy pada tanggal 26 Juli, kondisi sistem secara resmi telah menyimpang positif dari beberapa poin yang dicatat di atas:
+1. **Arsitektur Resmi 100% Python-Native:** Konsep *Dual-Pipeline* N8N (§2.6) resmi dipensiunkan. Seluruh `n8n_workflows` dan `n8n_client.py` telah diarsipkan ke `archive/n8n_legacy/`. Toggle `USE_N8N` di `.env` sudah di-set ke `false`. Aplikasi murni berjalan di atas Streamlit dengan Python (Gemini + Qdrant + Aiven).
+2. **Kerapian Repo (Housekeeping) Selesai:** Seluruh *file* duplikat, skrip sisa v2/v3, folder *extract* sementara, dan PRD lawas telah dibersihkan secara tuntas dari *root directory*. Repositori saat ini 100% rapi dan tidak ada ambiguitas atau konflik *file* ganda seperti dicatat di §2.7 dan §2.9.
+3. **Standarisasi `.env` & Pengujian Otomatis:** File `.env` sudah distandarisasi (menggunakan `GEMINI_API_KEY`) dan script `pre_redeploy_check.sh` melaporkan status **PASS penuh** (100% Lulus) pada ke-8 *test suite* yang ada. Kondisi ini membuat JobMatch AI V3.0 secara arsitektur sangat stabil dan sepenuhnya berstatus **Production-Ready**.
+
 ---
 
 ## 3. Goals & Success Metrics
