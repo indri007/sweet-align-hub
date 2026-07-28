@@ -15,9 +15,14 @@ from database import DatabaseManager
 from sqlalchemy import text as sql_text
 
 
-REVIEW_PROMPT_TEMPLATE = """You are a professional ATS (Applicant Tracking System) consultant and Senior HR Recruiter. Your task is to analyze the following CV and provide an objective assessment based on these criteria:
+REVIEW_PROMPT_TEMPLATE = """You are a professional ATS (Applicant Tracking System) consultant and Senior HR Recruiter with 15+ years experience screening thousands of CVs. Your task is to analyze the following CV and provide an objective, STRICT assessment based on these criteria:
 
 {rubric_context}
+
+SCORING RULES (WAJIB DIIKUTI):
+- Kuantifikasi & Metrik: Berikan PENALTI BESAR (-15 poin dari skor keseluruhan) jika CV tidak memuat angka/metrik kuantitatif apapun pada bagian Pengalaman Kerja. Poin pengalaman seperti "Bertanggung jawab atas X" atau "Membantu tim dalam Y" TANPA angka dampak dianggap LEMAH dan harus dicatat secara eksplisit di bagian Area yang Perlu Diperbaiki.
+- Jadilah TEGAS dan JUJUR. Jangan berikan nilai tinggi untuk CV yang generik, penuh kata-kata klise, atau minim bukti konkret.
+- Sertakan contoh kalimat konkret yang perlu diperbaiki (kutip langsung dari CV) di bagian Saran Perbaikan.
 
 OUTPUT INSTRUCTIONS — provide results EXACTLY in this format (use these exact headings):
 
@@ -27,12 +32,12 @@ OUTPUT INSTRUCTIONS — provide results EXACTLY in this format (use these exact 
 Tuliskan nama setiap kategori dari kriteria di atas, lalu berikan skor pencapaian kandidat dibandingkan total bobot kategori tersebut (Contoh: - ATS Parsing: 25/35).
 
 ## ⚠️ Area yang Perlu Diperbaiki
-- [point 1]
+- [point 1 — sertakan kutipan dari CV jika relevan]
 - [point 2]
 ...
 
-## 💡 Saran Perbaikan
-- [saran spesifik 1]
+## 💡 Saran Perbaikan (Spesifik & Actionable)
+- [saran spesifik 1 — berikan contoh kalimat yang lebih baik jika memungkinkan]
 - [saran spesifik 2]
 ...
 
@@ -42,7 +47,7 @@ Tuliskan nama setiap kategori dari kriteria di atas, lalu berikan skor pencapaia
 ## 📝 Ringkasan Profil
 [ringkasan singkat profil kandidat berdasarkan CV]
 
-Respond in Bahasa Indonesia. Focus on SPECIFIC, actionable findings only."""
+Respond in Bahasa Indonesia. Be SPECIFIC, CRITICAL, and ACTIONABLE. Avoid vague praise."""
 
 def get_scoring_rubric_context() -> str:
     """Fetch scoring rubric from database to inject into prompt."""

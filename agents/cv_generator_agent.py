@@ -16,9 +16,6 @@ import json
 from database import DatabaseManager
 from sqlalchemy import text as sql_text
 
-import json
-from database import DatabaseManager
-from sqlalchemy import text as sql_text
 
 ATS_CV_PROMPT = """Kamu adalah CV Writer Expert profesional lulusan Harvard Business School dan spesialis optimasi ATS (Applicant Tracking System).
 Tugasmu adalah menulis ulang CV pengguna menjadi format ATS yang sangat kuat, tajam, dan berdampak tinggi.
@@ -45,6 +42,12 @@ ATURAN WAJIB (STANDAR CV ATS-FRIENDLY):
 
 5. **GUARDRAIL EKSPLISIT (SANGAT KRUSIAL):**
    Jangan pernah menambahkan pengalaman kerja, gelar, sertifikasi, atau pencapaian yang tidak disebutkan di CV asli user. Tugas kamu adalah menata ulang dan memperkuat bahasa dari apa yang sudah ada, bukan mengarang yang baru.
+
+6. **Formula XYZ Google (WAJIB di semua poin pengalaman kerja):**
+   Tulis setiap poin pencapaian menggunakan pola:
+   "[Action Verb] [X — apa yang dilakukan/dibuat] dengan [Y — cara/metode] sehingga menghasilkan [Z — dampak kuantitatif/kualitatif]."
+   Contoh kuat: "Memimpin tim 5 orang dalam merancang sistem backend berbasis FastAPI, berhasil memangkas waktu respons API sebesar 40% dalam 2 sprint."
+   Contoh lemah (HINDARI): "Bertanggung jawab atas pengembangan backend."
 
 {rubric_context}
 
