@@ -10,55 +10,66 @@ import config
 
 
 def extract_text_from_pdf(file_bytes: bytes) -> str:
-    """Extract text content from a PDF file with OCR fallback for scanned PDFs."""
-    text_parts = []
-    with pdfplumber.open(io.BytesIO(file_bytes)) as pdf:
-        for page in pdf.pages:
-            # Adjusting tolerances helps with PDF layout rendering bugs
-            page_text = page.extract_text(x_tolerance=2, y_tolerance=3)
-            if page_text:
-                text_parts.append(page_text)
-    
-    text = "\n\n".join(text_parts).strip()
-    
-    # OCR Fallback if text is empty or too short (likely scanned PDF)
-    if len(text) < 50:
-        # Fallback 1: Use Gemini's native multimodal capabilities to read scanned PDF directly
-        if config.is_gemini_configured():
-            try:
-                from google import genai
-                from google.genai import types
-                client = genai.Client(api_key=config.GEMINI_API_KEY)
-                response = client.models.generate_content(
-                    model=config.GEMINI_MODEL,
-                    contents=[
-                        types.Part.from_bytes(data=file_bytes, mime_type="application/pdf"),
-                        "Ekstrak dan ketik ulang seluruh teks yang ada di dalam dokumen CV ini secara lengkap, pertahankan urutan dan bahasanya.",
-                    ]
-                )
-                if response.text:
-                    return response.text.strip()
-            except Exception:
-                # Log or silenty ignore to proceed to Fallback 2
-                pass
+    """Extract text from a PDF file.
 
-        # Fallback 2: Local Tesseract OCR via pdf2image + pytesseract
+    Priority:
+      1. Gemini Multimodal (Vision) — handles two-column, graphic-heavy CVs natively.
+      2. pdfplumber — fast fallback for simple, text-based PDFs.
+      3. Tesseract OCR — last resort for fully scanned / image-only PDFs.
+    """
+    # ── PRIMARY: Gemini Vision ──────────────────────────────────────────────────
+    if config.is_gemini_configured():
         try:
-            from pdf2image import convert_from_bytes
-            import pytesseract
-            images = convert_from_bytes(file_bytes)
-            ocr_parts = []
-            for image in images:
-                ocr_text = pytesseract.image_to_string(image)
-                if ocr_text:
-                    ocr_parts.append(ocr_text)
-            ocr_result = "\n\n".join(ocr_parts).strip()
-            if ocr_result:
-                return ocr_result
+            from google import genai
+            from google.genai import types
+            client = genai.Client(api_key=config.GEMINI_API_KEY)
+            response = client.models.generate_content(
+                model=config.GEMINI_MODEL,
+                contents=[
+                    types.Part.from_bytes(data=file_bytes, mime_type="application/pdf"),
+                    (
+                        "Ekstrak SELURUH teks dari dokumen CV ini secara lengkap dan terstruktur. "
+                        "Urutkan teks dari atas ke bawah, kiri ke kanan. "
+                        "Untuk layout dua kolom, baca kolom kiri terlebih dahulu lalu kolom kanan. "
+                        "Pertahankan semua isi teks asli termasuk nama, kontak, pengalaman, pendidikan, "
+                        "dan keahlian. Abaikan elemen grafis, ikon, foto profil, dan garis dekoratif. "
+                        "Jangan tambahkan komentar atau penjelasan — hanya teks CV saja."
+                    ),
+                ]
+            )
+            if response.text and len(response.text.strip()) > 50:
+                return response.text.strip()
         except Exception:
-            pass
+            pass  # Gemini rate-limited or unavailable — fall through to pdfplumber
 
-    return text
+    # ── FALLBACK 1: pdfplumber ──────────────────────────────────────────────────
+    text_parts = []
+    try:
+        with pdfplumber.open(io.BytesIO(file_bytes)) as pdf:
+            for page in pdf.pages:
+                page_text = page.extract_text(x_tolerance=2, y_tolerance=3)
+                if page_text:
+                    text_parts.append(page_text)
+        text = "\n\n".join(text_parts).strip()
+        if len(text) >= 50:
+            return text
+    except Exception:
+        pass
+
+    # ── FALLBACK 2: Tesseract OCR (scanned / image-only PDF) ───────────────────
+    try:
+        from pdf2image import convert_from_bytes
+        import pytesseract
+        images = convert_from_bytes(file_bytes)
+        ocr_parts = [pytesseract.image_to_string(img) for img in images]
+        ocr_result = "\n\n".join(ocr_parts).strip()
+        if ocr_result:
+            return ocr_result
+    except Exception:
+        pass
+
+    return "\n\n".join(text_parts).strip()
+
 
 
 def extract_text_from_docx(file_bytes: bytes) -> str:
