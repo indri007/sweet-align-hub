@@ -1,6 +1,6 @@
 ## 1. Entity‑Relationship Diagram (ERD) - Relational DB (Aiven MySQL)
 
-Berikut diagram ERD utama yang menggambarkan tabel‑tabel inti dalam database MySQL Aiven, diperbarui sesuai dengan PRD V3 Final.
+Berikut diagram ERD utama yang menggambarkan tabel‑tabel inti dalam database MySQL Aiven, diperbarui sesuai dengan PRD V4 (100% Python-Native).
 
 ```mermaid
 erDiagram
@@ -88,14 +88,14 @@ erDiagram
 
 ## 2. Vector Collections Schema (Qdrant Cloud)
 
-Sesuai dengan pembaruan PRD V3 (Murni Gemini), pendekatan OpenAI Fallback telah **dihapus sepenuhnya**. Berikut adalah struktur koleksi vektor di Qdrant yang menggunakan Gemini Embedding (gemini-embedding-001, 768-dim):
+Sesuai dengan pembaruan PRD V4 (100% Python-Native), pendekatan OpenAI Fallback telah **dihapus sepenuhnya**. Berikut adalah struktur koleksi vektor di Qdrant yang menggunakan Gemini Embedding (gemini-embedding-001, 768-dim):
 
 ```mermaid
 erDiagram
     QDRANT_CLOUD ||--o{ PRIMARY_GEMINI : "Collections (Gemini 768-dim)"
 
     PRIMARY_GEMINI {
-        varchar indonesian_jobs_gemini "Job Database (Judul + Deskripsi, 473 point)"
+        varchar indonesian_jobs_gemini "Job Database (Judul + Deskripsi, 499 point)"
         varchar hrd_knowledge "Knowledge Base HRD (SOP, Training, Scoring, dll)"
         varchar cs_memory "Memori / Log FAQ untuk Agent CS (Veronika)"
         varchar interview_questions_bank "Bank Soal STAR Interview (Precomputed)"
