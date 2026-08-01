@@ -124,4 +124,34 @@ SKILLS
 Recruitment, Onboarding, Payroll, HRIS, Employee Relations, Komunikasi
 """.strip(),
     },
+    {
+        "id": "graphic_designer",
+        "expected_category": "Graphic Designer / Creative Designer",
+        "cv_text": """
+SARI WULANDARI
+Graphic Designer
+
+RINGKASAN
+Graphic Designer dengan 3 tahun pengalaman merancang materi visual untuk
+branding, media sosial, dan kebutuhan cetak. Terbiasa bekerja end-to-end
+dari konsep hingga produksi final menggunakan Adobe Creative Suite.
+
+PENGALAMAN KERJA
+Graphic Designer — PT Kreatif Visual Indonesia (2022–sekarang)
+- Merancang materi visual untuk kampanye media sosial dan katalog produk
+- Membuat identitas brand (logo, panduan warna, tipografi) untuk klien UMKM
+- Kolaborasi dengan tim marketing untuk memastikan konsistensi visual brand
+
+Junior Graphic Designer — Agensi Kreasi Digital (2020–2022)
+- Mendesain materi promosi cetak dan digital (flyer, banner, konten Instagram)
+- Menyiapkan file produksi siap cetak dengan spesifikasi vendor
+
+PENDIDIKAN
+D3 Desain Komunikasi Visual, Universitas Trisakti (2017–2020)
+
+SKILLS
+Adobe Photoshop, Adobe Illustrator, Adobe InDesign, Canva, Figma, Branding,
+Layout Design, Typography, Social Media Content, Print Production
+""".strip(),
+    },
 ]

@@ -81,7 +81,8 @@ def get_judge_llm_and_embeddings():
     ChromaDB, so evaluation doesn't require extra API keys/cost.
     """
     from ragas.llms import LangchainLLMWrapper
-    from ragas.embeddings import HuggingFaceEmbeddings
+    from ragas.embeddings import LangchainEmbeddingsWrapper
+    from langchain_community.embeddings import HuggingFaceEmbeddings as LCHFEmbeddings
 
     if not config.is_llm_configured():
         raise RuntimeError(
@@ -107,7 +108,9 @@ def get_judge_llm_and_embeddings():
         )
 
     judge_llm = LangchainLLMWrapper(llm)
-    embeddings = HuggingFaceEmbeddings(model="all-MiniLM-L6-v2")
+    embeddings = LangchainEmbeddingsWrapper(
+        LCHFEmbeddings(model_name="all-MiniLM-L6-v2")
+    )
     return judge_llm, embeddings
 
 
@@ -140,6 +143,8 @@ def main():
     judge_llm, embeddings = get_judge_llm_and_embeddings()
     dataset = EvaluationDataset(samples=samples)
 
+    from ragas.run_config import RunConfig
+
     result = evaluate(
         dataset=dataset,
         metrics=[
@@ -149,6 +154,7 @@ def main():
         ],
         llm=judge_llm,
         embeddings=embeddings,
+        run_config=RunConfig(max_workers=2, timeout=180),
     )
 
     print("\n[3/3] Results")
