@@ -62,3 +62,4 @@ daily-job-assistant/
 # IDE / OS / Agent
 .DS_Store
 .antigravity/
+evaluation/results.json
